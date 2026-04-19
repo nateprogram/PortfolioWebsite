@@ -7,7 +7,10 @@ import { Python } from "@/components/ui/svgs/python";
 import { Csharp } from "@/components/ui/svgs/csharp";
 import { Java } from "@/components/ui/svgs/java";
 
-// TODO: replace placeholder URLs (LinkedIn, GitHub repo links) once confirmed.
+// GitHub username "nateprogram" confirmed via SquadPact's own setup docs.
+// TODO: still worth a once-over — sanity-check the per-repo URLs and the
+// Treasure Party / Pocket Planet / Zeppelin Rush links (Zeppelin Rush is
+// not yet pushed to GitHub).
 // TODO: add real screenshots/videos to /public/projects/* once provided.
 
 export const DATA = {
@@ -53,8 +56,7 @@ export const DATA = {
       },
       LinkedIn: {
         name: "LinkedIn",
-        // TODO: confirm/replace LinkedIn URL
-        url: "https://www.linkedin.com/in/nate-white",
+        url: "https://www.linkedin.com/in/nathan-white-799765218/",
         icon: Icons.linkedin,
         navbar: true,
       },
@@ -90,7 +92,7 @@ export const DATA = {
       dates: "Apr 2025 - Present",
       active: true,
       description:
-        "Cross-platform team-coordination app — events, RSVP, and a built-in marketplace for clubs and friend groups. One TypeScript codebase ships to web, iOS, and Android via Next.js + Capacitor, backed by a Prisma + PostgreSQL data layer.",
+        "Cross-platform team-coordination app — events, RSVPs, and a built-in marketplace for clubs and friend groups. A single TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, backed by a Prisma + PostgreSQL data layer (Neon in production, Docker locally). Type safety is end-to-end: Prisma generates TS types from the schema, so every API route and React component talks to the database through the same checked surface.",
       technologies: [
         "Next.js",
         "TypeScript",
@@ -115,14 +117,15 @@ export const DATA = {
       dates: "2024 - 2026",
       active: true,
       description:
-        "ML-driven stock research system. Combines Reddit + news sentiment analysis, neural-network price forecasts (PyTorch), and HMM-based market-regime detection, surfacing signals through a live FastAPI dashboard.",
+        "ML-driven stock research system. A PyTorch price predictor with continuous learning is fused with HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes.",
       technologies: [
         "Python",
         "PyTorch",
         "FastAPI",
-        "scikit-learn",
+        "hmmlearn",
         "pandas",
-        "Reddit API",
+        "PRAW (Reddit)",
+        "yfinance",
       ],
       links: [
         {
@@ -135,14 +138,22 @@ export const DATA = {
       video: "",
     },
     {
-      title: "Genetic Algorithm Project",
-      // TODO: add real href once user provides repo / write-up location
+      title: "Zeppelin Rush · Genetic AI",
+      // Local source lives at C:\Users\nwhit\Documents\GitHub\School\CS380AI.
+      // TODO: push this repo to GitHub (or a dedicated write-up page) and
+      // replace the href with the public URL.
       href: "#",
-      dates: "TBD",
+      dates: "2024",
       active: true,
       description:
-        "Evolutionary computation project — case study in progress. (Code, supporting docs, and presentation slides being assembled.)",
-      technologies: ["Python", "NumPy"],
+        "Genetic algorithm (Python) that learns to win a custom real-time strategy game running on my own C++ engine (Mayhem Engine). The AI drives the live game via keystroke injection and reads back game state (gold, timer, win/lose) through a shared JSON bridge. Over 16 generations of selection, single-point crossover, mutation, and elitism — plus a constraint-aware repair pass that throws out illegal action sequences — the population converges from random play to reliable wins. CS380 AI coursework at DigiPen.",
+      technologies: [
+        "Python",
+        "Genetic Algorithms",
+        "C++",
+        "Custom Game Engine",
+        "IPC / JSON",
+      ],
       links: [],
       image: "",
       video: "",

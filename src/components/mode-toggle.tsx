@@ -6,18 +6,20 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 export function ModeToggle({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   return (
     <Button
       type="button"
       variant="link"
       size="icon"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className={cn(className)}
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      <SunIcon className="h-full w-full" />
-      <MoonIcon className="hidden h-full w-full" />
+      <SunIcon className={cn("h-full w-full", isDark && "hidden")} />
+      <MoonIcon className={cn("h-full w-full", !isDark && "hidden")} />
     </Button>
   );
 }

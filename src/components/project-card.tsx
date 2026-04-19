@@ -8,20 +8,86 @@ import Link from "next/link";
 import { useState } from "react";
 import Markdown from "react-markdown";
 
-function ProjectImage({ src, alt }: { src: string; alt: string }) {
+function initialsOf(title: string): string {
+  const caps = title.match(/[A-Z]/g);
+  if (caps && caps.length >= 2) return caps.slice(0, 2).join("");
+  if (caps && caps.length === 1) return caps[0];
+  return title.slice(0, 2).toUpperCase();
+}
+
+function gradientFor(title: string): string {
+  const palettes = [
+    "from-emerald-500/25 via-sky-500/15 to-transparent",
+    "from-violet-500/25 via-fuchsia-500/15 to-transparent",
+    "from-amber-500/25 via-rose-500/15 to-transparent",
+    "from-cyan-500/25 via-blue-500/15 to-transparent",
+  ];
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    hash = (hash * 31 + title.charCodeAt(i)) >>> 0;
+  }
+  return palettes[hash % palettes.length];
+}
+
+function ProjectMedia({
+  title,
+  image,
+  video,
+}: {
+  title: string;
+  image?: string;
+  video?: string;
+}) {
   const [imageError, setImageError] = useState(false);
 
-  if (!src || imageError) {
-    return <div className="w-full h-48 bg-muted" />;
+  if (video) {
+    return (
+      <video
+        src={video}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-48 object-cover"
+      />
+    );
   }
 
+  if (image && !imageError) {
+    return (
+      <img
+        src={image}
+        alt={title}
+        className="w-full h-48 object-cover"
+        onError={() => setImageError(true)}
+      />
+    );
+  }
+
+  const gradient = gradientFor(title);
+  const initials = initialsOf(title);
   return (
-    <img
-      src={src}
-      alt={alt}
-      className="w-full h-48 object-cover"
-      onError={() => setImageError(true)}
-    />
+    <div
+      className={cn(
+        "relative w-full h-48 overflow-hidden bg-muted/40",
+        "bg-gradient-to-br",
+        gradient
+      )}
+      aria-hidden
+    >
+      <div
+        className="absolute inset-0 opacity-40 mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.12), transparent 40%), radial-gradient(circle at 80% 80%, rgba(0,0,0,0.25), transparent 40%)",
+        }}
+      />
+      <div className="relative z-10 flex h-full w-full items-center justify-center">
+        <span className="font-mono text-5xl font-bold tracking-tight text-foreground/80">
+          {initials}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -31,6 +97,7 @@ interface Props {
   description: string;
   dates: string;
   tags: readonly string[];
+  status?: string;
   link?: string;
   image?: string;
   video?: string;
@@ -48,12 +115,14 @@ export function ProjectCard({
   description,
   dates,
   tags,
+  status,
   link,
   image,
   video,
   links,
   className,
 }: Props) {
+  const isPlaceholder = !video && !image;
   return (
     <div
       className={cn(
@@ -68,21 +137,29 @@ export function ProjectCard({
           rel="noopener noreferrer"
           className="block"
         >
-          {video ? (
-            <video
-              src={video}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-48 object-cover"
-            />
-          ) : image ? (
-            <ProjectImage src={image} alt={title} />
-          ) : (
-            <div className="w-full h-48 bg-muted" />
-          )}
+          <ProjectMedia title={title} image={image} video={video} />
         </Link>
+        {status && (
+          <div className="absolute top-2 left-2">
+            <Badge
+              variant="outline"
+              className="h-6 gap-1.5 bg-background/80 backdrop-blur font-mono text-[10px] uppercase tracking-widest"
+            >
+              <span
+                className={cn(
+                  "size-1.5 rounded-full",
+                  status === "Active"
+                    ? "bg-emerald-500"
+                    : status === "Coursework"
+                    ? "bg-sky-500"
+                    : "bg-muted-foreground"
+                )}
+                aria-hidden
+              />
+              {status}
+            </Badge>
+          </div>
+        )}
         {links && links.length > 0 && (
           <div className="absolute top-2 right-2 flex flex-wrap gap-2">
             {links.map((link, idx) => (
@@ -102,6 +179,13 @@ export function ProjectCard({
                 </Badge>
               </Link>
             ))}
+          </div>
+        )}
+        {isPlaceholder && (
+          <div className="absolute bottom-2 right-2">
+            <span className="rounded-md border border-border/60 bg-background/70 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground backdrop-blur">
+              Media soon
+            </span>
           </div>
         )}
       </div>

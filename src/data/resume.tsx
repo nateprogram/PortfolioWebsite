@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons";
-import { HomeIcon, GamepadIcon } from "lucide-react";
+import { HomeIcon } from "lucide-react";
 import { ReactLight } from "@/components/ui/svgs/reactLight";
 import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
@@ -57,10 +57,7 @@ export const DATA = {
       ],
     },
   ],
-  navbar: [
-    { href: "/", icon: HomeIcon, label: "Home" },
-    { href: "/games", icon: GamepadIcon, label: "Games" },
-  ],
+  navbar: [{ href: "/", icon: HomeIcon, label: "Home" }],
   contact: {
     email: "NateWhite.dev@gmail.com",
     tel: "",

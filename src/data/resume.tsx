@@ -101,13 +101,13 @@ export const DATA = {
   projects: [
     {
       title: "SquadPact",
-      href: "https://github.com/nateprogram/SquadPact",
+      href: "#",
       dates: "Apr 2025 - Present",
       active: true,
       status: "Active",
       categories: ["Full-Stack"],
       description:
-        "Cross-platform team-coordination app — events, RSVPs, and a built-in marketplace for clubs and friend groups. A single TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, backed by a Prisma + PostgreSQL data layer (Neon in production, Docker locally). Type safety is end-to-end: Prisma generates TS types from the schema, so every API route and React component talks to the database through the same checked surface.",
+        "Cross-platform team-coordination app — events, RSVPs, and a built-in marketplace for clubs and friend groups. A single TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, backed by a Prisma + PostgreSQL data layer (Neon in production, Docker locally). Type safety is end-to-end: Prisma generates TS types from the schema, so every API route and React component talks to the database through the same checked surface. Closed source — ships under my LLC; walkthrough available on request.",
       technologies: [
         "Next.js",
         "TypeScript",
@@ -116,25 +116,19 @@ export const DATA = {
         "PostgreSQL",
         "TailwindCSS",
       ],
-      links: [
-        {
-          type: "Source",
-          href: "https://github.com/nateprogram/SquadPact",
-          icon: <Icons.github className="size-3" />,
-        },
-      ],
+      links: [],
       image: "/projects/squadpact/hero.png",
       video: "",
     },
     {
       title: "StockAI",
-      href: "https://github.com/nateprogram/StockAI_V6",
+      href: "#",
       dates: "2024 - 2026",
       active: true,
       status: "Active",
       categories: ["AI/ML"],
       description:
-        "ML-driven stock research system. A PyTorch price predictor with continuous learning is fused with HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes.",
+        "ML-driven stock research system. A PyTorch price predictor with continuous learning is fused with HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes. Private repo — walkthrough available on request.",
       technologies: [
         "Python",
         "PyTorch",
@@ -144,13 +138,7 @@ export const DATA = {
         "PRAW (Reddit)",
         "yfinance",
       ],
-      links: [
-        {
-          type: "Source",
-          href: "https://github.com/nateprogram/StockAI_V6",
-          icon: <Icons.github className="size-3" />,
-        },
-      ],
+      links: [],
       image: "/projects/stockai/hero.png",
       video: "",
     },
@@ -204,7 +192,7 @@ export const DATA = {
     },
     {
       title: "Treasure Party",
-      href: "https://github.com/nateprogram/GAM-400-TreasureParty",
+      href: "#",
       dates: "2024",
       active: true,
       status: "Coursework",
@@ -212,13 +200,7 @@ export const DATA = {
       description:
         "4-player party game with a board map, minigames, boss battles, and item-driven stat modifications. ~10K LOC across ~200 C# scripts. Built as a DigiPen team project in Unity.",
       technologies: ["Unity", "C#", "Local multiplayer"],
-      links: [
-        {
-          type: "Source",
-          href: "https://github.com/nateprogram/GAM-400-TreasureParty",
-          icon: <Icons.github className="size-3" />,
-        },
-      ],
+      links: [],
       image: "/games/treasure-party/hero.png",
       video: "",
     },

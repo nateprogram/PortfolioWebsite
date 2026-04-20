@@ -144,16 +144,13 @@ export const DATA = {
     },
     {
       title: "Zeppelin Rush · Genetic AI",
-      // Local source lives at C:\Users\nwhit\Documents\GitHub\School\CS380AI.
-      // TODO: push this repo to GitHub (or a dedicated write-up page) and
-      // replace the href with the public URL.
-      href: "#",
+      href: "https://store.steampowered.com/app/3794410/Zeppelin_Rush/",
       dates: "2024",
       active: true,
       status: "Coursework",
       categories: ["AI/ML", "Systems"],
       description:
-        "Genetic algorithm (Python) that learns to win a custom real-time strategy game running on my own C++ engine (Mayhem Engine). The AI drives the live game via keystroke injection and reads back game state (gold, timer, win/lose) through a shared JSON bridge. Over 16 generations of selection, single-point crossover, mutation, and elitism — plus a constraint-aware repair pass that throws out illegal action sequences — the population converges from random play to reliable wins. CS380 AI coursework at DigiPen.",
+        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a real-time strategy game shipped on Steam that runs on my own C++ engine (Mayhem Engine). The AI drives the live game via keystroke injection and reads back game state (gold, timer, win/lose) through a shared JSON bridge. Over 16 generations of selection, single-point crossover, mutation, and elitism — plus a constraint-aware repair pass that throws out illegal action sequences — the population converges from random play to reliable wins. CS380 AI coursework at DigiPen.",
       technologies: [
         "Python",
         "Genetic Algorithms",
@@ -161,7 +158,13 @@ export const DATA = {
         "Custom Game Engine",
         "IPC / JSON",
       ],
-      links: [],
+      links: [
+        {
+          type: "Steam",
+          href: "https://store.steampowered.com/app/3794410/Zeppelin_Rush/",
+          icon: <Icons.steam className="size-3" />,
+        },
+      ],
       image: "/projects/zeppelin-rush/hero.png",
       video: "",
     },

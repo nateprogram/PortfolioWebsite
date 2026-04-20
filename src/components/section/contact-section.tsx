@@ -24,15 +24,16 @@ export default function ContactSection() {
           Get in Touch
         </h2>
         <p className="mx-auto max-w-lg text-muted-foreground text-balance">
-          Currently looking for new-grad SWE roles starting Summer 2026. Reach
-          me at{" "}
+          Open to new-grad SWE roles starting Summer 2026. Email{" "}
           <Link
             href={`mailto:${DATA.contact.email}`}
             className="text-blue-500 hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
           >
             {DATA.contact.email}
           </Link>{" "}
-          and I&apos;ll respond whenever I can.
+          for a walkthrough of any project above, to talk about a role
+          you&apos;re hiring for, or to dig into a problem your team is working
+          on. Replies within a day.
         </p>
       </div>
     </div>

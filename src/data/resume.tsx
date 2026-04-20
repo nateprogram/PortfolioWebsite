@@ -20,7 +20,6 @@ export const DATA = {
   location: "Redmond, WA",
   locationLink: "https://www.google.com/maps/place/redmond+wa",
   role: "Software Engineer · New Grad · May 2026",
-  availability: "Open to new-grad SWE roles · Summer 2026",
   description:
     "I build performance-critical software across games, ML, and full-stack. DigiPen '26 · systems-first with breadth.",
   summary:

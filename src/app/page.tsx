@@ -20,18 +20,6 @@ export default function Page() {
         <div className="mx-auto w-full max-w-2xl space-y-8">
           <div className="gap-2 gap-y-6 flex flex-col md:flex-row justify-between">
             <div className="flex flex-col gap-3 order-2 md:order-1">
-              <BlurFade delay={BLUR_FADE_DELAY}>
-                <Link
-                  href="#contact"
-                  className="group inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-mono text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/30"
-                >
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                  </span>
-                  {DATA.availability}
-                </Link>
-              </BlurFade>
               <BlurFadeText
                 delay={BLUR_FADE_DELAY}
                 className="text-3xl font-semibold tracking-tighter sm:text-4xl lg:text-5xl"

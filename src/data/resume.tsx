@@ -204,15 +204,19 @@ export const DATA = {
       title: "Isshin",
       slug: "isshin",
       role: "Engineering team member",
-      teamSize: "Multi-disciplinary DigiPen team",
+      teamSize: "19-person team · 5 eng · 3 design · 10 art · 1 audio",
       engine: "Unreal Engine",
-      year: "2025",
-      // TODO: flesh out with the specific genre, scope, and what Nate owned
-      // on the engineering side (systems? gameplay? tools?). Add a public
-      // repo link if one exists.
+      year: "2024 - 2025",
+      // TODO: add Nate's specific engineering slice (what systems he owned)
+      // to sharpen the pitch beyond the team-scope framing.
       summary:
-        "Junior-year team game built in Unreal Engine with students from DigiPen's design and art disciplines. I contributed on the engineering side as part of a multi-disciplinary team.",
-      links: [],
+        "Third-person action combat game, developed over two semesters at DigiPen with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Built in Unreal Engine.",
+      links: [
+        {
+          type: "Trailer",
+          href: "https://www.youtube.com/watch?v=GX7iaSS8HlQ",
+        },
+      ],
       image: "/games/isshin/hero.png",
       video: "",
     },

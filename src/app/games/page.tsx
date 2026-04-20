@@ -2,6 +2,17 @@ import BlurFade from "@/components/magicui/blur-fade";
 import { ProjectCard } from "@/components/project-card";
 import { Icons } from "@/components/icons";
 import { DATA } from "@/data/resume";
+import { ExternalLink, Youtube } from "lucide-react";
+
+function iconForLinkType(type: string) {
+  if (type === "Trailer" || type === "Video") {
+    return <Youtube className="size-3" />;
+  }
+  if (type === "Play" || type === "Live") {
+    return <ExternalLink className="size-3" />;
+  }
+  return <Icons.github className="size-3" />;
+}
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -38,7 +49,7 @@ export default function GamesPage() {
             const links = game.links.map((link) => ({
               type: link.type,
               href: link.href,
-              icon: <Icons.github className="size-3" />,
+              icon: iconForLinkType(link.type),
             }));
             return (
               <BlurFade

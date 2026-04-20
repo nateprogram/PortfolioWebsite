@@ -24,8 +24,8 @@ export const DATA = {
     "I build performance-critical software across games, ML, and full-stack. DigiPen '26 · systems-first with breadth.",
   summary:
     "BS Computer Science at [DigiPen Institute of Technology](/#education). My core is C++ and systems programming; I've shipped a 4-player Unity game with a team, an ML-driven stock research system, a cross-platform team-coordination app, and a genetic-algorithm project that plays a custom C++ game engine I wrote. T-shaped toward systems and performance, with deliberate breadth across AI/ML, full-stack, and games.",
-  // Expected at /public/avatar.png. Missing? AvatarFallback ("NW") renders instead.
-  avatarUrl: "/avatar.png",
+  // Expected at /public/avatar.jpg. Missing? AvatarFallback ("NW") renders instead.
+  avatarUrl: "/avatar.jpg",
   skillGroups: [
     {
       label: "Languages",

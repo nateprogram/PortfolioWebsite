@@ -62,10 +62,7 @@ export default function Page() {
           <BlurFade delay={BLUR_FADE_DELAY * 3}>
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild size="sm" className="gap-1.5">
-                <Link href="#projects">
-                  See my projects
-                  <ChevronDown className="size-3.5" aria-hidden />
-                </Link>
+                <Link href="#projects">See my projects</Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="gap-1.5">
                 <a
@@ -87,7 +84,7 @@ export default function Page() {
                   LinkedIn
                 </a>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="gap-1.5">
+              <Button asChild variant="outline" size="sm" className="gap-1.5">
                 <a href={`mailto:${DATA.contact.email}`}>
                   <Mail className="size-3.5" aria-hidden />
                   Email
@@ -100,7 +97,7 @@ export default function Page() {
             <Link
               href="#projects"
               aria-label="Scroll to projects"
-              className="mx-auto mt-2 hidden sm:flex w-fit flex-col items-center gap-1 text-muted-foreground/60 hover:text-muted-foreground transition-colors motion-safe:animate-bounce"
+              className="mx-auto mt-2 hidden sm:flex w-fit flex-col items-center gap-1 text-muted-foreground/50 motion-safe:animate-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
             >
               <span className="text-[10px] font-mono uppercase tracking-widest">
                 Scroll

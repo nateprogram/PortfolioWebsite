@@ -44,6 +44,7 @@ export const DATA = {
         { name: "Next.js", icon: NextjsIconDark },
         { name: "React", icon: ReactLight },
         { name: "Unity", icon: undefined },
+        { name: "Unreal Engine", icon: undefined },
         { name: "PyTorch", icon: undefined },
         { name: "FastAPI", icon: undefined },
       ],

@@ -24,9 +24,8 @@ export const DATA = {
     "I build performance-critical software across games, ML, and full-stack. DigiPen '26 · systems-first with breadth.",
   summary:
     "BS Computer Science at [DigiPen Institute of Technology](/#education). My core is C++ and systems programming; I've shipped a 4-player Unity game with a team, an ML-driven stock research system, a cross-platform team-coordination app, and a genetic-algorithm project that plays a custom C++ game engine I wrote. T-shaped toward systems and performance, with deliberate breadth across AI/ML, full-stack, and games.",
-  // avatarUrl left empty so the AvatarFallback ("NW" initials) renders until
-  // a real headshot is provided.
-  avatarUrl: "",
+  // Expected at /public/avatar.png. Missing? AvatarFallback ("NW") renders instead.
+  avatarUrl: "/avatar.png",
   skillGroups: [
     {
       label: "Languages",
@@ -92,8 +91,8 @@ export const DATA = {
       school: "DigiPen Institute of Technology",
       href: "https://www.digipen.edu",
       degree: "BS Computer Science",
-      // TODO: add /public/digipen.png logo
-      logoUrl: "",
+      // Expected at /public/education/digipen.png. Missing? Gradient "DP" badge.
+      logoUrl: "/education/digipen.png",
       start: "2022",
       end: "2026",
     },
@@ -124,7 +123,7 @@ export const DATA = {
           icon: <Icons.github className="size-3" />,
         },
       ],
-      image: "",
+      image: "/projects/squadpact/hero.png",
       video: "",
     },
     {
@@ -152,7 +151,7 @@ export const DATA = {
           icon: <Icons.github className="size-3" />,
         },
       ],
-      image: "",
+      image: "/projects/stockai/hero.png",
       video: "",
     },
     {
@@ -175,7 +174,7 @@ export const DATA = {
         "IPC / JSON",
       ],
       links: [],
-      image: "",
+      image: "/projects/zeppelin-rush/hero.png",
       video: "",
     },
   ],
@@ -198,7 +197,7 @@ export const DATA = {
           href: "https://github.com/nateprogram/GAM-400-TreasureParty",
         },
       ],
-      image: "",
+      image: "/games/treasure-party/hero.png",
       video: "",
     },
     {
@@ -216,7 +215,7 @@ export const DATA = {
           href: "https://github.com/nateprogram/PocketPlanetRepo",
         },
       ],
-      image: "",
+      image: "/games/pocket-planet/hero.png",
       video: "",
     },
   ],

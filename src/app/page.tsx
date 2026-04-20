@@ -9,6 +9,7 @@ import Link from "next/link";
 import Markdown from "react-markdown";
 import ContactSection from "@/components/section/contact-section";
 import ProjectsSection from "@/components/section/projects-section";
+import { EducationLogo } from "@/components/education-logo";
 import { ArrowUpRight, ChevronDown, Github, Linkedin, Mail } from "lucide-react";
 
 const BLUR_FADE_DELAY = 0.04;
@@ -127,17 +128,11 @@ export default function Page() {
                   className="flex items-center gap-x-3 justify-between group"
                 >
                   <div className="flex items-center gap-x-3 flex-1 min-w-0">
-                    {education.logoUrl ? (
-                      <img
-                        src={education.logoUrl}
-                        alt={education.school}
-                        className="size-10 p-1 border rounded-full shadow ring-2 ring-border overflow-hidden object-contain flex-none"
-                      />
-                    ) : (
-                      <div className="size-10 rounded-full shadow ring-2 ring-border bg-gradient-to-br from-emerald-500/20 to-sky-500/20 border flex items-center justify-center flex-none font-mono text-xs font-semibold text-foreground/80">
-                        DP
-                      </div>
-                    )}
+                    <EducationLogo
+                      src={education.logoUrl}
+                      alt={education.school}
+                      fallbackInitials="DP"
+                    />
                     <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                       <div className="font-semibold leading-none flex items-center gap-2">
                         {education.school}

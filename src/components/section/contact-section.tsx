@@ -33,7 +33,7 @@ export default function ContactSection() {
           </Link>{" "}
           for a walkthrough of any project above, to talk about a role
           you&apos;re hiring for, or to dig into a problem your team is working
-          on. Replies within a day.
+          on.
         </p>
       </div>
     </div>

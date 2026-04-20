@@ -24,7 +24,7 @@ export const DATA = {
   description:
     "I build performance-critical software across games, ML, and full-stack. DigiPen '26 · systems-first with breadth.",
   summary:
-    "BS Computer Science at [DigiPen Institute of Technology](/#education) — the first ABET-accredited program in real-time interactive simulation. My core is C++ and systems programming; I've shipped a 4-player Unity game with a team, an ML-driven stock research system, a cross-platform team-coordination app, and a genetic-algorithm project that plays a custom C++ game engine I wrote. T-shaped toward systems and performance, with deliberate breadth across AI/ML, full-stack, and games.",
+    "BS Computer Science at [DigiPen Institute of Technology](/#education). My core is C++ and systems programming; I've shipped a 4-player Unity game with a team, an ML-driven stock research system, a cross-platform team-coordination app, and a genetic-algorithm project that plays a custom C++ game engine I wrote. T-shaped toward systems and performance, with deliberate breadth across AI/ML, full-stack, and games.",
   // avatarUrl left empty so the AvatarFallback ("NW" initials) renders until
   // a real headshot is provided.
   avatarUrl: "",
@@ -63,7 +63,7 @@ export const DATA = {
     { href: "/games", icon: GamepadIcon, label: "Games" },
   ],
   contact: {
-    email: "nwhit12@gmail.com",
+    email: "NateWhite.dev@gmail.com",
     tel: "",
     social: {
       GitHub: {
@@ -80,7 +80,7 @@ export const DATA = {
       },
       email: {
         name: "Send Email",
-        url: "mailto:nwhit12@gmail.com",
+        url: "mailto:NateWhite.dev@gmail.com",
         icon: Icons.email,
         navbar: true,
       },
@@ -94,8 +94,7 @@ export const DATA = {
     {
       school: "DigiPen Institute of Technology",
       href: "https://www.digipen.edu",
-      degree:
-        "BS Computer Science · Real-Time Interactive Simulation (ABET-accredited)",
+      degree: "BS Computer Science",
       // TODO: add /public/digipen.png logo
       logoUrl: "",
       start: "2022",

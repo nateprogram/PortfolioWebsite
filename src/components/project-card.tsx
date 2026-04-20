@@ -109,6 +109,10 @@ interface Props {
   className?: string;
 }
 
+function isExternalHref(href: string) {
+  return /^https?:\/\//.test(href) || href.startsWith("mailto:");
+}
+
 export function ProjectCard({
   title,
   href,
@@ -124,6 +128,10 @@ export function ProjectCard({
 }: Props) {
   const isPlaceholder = !video && !image;
   const hasPrimaryLink = !!href && href !== "#";
+  const isExternal = hasPrimaryLink && isExternalHref(href!);
+  const linkTargetProps = isExternal
+    ? { target: "_blank" as const, rel: "noopener noreferrer" }
+    : {};
   return (
     <div
       className={cn(
@@ -134,12 +142,7 @@ export function ProjectCard({
     >
       <div className="relative shrink-0">
         {hasPrimaryLink ? (
-          <Link
-            href={href!}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-          >
+          <Link href={href!} {...linkTargetProps} className="block">
             <ProjectMedia title={title} image={image} video={video} />
           </Link>
         ) : (
@@ -204,8 +207,7 @@ export function ProjectCard({
           {hasPrimaryLink && (
             <Link
               href={href!}
-              target="_blank"
-              rel="noopener noreferrer"
+              {...linkTargetProps}
               className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
               aria-label={`Open ${title}`}
             >

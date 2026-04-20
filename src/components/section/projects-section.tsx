@@ -97,7 +97,7 @@ export default function ProjectsSection() {
                                 href={project.href}
                                 key={project.title}
                                 title={project.title}
-                                description={project.description}
+                                description={project.summary}
                                 dates={project.dates}
                                 tags={project.technologies}
                                 status={project.status}

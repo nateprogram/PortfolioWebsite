@@ -52,9 +52,8 @@ export default function ProjectsSection() {
                             Selected work
                         </h2>
                         <p className="text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed text-balance text-center">
-                            Three projects that show my range — a cross-platform app, an
-                            ML research system, and a genetic algorithm trained against
-                            a custom C++ engine.
+                            Work across full-stack, ML, systems, and team-built games —
+                            filter to the slice you&apos;re hiring for.
                         </p>
                     </div>
                 </div>

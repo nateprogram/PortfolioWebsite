@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons";
-import { HomeIcon } from "lucide-react";
+import { HomeIcon, Youtube } from "lucide-react";
 import { ReactLight } from "@/components/ui/svgs/reactLight";
 import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
@@ -177,47 +177,49 @@ export const DATA = {
       image: "/projects/zeppelin-rush/hero.png",
       video: "",
     },
-  ],
-
-  // Games sub-collection — surfaces on /games route. Lighter than tentpole
-  // case studies but visually rich. Add more entries here as needed.
-  games: [
-    {
-      title: "Treasure Party",
-      slug: "treasure-party",
-      role: "Engineering team member",
-      teamSize: "Multi-disciplinary DigiPen team",
-      engine: "Unity (C#)",
-      year: "2024",
-      summary:
-        "4-player party game with a board map, minigames, boss battles, and item-driven stat modifications. ~10K LOC across ~200 C# scripts. Built as a DigiPen capstone team project.",
-      links: [
-        {
-          type: "Source",
-          href: "https://github.com/nateprogram/GAM-400-TreasureParty",
-        },
-      ],
-      image: "/games/treasure-party/hero.png",
-      video: "",
-    },
     {
       title: "Isshin",
-      slug: "isshin",
-      role: "Engineering team member",
-      teamSize: "19-person team · 5 eng · 3 design · 10 art · 1 audio",
-      engine: "Unreal Engine",
-      year: "2024 - 2025",
-      // TODO: add Nate's specific engineering slice (what systems he owned)
-      // to sharpen the pitch beyond the team-scope framing.
-      summary:
-        "Third-person action combat game, developed over two semesters at DigiPen with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Built in Unreal Engine.",
+      href: "https://www.youtube.com/watch?v=GX7iaSS8HlQ",
+      dates: "2024 - 2025",
+      active: true,
+      status: "Coursework",
+      categories: ["Games"],
+      description:
+        "Third-person action combat game developed over two semesters at DigiPen with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Built in Unreal Engine.",
+      technologies: [
+        "Unreal Engine",
+        "C++",
+        "Blueprints",
+        "Team of 19",
+      ],
       links: [
         {
           type: "Trailer",
           href: "https://www.youtube.com/watch?v=GX7iaSS8HlQ",
+          icon: <Youtube className="size-3" />,
         },
       ],
       image: "/games/isshin/hero.png",
+      video: "",
+    },
+    {
+      title: "Treasure Party",
+      href: "https://github.com/nateprogram/GAM-400-TreasureParty",
+      dates: "2024",
+      active: true,
+      status: "Coursework",
+      categories: ["Games"],
+      description:
+        "4-player party game with a board map, minigames, boss battles, and item-driven stat modifications. ~10K LOC across ~200 C# scripts. Built as a DigiPen team project in Unity.",
+      technologies: ["Unity", "C#", "Local multiplayer"],
+      links: [
+        {
+          type: "Source",
+          href: "https://github.com/nateprogram/GAM-400-TreasureParty",
+          icon: <Icons.github className="size-3" />,
+        },
+      ],
+      image: "/games/treasure-party/hero.png",
       video: "",
     },
   ],
@@ -227,5 +229,6 @@ export const PROJECT_FILTERS = [
   { value: "all", label: "All" },
   { value: "ai-ml", label: "AI/ML", matches: "AI/ML" },
   { value: "full-stack", label: "Full-Stack", matches: "Full-Stack" },
+  { value: "games", label: "Games", matches: "Games" },
   { value: "systems", label: "Systems", matches: "Systems" },
 ] as const;

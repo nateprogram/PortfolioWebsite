@@ -39,8 +39,8 @@ Videos: ≤ 10 MB, 15–30 s loop, no audio track needed (they play muted).
 ```
 /games/treasure-party/hero.png
 /games/treasure-party/demo.mp4         (gameplay clip)
-/games/pocket-planet/hero.png
-/games/pocket-planet/demo.mp4
+/games/isshin/hero.png
+/games/isshin/demo.mp4
 ```
 
 ## Screenshots for later case-study pages

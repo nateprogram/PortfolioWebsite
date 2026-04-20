@@ -201,21 +201,19 @@ export const DATA = {
       video: "",
     },
     {
-      title: "Pocket Planet",
-      slug: "pocket-planet",
-      role: "Solo developer",
-      teamSize: "Solo",
-      engine: "Unity (C#)",
+      title: "Isshin",
+      slug: "isshin",
+      role: "Engineering team member",
+      teamSize: "Multi-disciplinary DigiPen team",
+      engine: "Unreal Engine",
       year: "2025",
+      // TODO: flesh out with the specific genre, scope, and what Nate owned
+      // on the engineering side (systems? gameplay? tools?). Add a public
+      // repo link if one exists.
       summary:
-        "Mobile idle/clicker game built around a buildings-and-followers progression loop. Manager-pattern architecture and stat-driven balancing.",
-      links: [
-        {
-          type: "Source",
-          href: "https://github.com/nateprogram/PocketPlanetRepo",
-        },
-      ],
-      image: "/games/pocket-planet/hero.png",
+        "Junior-year team game built in Unreal Engine with students from DigiPen's design and art disciplines. I contributed on the engineering side as part of a multi-disciplinary team.",
+      links: [],
+      image: "/games/isshin/hero.png",
       video: "",
     },
   ],

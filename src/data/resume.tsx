@@ -160,15 +160,16 @@ export const DATA = {
       status: "Coursework",
       categories: ["AI/ML", "Systems"],
       summary:
-        "Genetic algorithm (Python) that learns to win Zeppelin Rush on Steam, a real-time strategy game running on Mayhem Engine, a C++ engine my team and I wrote from scratch.",
+        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a tower-offense game shipped on Steam running on Mayhem Engine, a C++ engine my team and I wrote from scratch. After 16 generations of evolution it converged to a score of 401, matching the game's three-star rating threshold.",
       description:
-        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a real-time strategy game shipped on Steam that runs on Mayhem Engine, a C++ engine my team and I wrote from scratch. The AI drives the live game via keystroke injection and reads back game state (gold, timer, win/lose) through a shared JSON bridge. Over 16 generations of selection, single-point crossover, mutation, and elitism, plus a constraint-aware repair pass that throws out illegal action sequences, the population converges from random play to reliable wins. CS380 AI coursework at DigiPen.",
+        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a tower-offense game shipped on Steam running on Mayhem Engine, a C++ engine my team and I wrote from scratch. The AI drives the live game by injecting keyboard actions and reads game state back (gold, gamestate, timer) through a shared JSON file. Starting from 60 randomly-played games, it runs 16 generations of selection, single-point crossover, mutation, and elitism, with a constraint-aware repair pass that rewrites illegal action sequences into legal ones before evaluation. After a 24-hour run the best game scored 401, matching the game's three-star threshold of 400. CS380 AI coursework at DigiPen.",
       technologies: [
         "Python",
         "Genetic Algorithms",
         "C++",
-        "Custom Game Engine",
-        "IPC / JSON",
+        "Mayhem Engine",
+        "JSON IPC",
+        "keyboard (lib)",
       ],
       links: [
         {
@@ -252,6 +253,7 @@ export const PROJECT_DETAILS: Record<
     approach?: string;
     stackRationale?: ReadonlyArray<{ tech: string; why: string }>;
     highlights?: ReadonlyArray<string>;
+    figures?: ReadonlyArray<{ src: string; alt: string; caption?: string }>;
   }
 > = {
   squadpact: {
@@ -292,6 +294,56 @@ export const PROJECT_DETAILS: Record<
       "Composite-key upserts (`eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
       "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
       "Shipping under Veltarium Software LLC. Walkthrough and live-app demo available on request.",
+    ],
+  },
+  "zeppelin-rush": {
+    problem:
+      "Zeppelin Rush is a 600-second tower-offense game. Every game is a sequence of nine possible actions (select small/medium/large zeppelin, upgrade health/attack/speed, spawn in top/middle/bottom lane). I wanted to see whether a genetic algorithm could discover a winning action sequence from scratch, without hard-coded heuristics and without touching the engine's gameplay systems. The load-bearing design problem was the fitness function: the game awards 0/1/2/3 stars, and those bands are too coarse to drive selection. Any two losing games look identical at zero stars, so there's no gradient to climb.",
+    approach:
+      "Fitness is set to the time remaining when you win (0 to 600, higher is better), with losses mapped to a large negative. That gives a continuous gradient from 'lost slowly' through 'barely won' to 'three-star finish', so selection can always distinguish between two individuals. Control flows in one direction, state flows in the other. The game was mouse-driven, so I remapped the engine's inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. For the return channel I originally planned shared memory, but it would have meant rewriting too much of the engine's gameplay code. Instead the engine writes `SharedData.json` continuously (Gold, Gamestate, Timer) and the Python side reads it on a tight poll. Windows file-locking made that safe: if the engine was mid-write, the read threw `IOError`, the Python code caught it, slept a millisecond, and retried.\n\nBefore evaluation, every mutated or crossed-over individual runs through a `FixMutation` repair pass that walks the action list and rewrites illegal moves (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap, etc.) into a random spawn. This keeps the search confined to sequences the game will actually execute and stops the GA from wasting generations on individuals that were going to no-op anyway.\n\nThe outer loop is 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, mutates the best individuals (8 action-flips per mutation), plays every new individual in-game, and carries the top 4 through unchanged via elitism so a good run is never lost to a bad mutation. Every generation's full action sequences plus final times write out to per-generation JSON files for post-hoc analysis.",
+    stackRationale: [
+      {
+        tech: "Python + `keyboard` library",
+        why: "Injecting keystrokes was simpler and more reliable than screen-grabbing and mouse simulation. The engine got a one-time keyboard-input remap and after that the GA had no dependency on engine internals.",
+      },
+      {
+        tech: "SharedData.json + Windows file locking",
+        why: "Shared memory would have forced a large engine-side refactor. JSON plus a `try/except IOError` turned the OS file lock into a free sync primitive and kept gameplay code untouched.",
+      },
+      {
+        tech: "FixMutation (constraint-aware repair)",
+        why: "Mutation and crossover regularly produce illegal sequences (double-select, over-upgrade). Rather than penalizing them in fitness and hoping they evolve out, the repair pass rewrites them into legal moves so every evaluated individual is actually playable.",
+      },
+      {
+        tech: "Elitism (top 4 carried unchanged)",
+        why: "Locks in the current best score against the risk that every offspring of a good run mutates into something worse. The best-fitness trend line can never go down.",
+      },
+      {
+        tech: "Mayhem Engine (C++, built with my team)",
+        why: "Having the source of the game it's solving meant I could add the keyboard remap and the JSON output from the game side without guessing at APIs or fighting an opaque runtime.",
+      },
+    ],
+    highlights: [
+      "Best game scored 401, matching Zeppelin Rush's three-star rating threshold of 400. For reference, I've hit three stars once playing the game myself.",
+      "60 randomly-played starting games, 16 generations of evolution, ~24 hours of wall-clock compute to converge.",
+      "Fitness function built around time-remaining-on-win (0 to 600 continuous) rather than the game's built-in 0/1/2/3-star bands, giving selection a usable gradient on both sides of the win/lose line.",
+      "Constraint-aware `FixMutation` repair rewrites illegal mutated sequences into legal ones so every evaluated individual is actually playable, which cuts the effective search space substantially.",
+      "JSON-file IPC with Windows file-lock retries, no engine refactor needed.",
+      "Per-generation JSON output of every action sequence and final time means any specific game can be replayed and inspected, and generation-vs-fitness can be charted directly from the files.",
+    ],
+    figures: [
+      {
+        src: "/projects/zeppelin-rush/generations.png",
+        alt: "Scatter plot of every game the genetic AI played across 17 generations. A red best-fitness trend line rises from around 280 at generation 0, hits around 380 by generation 5, and plateaus near 400 from generation 6 onward.",
+        caption:
+          "Fitness by generation. Every dot is one game; the red line is the best score of that generation. The plateau at ~400 is the three-star rating threshold. The GA didn't just improve, it converged to the game's near-theoretical ceiling.",
+      },
+      {
+        src: "/projects/zeppelin-rush/data-layout.png",
+        alt: "File listing showing GameEvolution_1.json through GameEvolution_16.json and OrigionalGames in the Games output folder.",
+        caption:
+          "Per-generation JSON output. The full action sequence and final time for every game the GA played is saved, so any specific game can be replayed inside the engine and the generation-vs-fitness chart above can be rebuilt straight from the files.",
+      },
     ],
   },
 };

@@ -189,6 +189,35 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
+      {details?.figures && details.figures.length > 0 && (
+        <BlurFade delay={BLUR_FADE_DELAY * 10.5}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Figures
+            </h2>
+            <div className="flex flex-col gap-6">
+              {details.figures.map((figure, i) => (
+                <figure
+                  key={i}
+                  className="flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-muted/30"
+                >
+                  <img
+                    src={figure.src}
+                    alt={figure.alt}
+                    className="w-full h-auto object-contain bg-background"
+                  />
+                  {figure.caption && (
+                    <figcaption className="px-4 pb-3 text-xs text-pretty leading-relaxed text-muted-foreground">
+                      {figure.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          </section>
+        </BlurFade>
+      )}
+
       {project.technologies && project.technologies.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 11}>
           <section className="flex flex-col gap-3">

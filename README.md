@@ -1,47 +1,42 @@
-<div align="center">
-<img alt="Portfolio" src="https://github.com/dillionverma/portfolio/assets/16860528/57ffca81-3f0a-4425-b31d-094f61725455" width="90%">
-</div>
+# nate-portfolio
 
-# Portfolio [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdillionverma%2Fportfolio)
+Source for [natewhite.dev](https://natewhite.dev), Nate White's portfolio
+site. Next.js 16 App Router, TypeScript, Tailwind, shadcn/ui, and Magic UI,
+deployed on Vercel.
 
-Built with next.js, [shadcn/ui](https://ui.shadcn.com/), and [magic ui](https://magicui.design/), deployed on Vercel.
+Forked from [dillionverma/portfolio](https://github.com/dillionverma/portfolio)
+(MIT).
 
-# Features
+## Local dev
 
-- Setup only takes a few minutes by editing the [single config file](./src/data/resume.tsx)
-- Built using Next.js 14, React, Typescript, Shadcn/UI, TailwindCSS, Framer Motion, Magic UI
-- Includes a blog
-- Responsive for different devices
-- Optimized for Next.js and Vercel
+```bash
+npm install
+npm run dev
+```
 
-# Getting Started Locally
+Dev server runs at http://localhost:3000.
 
-1. Clone this repository to your local machine:
+## Where things live
 
-   ```bash
-   git clone https://github.com/dillionverma/portfolio
-   ```
+| Path                                   | What's in it                                          |
+| -------------------------------------- | ----------------------------------------------------- |
+| `src/data/resume.tsx`                  | All personal content: name, bio, skills, projects, PROJECT_DETAILS |
+| `src/app/page.tsx`                     | Home page layout (hero, about, education, skills, projects, contact) |
+| `src/app/projects/[slug]/page.tsx`     | Per-project detail page (STAR-format case study)      |
+| `src/components/section/`              | Home-page sections (projects, contact)                |
+| `src/components/ui/svgs/`              | Brand logos for skills section (Simple Icons, CC0)    |
+| `src/app/globals.css`                  | Theme tokens, global styles                           |
+| `public/`                              | Static media. See `public/README.md` for drop-zone layout. |
 
-2. Move to the cloned directory
+Most edits start in `src/data/resume.tsx`. The home page and detail pages
+both pull from the `DATA` export there.
 
-   ```bash
-   cd portfolio
-   ```
+## Deploying
 
-3. Install dependencies:
+Push to `main`. Vercel rebuilds and deploys automatically. The custom
+domain `natewhite.dev` is configured in the Vercel dashboard.
 
-   ```bash
-   pnpm install
-   ```
+## License
 
-4. Start the local Server:
-
-   ```bash
-   pnpm dev
-   ```
-
-5. Open the [Config file](./src/data/resume.tsx) and make changes
-
-# License
-
-Licensed under the [MIT license](https://github.com/dillionverma/portfolio/blob/main/LICENSE.md).
+Template is MIT, see [LICENSE](./LICENSE). Content (bio, project writeups,
+images) is all rights reserved to Nate White.

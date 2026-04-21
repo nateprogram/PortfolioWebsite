@@ -6,12 +6,13 @@ import { Typescript } from "@/components/ui/svgs/typescript";
 import { Python } from "@/components/ui/svgs/python";
 import { Csharp } from "@/components/ui/svgs/csharp";
 import { Java } from "@/components/ui/svgs/java";
+import { Unity } from "@/components/ui/svgs/unity";
+import { Unreal } from "@/components/ui/svgs/unreal";
+import { PyTorch } from "@/components/ui/svgs/pytorch";
 
-// GitHub username "nateprogram" confirmed via SquadPact's own setup docs.
-// TODO: still worth a once-over — sanity-check the per-repo URLs and the
-// Treasure Party / Pocket Planet / Zeppelin Rush links (Zeppelin Rush is
-// not yet pushed to GitHub).
-// TODO: add real screenshots/videos to /public/projects/* once provided.
+// GitHub username "nateprogram" is confirmed via SquadPact setup docs.
+// TODO: sanity-check the per-repo URLs (Zeppelin Rush is not on GitHub yet).
+// TODO: add real screenshots and videos under /public/projects/*.
 
 export const DATA = {
   name: "Nate White",
@@ -21,10 +22,10 @@ export const DATA = {
   locationLink: "https://www.google.com/maps/place/redmond+wa",
   role: "Software Engineer · New Grad · May 2026",
   description:
-    "I build performance-critical software across full-stack, ML, and games. DigiPen '26 · systems-first with breadth.",
+    "C++ and systems programmer at DigiPen, graduating May 2026. I ship games on teams and build ML and full-stack projects on my own.",
   summary:
-    "BS Computer Science at [DigiPen Institute of Technology](/#education). My core is C++ and systems programming; I've shipped a cross-platform team-coordination app, an ML-driven stock research system, a genetic-algorithm project that plays a custom C++ game engine I wrote, and team-shipped games in Unity and Unreal. T-shaped toward systems and performance, with deliberate breadth across full-stack, AI/ML, and games.",
-  // Expected at /public/avatar.jpg. Missing? AvatarFallback ("NW") renders instead.
+    "BS Computer Science at [DigiPen Institute of Technology](/#education), graduating May 2026. I'm a C++ and systems programmer first. My team and I wrote a custom C++ engine from scratch, and I later wrote a Python genetic algorithm that learns to win a real-time strategy game running on it. That game shipped on Steam. I've also built in Unreal and Unity with teams of engineers, designers, and artists. On my own, I maintain an ML-driven stock research system and a cross-platform team-coordination app. I like hard problems and good teammates.",
+  // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
   skillGroups: [
     {
@@ -40,12 +41,11 @@ export const DATA = {
     {
       label: "Frameworks & Engines",
       items: [
+        { name: "Unreal Engine", icon: Unreal },
+        { name: "Unity", icon: Unity },
+        { name: "PyTorch", icon: PyTorch },
         { name: "Next.js", icon: NextjsIconDark },
         { name: "React", icon: ReactLight },
-        { name: "Unity", icon: undefined },
-        { name: "Unreal Engine", icon: undefined },
-        { name: "PyTorch", icon: undefined },
-        { name: "FastAPI", icon: undefined },
       ],
     },
     {
@@ -91,7 +91,7 @@ export const DATA = {
       school: "DigiPen Institute of Technology",
       href: "https://www.digipen.edu",
       degree: "BS Computer Science",
-      // Expected at /public/education/digipen.png. Missing? Gradient "DP" badge.
+      // Expected at /public/education/digipen.png. If missing, a gradient "DP" badge renders instead.
       logoUrl: "/education/digipen.png",
       start: "2022",
       end: "2026",
@@ -110,7 +110,7 @@ export const DATA = {
       summary:
         "Cross-platform team-coordination app. One TypeScript codebase ships to web, iOS, and Android via Capacitor; Prisma + PostgreSQL backend. Closed source, shipping under my LLC.",
       description:
-        "Cross-platform team-coordination app — events, RSVPs, and a built-in marketplace for clubs and friend groups. A single TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, backed by a Prisma + PostgreSQL data layer (Neon in production, Docker locally). Type safety is end-to-end: Prisma generates TS types from the schema, so every API route and React component talks to the database through the same checked surface. Closed source — ships under my LLC; walkthrough available on request.",
+        "Cross-platform team-coordination app with events, RSVPs, and a built-in marketplace for clubs and friend groups. A single TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, backed by a Prisma + PostgreSQL data layer (Neon in production, Docker locally). Type safety is end-to-end: Prisma generates TS types from the schema, so every API route and React component talks to the database through the same checked surface. Closed source, ships under my LLC. Walkthrough available on request.",
       technologies: [
         "Next.js",
         "TypeScript",
@@ -132,9 +132,9 @@ export const DATA = {
       status: "Active",
       categories: ["AI/ML"],
       summary:
-        "ML-driven stock research system — PyTorch price predictor fused with HMM regime detection and a multi-source sentiment pipeline, streaming to a live FastAPI dashboard.",
+        "ML-driven stock research system. PyTorch price predictor combined with HMM regime detection and a multi-source sentiment pipeline, streaming to a live FastAPI dashboard.",
       description:
-        "ML-driven stock research system. A PyTorch price predictor with continuous learning is fused with HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes. Private repo — walkthrough available on request.",
+        "ML-driven stock research system. A PyTorch price predictor with continuous learning is combined with HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes. Private repo. Walkthrough available on request.",
       technologies: [
         "Python",
         "PyTorch",
@@ -157,9 +157,9 @@ export const DATA = {
       status: "Coursework",
       categories: ["AI/ML", "Systems"],
       summary:
-        "Genetic algorithm (Python) that learns to win Zeppelin Rush on Steam — a real-time strategy game running on a C++ engine I wrote from scratch.",
+        "Genetic algorithm (Python) that learns to win Zeppelin Rush on Steam, a real-time strategy game running on Mayhem Engine, a C++ engine my team and I wrote from scratch.",
       description:
-        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a real-time strategy game shipped on Steam that runs on my own C++ engine (Mayhem Engine). The AI drives the live game via keystroke injection and reads back game state (gold, timer, win/lose) through a shared JSON bridge. Over 16 generations of selection, single-point crossover, mutation, and elitism — plus a constraint-aware repair pass that throws out illegal action sequences — the population converges from random play to reliable wins. CS380 AI coursework at DigiPen.",
+        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a real-time strategy game shipped on Steam that runs on Mayhem Engine, a C++ engine my team and I wrote from scratch. The AI drives the live game via keystroke injection and reads back game state (gold, timer, win/lose) through a shared JSON bridge. Over 16 generations of selection, single-point crossover, mutation, and elitism, plus a constraint-aware repair pass that throws out illegal action sequences, the population converges from random play to reliable wins. CS380 AI coursework at DigiPen.",
       technologies: [
         "Python",
         "Genetic Algorithms",
@@ -232,3 +232,58 @@ export const PROJECT_FILTERS = [
   { value: "games", label: "Games", matches: "Games" },
   { value: "systems", label: "Systems", matches: "Systems" },
 ] as const;
+
+// Extended detail content per project, rendered on /projects/[slug].
+// A project needs an entry here only if we have real content to show.
+// Missing entries fall back to the short description plus a "more to come" footer.
+//
+// Shape (loosely STAR):
+//   problem:        what the project set out to solve
+//   approach:       key decisions made, and alternatives that were rejected
+//   stackRationale: each piece of tech paired with why it was chosen
+//   highlights:     scope and outcome bullets
+export const PROJECT_DETAILS: Record<
+  string,
+  {
+    problem?: string;
+    approach?: string;
+    stackRationale?: ReadonlyArray<{ tech: string; why: string }>;
+    highlights?: ReadonlyArray<string>;
+  }
+> = {
+  squadpact: {
+    problem:
+      "Team-coordination apps usually ship as native iOS/Android only (which means writing the app twice for a solo build) or stay web-only and give up push notifications, native calendar integration, and home-screen install. I wanted one TypeScript codebase that ships to web, iOS, and Android, with a single backend and end-to-end type safety from the database up into every React component.",
+    approach:
+      "Build the app as a Next.js web app first, then wrap the same production build in Capacitor to ship iOS and Android binaries. One build, three platforms, no duplicate UI code. API routes live inside the same Next.js project (`src/app/api/...`), so the web client, the iOS app, and the Android app all hit the exact same endpoints. Prisma generates TypeScript types directly from the PostgreSQL schema, so the `Event`, `Rsvp`, and `TeamMembership` types flow unbroken from DB to API to React props. Server components fetch via Prisma directly on the server (no client-side data layer to maintain for read paths); small `\"use client\"` islands handle interactivity. Rejected alternatives: **React Native / Expo** would have forced a second, parallel mobile codebase; **.NET MAUI** would have kept me in C# but given up Clerk auth, mature push tooling, and cloud-Postgres ergonomics.",
+    stackRationale: [
+      {
+        tech: "Next.js (App Router)",
+        why: "One project hosts pages, server components, and API routes. No separate backend server to deploy or version.",
+      },
+      {
+        tech: "Capacitor",
+        why: "Wraps the same Next.js build for iOS and Android. Unlike React Native, there is no second UI codebase; the web bundle *is* the mobile app.",
+      },
+      {
+        tech: "Prisma + PostgreSQL",
+        why: "Migration-first schema, generated TS types, composite-key upserts (e.g. one RSVP per user per event enforced at the DB layer, not in app code).",
+      },
+      {
+        tech: "Clerk",
+        why: "Pre-built auth UI for both Next.js and Capacitor contexts; webhook-driven user sync into Prisma on first sign-in.",
+      },
+      {
+        tech: "Neon (prod) / Docker Postgres (dev)",
+        why: "Same Postgres engine in both environments (no sqlite-vs-postgres drift), with a zero-config cloud tier for production.",
+      },
+    ],
+    highlights: [
+      "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
+      "19-model Prisma schema covering leagues, seasons, teams, roster memberships, events, RSVPs, chat, payments, and a player marketplace.",
+      "40+ API route handlers across leagues, teams, events, RSVPs, rosters, invites, chat, marketplace, and a Clerk webhook.",
+      "Composite-key upserts (`eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
+      "Closed source, shipping under NateWhite.dev LLC. Walkthrough and live-app demo available on request.",
+    ],
+  },
+};

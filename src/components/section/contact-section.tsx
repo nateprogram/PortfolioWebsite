@@ -31,9 +31,7 @@ export default function ContactSection() {
           >
             {DATA.contact.email}
           </Link>{" "}
-          for a walkthrough of any project above, to talk about a role
-          you&apos;re hiring for, or to dig into a problem your team is working
-          on.
+          to talk about a role or walk through any of the projects above.
         </p>
       </div>
     </div>

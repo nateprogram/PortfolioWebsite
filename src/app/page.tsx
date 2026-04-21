@@ -10,7 +10,9 @@ import Markdown from "react-markdown";
 import ContactSection from "@/components/section/contact-section";
 import ProjectsSection from "@/components/section/projects-section";
 import { EducationLogo } from "@/components/education-logo";
-import { ArrowUpRight, ChevronDown, Github, Linkedin, Mail } from "lucide-react";
+import { HashLink } from "@/components/hash-link";
+import { ScrollCue } from "@/components/scroll-cue";
+import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -51,7 +53,7 @@ export default function Page() {
           <BlurFade delay={BLUR_FADE_DELAY * 3}>
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild size="sm" className="gap-1.5">
-                <Link href="#projects">See my projects</Link>
+                <HashLink targetId="projects">See my projects</HashLink>
               </Button>
               <Button asChild variant="outline" size="sm" className="gap-1.5">
                 <a
@@ -83,16 +85,10 @@ export default function Page() {
           </BlurFade>
 
           <BlurFade delay={BLUR_FADE_DELAY * 5}>
-            <Link
-              href="#projects"
-              aria-label="Scroll to projects"
+            <ScrollCue
+              targetId="projects"
               className="mx-auto mt-2 hidden sm:flex w-fit flex-col items-center gap-1 text-muted-foreground/50 motion-safe:animate-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-            >
-              <span className="text-[10px] font-mono uppercase tracking-widest">
-                Scroll
-              </span>
-              <ChevronDown className="size-4" aria-hidden />
-            </Link>
+            />
           </BlurFade>
         </div>
       </section>

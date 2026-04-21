@@ -35,7 +35,7 @@ export default function ProjectsSection() {
     };
 
     return (
-        <section id="projects">
+        <section aria-labelledby="projects-heading">
             <div className="flex min-h-0 flex-col gap-y-8">
                 <div className="flex flex-col gap-y-4 items-center justify-center">
                     <div className="flex items-center w-full">
@@ -48,12 +48,15 @@ export default function ProjectsSection() {
                         <div className="flex-1 h-px bg-linear-to-l from-transparent from-5% via-border via-95% to-transparent" />
                     </div>
                     <div className="flex flex-col gap-y-3 items-center justify-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+                        <h2
+                            id="projects-heading"
+                            className="text-3xl font-bold tracking-tighter sm:text-4xl"
+                        >
                             Selected work
                         </h2>
                         <p className="text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed text-balance text-center">
-                            Work across full-stack, ML, systems, and team-built games —
-                            filter to the slice you&apos;re hiring for.
+                            Work across full-stack, ML, systems, and team-built games.
+                            Filter to the slice you&apos;re hiring for.
                         </p>
                     </div>
                 </div>
@@ -109,13 +112,13 @@ export default function ProjectsSection() {
                     ))}
                     {visible.length === 0 && (
                         <div className="sm:col-span-2 rounded-xl border border-dashed border-border/70 p-10 text-center text-sm text-muted-foreground">
-                            Nothing to show in this slice yet —{" "}
+                            Nothing to show in this slice yet.{" "}
                             <button
                                 type="button"
                                 onClick={() => setFilter("all")}
                                 className="underline underline-offset-4 hover:text-foreground"
                             >
-                                see everything
+                                See everything
                             </button>
                             .
                         </div>

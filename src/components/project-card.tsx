@@ -136,20 +136,27 @@ export function ProjectCard({
     <div
       className={cn(
         "flex flex-col h-full border border-border rounded-xl overflow-hidden transition-all duration-200",
-        hasPrimaryLink && "hover:ring-2 cursor-pointer hover:ring-muted",
+        hasPrimaryLink &&
+          "hover:ring-2 cursor-pointer hover:ring-muted focus-within:ring-2 focus-within:ring-ring",
         className
       )}
     >
       <div className="relative shrink-0">
         {hasPrimaryLink ? (
-          <Link href={href!} {...linkTargetProps} className="block">
+          <Link
+            href={href!}
+            {...linkTargetProps}
+            className="block focus-visible:outline-none"
+            tabIndex={-1}
+            aria-hidden
+          >
             <ProjectMedia title={title} image={image} video={video} />
           </Link>
         ) : (
           <ProjectMedia title={title} image={image} video={video} />
         )}
         {status && (
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 z-10 pointer-events-none">
             <Badge
               variant="outline"
               className="h-6 gap-1.5 bg-background/80 backdrop-blur font-mono text-[10px] uppercase tracking-widest"
@@ -170,7 +177,7 @@ export function ProjectCard({
           </div>
         )}
         {links && links.length > 0 && (
-          <div className="absolute top-2 right-2 flex flex-wrap gap-2">
+          <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-2">
             {links.map((link, idx) => (
               <Link
                 href={link.href}
@@ -178,6 +185,7 @@ export function ProjectCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
+                className="relative"
               >
                 <Badge
                   className="flex items-center gap-1.5 text-xs bg-black text-white hover:bg-black/90"
@@ -191,28 +199,32 @@ export function ProjectCard({
           </div>
         )}
         {isPlaceholder && (
-          <div className="absolute bottom-2 right-2">
+          <div className="absolute bottom-2 right-2 z-10 pointer-events-none">
             <span className="rounded-md border border-border/60 bg-background/70 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground backdrop-blur">
               Media soon
             </span>
           </div>
         )}
       </div>
-      <div className="p-6 flex flex-col gap-3 flex-1">
+      <div className="relative p-6 flex flex-col gap-3 flex-1">
+        {hasPrimaryLink && (
+          <Link
+            href={href!}
+            {...linkTargetProps}
+            aria-label={`Open ${title}`}
+            className="absolute inset-0 z-10 focus-visible:outline-none"
+          />
+        )}
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col gap-1">
             <h3 className="font-semibold">{title}</h3>
             <time className="text-xs text-muted-foreground">{dates}</time>
           </div>
           {hasPrimaryLink && (
-            <Link
-              href={href!}
-              {...linkTargetProps}
-              className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-              aria-label={`Open ${title}`}
-            >
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </Link>
+            <ArrowUpRight
+              className="h-4 w-4 text-muted-foreground shrink-0"
+              aria-hidden
+            />
           )}
         </div>
         <div className="text-xs flex-1 prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">

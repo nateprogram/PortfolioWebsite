@@ -1,7 +1,7 @@
-# /public — media drop zone
+# /public: media drop zone
 
 Drop files at the paths below and the site picks them up automatically.
-If a file is missing, the UI falls back to a gradient placeholder — so
+If a file is missing, the UI falls back to a gradient placeholder, so
 the site never shows a broken image icon.
 
 ## Hero / site
@@ -18,10 +18,10 @@ the site never shows a broken image icon.
 | ---------------------------------- | -------------- | ------------------------ |
 | `/education/digipen.png` or `.svg` | square, ~ 128+ | Education section logo   |
 
-## Projects (home page — 3 tentpoles)
+## Projects (home page, 3 tentpoles)
 
-Each project folder takes one hero + optional autoplay video. The card
-prefers video > image > gradient fallback.
+Each project folder takes one hero plus an optional autoplay video. The
+card prefers video over image over the gradient fallback.
 
 ```
 /projects/squadpact/hero.png           (~ 1200 × 800, 16:10 or 4:3)
@@ -32,9 +32,9 @@ prefers video > image > gradient fallback.
 /projects/zeppelin-rush/demo.mp4
 ```
 
-Videos: ≤ 10 MB, 15–30 s loop, no audio track needed (they play muted).
+Videos: ≤ 10 MB, 15 to 30 second loop, no audio needed (they play muted).
 
-## Games (/games page — 2 entries)
+## Games (/games page, 2 entries)
 
 ```
 /games/treasure-party/hero.png
@@ -45,6 +45,6 @@ Videos: ≤ 10 MB, 15–30 s loop, no audio track needed (they play muted).
 
 ## Screenshots for later case-study pages
 
-When a per-project case study gets written, drop additional shots at
-`/projects/<slug>/screenshots/*.png`. Not wired up yet — this is just
-where they'll live.
+When a per-project case study gets written, additional shots go under
+`/projects/<slug>/screenshots/*.png`. This is not wired up yet; it is
+just where they will live.

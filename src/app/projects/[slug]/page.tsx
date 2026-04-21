@@ -131,16 +131,18 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      <BlurFade delay={BLUR_FADE_DELAY * 7}>
-        <section className="flex flex-col gap-3">
-          <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-            Overview
-          </h2>
-          <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-            <Markdown>{project.description}</Markdown>
-          </div>
-        </section>
-      </BlurFade>
+      {!details?.problem && project.description && (
+        <BlurFade delay={BLUR_FADE_DELAY * 7}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Overview
+            </h2>
+            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
+              <Markdown>{project.description}</Markdown>
+            </div>
+          </section>
+        </BlurFade>
+      )}
 
       {details?.problem && (
         <BlurFade delay={BLUR_FADE_DELAY * 8}>

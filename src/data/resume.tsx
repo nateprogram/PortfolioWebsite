@@ -137,7 +137,7 @@ export const DATA = {
       summary:
         "ML-driven stock research system. PyTorch price predictor combined with HMM regime detection and a multi-source sentiment pipeline, streaming to a live FastAPI dashboard.",
       description:
-        "ML-driven stock research system. A PyTorch price predictor with continuous learning is combined with HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes. Private repo. Walkthrough available on request.",
+        "A PyTorch price predictor with continuous learning runs alongside HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes. Private repo. Walkthrough available on request.",
       technologies: [
         "Python",
         "PyTorch",
@@ -192,7 +192,7 @@ export const DATA = {
       summary:
         "Third-person action combat game built over two semesters at DigiPen with a 19-person multi-disciplinary team. Unreal Engine.",
       description:
-        "Third-person action combat game developed over two semesters at DigiPen with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Built in Unreal Engine.",
+        "Team makeup: 5 engineers, 3 designers, 10 artists, and 1 audio engineer.",
       technologies: [
         "Unreal Engine",
         "C++",
@@ -220,7 +220,7 @@ export const DATA = {
       summary:
         "4-player party game built as a DigiPen team project in Unity. ~10K LOC across ~200 C# scripts.",
       description:
-        "4-player party game with a board map, minigames, boss battles, and item-driven stat modifications. ~10K LOC across ~200 C# scripts. Built as a DigiPen team project in Unity.",
+        "Features a board map, minigames, boss battles, and item-driven stat modifications.",
       technologies: ["Unity", "C#", "Local multiplayer"],
       links: [],
       image: "/games/treasure-party/hero.png",
@@ -330,6 +330,7 @@ export const PROJECT_DETAILS: Record<
       "Constraint-aware `FixMutation` repair rewrites illegal mutated sequences into legal ones so every evaluated individual is actually playable, which cuts the effective search space substantially.",
       "JSON-file IPC with Windows file-lock retries, no engine refactor needed.",
       "Per-generation JSON output of every action sequence and final time means any specific game can be replayed and inspected, and generation-vs-fitness can be charted directly from the files.",
+      "Built before AI coding assistants were mature enough to help. The fitness design, the IPC pivot, and the FixMutation repair pass were all worked out by hand.",
     ],
     figures: [
       {

@@ -95,7 +95,6 @@ interface Props {
   title: string;
   href?: string;
   description: string;
-  dates: string;
   tags: readonly string[];
   status?: string;
   link?: string;
@@ -117,7 +116,6 @@ export function ProjectCard({
   title,
   href,
   description,
-  dates,
   tags,
   status,
   link,
@@ -218,7 +216,6 @@ export function ProjectCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col gap-1">
             <h3 className="font-semibold">{title}</h3>
-            <time className="text-xs text-muted-foreground">{dates}</time>
           </div>
           {hasPrimaryLink && (
             <ArrowUpRight

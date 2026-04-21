@@ -67,8 +67,6 @@ export default async function ProjectDetailPage({
               />
               {project.status}
             </span>
-            <span aria-hidden>·</span>
-            <span>{project.dates}</span>
             {project.categories && project.categories.length > 0 && (
               <>
                 <span aria-hidden>·</span>

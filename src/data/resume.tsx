@@ -9,6 +9,9 @@ import { Java } from "@/components/ui/svgs/java";
 import { Unity } from "@/components/ui/svgs/unity";
 import { Unreal } from "@/components/ui/svgs/unreal";
 import { PyTorch } from "@/components/ui/svgs/pytorch";
+import { Capacitor } from "@/components/ui/svgs/capacitor";
+import { Prisma } from "@/components/ui/svgs/prisma";
+import { Postgresql } from "@/components/ui/svgs/postgresql";
 
 // GitHub username "nateprogram" is confirmed via SquadPact setup docs.
 // TODO: sanity-check the per-repo URLs (Zeppelin Rush is not on GitHub yet).
@@ -46,14 +49,14 @@ export const DATA = {
         { name: "PyTorch", icon: PyTorch },
         { name: "Next.js", icon: NextjsIconDark },
         { name: "React", icon: ReactLight },
+        { name: "Capacitor", icon: Capacitor },
       ],
     },
     {
-      label: "Data & Platform",
+      label: "Data",
       items: [
-        { name: "Prisma", icon: undefined },
-        { name: "PostgreSQL", icon: undefined },
-        { name: "Capacitor", icon: undefined },
+        { name: "Prisma", icon: Prisma },
+        { name: "PostgreSQL", icon: Postgresql },
       ],
     },
   ],

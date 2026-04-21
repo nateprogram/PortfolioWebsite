@@ -101,7 +101,6 @@ export default function ProjectsSection() {
                                 key={project.title}
                                 title={project.title}
                                 description={project.summary}
-                                dates={project.dates}
                                 tags={project.technologies}
                                 status={project.status}
                                 image={project.image}

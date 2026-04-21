@@ -206,7 +206,7 @@ export default async function ProjectDetailPage({
                   <img
                     src={figure.src}
                     alt={figure.alt}
-                    className="w-full h-auto object-contain bg-background"
+                    className="w-full max-h-[560px] object-contain bg-background"
                   />
                   {figure.caption && (
                     <figcaption className="px-4 pb-3 text-xs text-pretty leading-relaxed text-muted-foreground">

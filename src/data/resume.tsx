@@ -341,9 +341,9 @@ export const PROJECT_DETAILS: Record<
       },
       {
         src: "/projects/zeppelin-rush/data-layout.png",
-        alt: "File listing showing GameEvolution_1.json through GameEvolution_16.json and OrigionalGames in the Games output folder.",
+        alt: "Three-panel view of the on-disk outputs. Left: Best_Game.json showing the winning action sequence and the final score of 401.84. Middle: the Games folder containing GameEvolution_1.json through GameEvolution_16.json plus OrigionalGames. Right: OrigionalGames.json mapping each of the 60 starting games to its finishing time.",
         caption:
-          "Per-generation JSON output. The full action sequence and final time for every game the GA played is saved, so any specific game can be replayed inside the engine and the generation-vs-fitness chart above can be rebuilt straight from the files.",
+          "The three on-disk outputs. Left: the winning action sequence, ending in a final score of 401.84. Middle: a JSON per generation so any individual game can be replayed inside the engine. Right: the per-starting-game times the chart above is built from.",
       },
     ],
   },

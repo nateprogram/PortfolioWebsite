@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
+import StockAIFlow from "@/components/stockai-flow";
 import { Badge } from "@/components/ui/badge";
 import { DATA, PROJECT_DETAILS } from "@/data/resume";
 import { cn } from "@/lib/utils";
@@ -170,6 +171,12 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
+      {slug === "stockai" && (
+        <BlurFade delay={BLUR_FADE_DELAY * 9.5}>
+          <StockAIFlow />
+        </BlurFade>
+      )}
+
       {details?.highlights && details.highlights.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 10}>
           <section className="flex flex-col gap-3">
@@ -280,25 +287,6 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {details && (
-        <BlurFade delay={BLUR_FADE_DELAY * 12}>
-          <section className="flex flex-col gap-3 border-t border-border pt-8">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Walkthrough
-            </h2>
-            <p className="text-sm text-muted-foreground max-w-prose">
-              Want screenshots, code, or a live demo? Reach out at{" "}
-              <a
-                href={`mailto:${DATA.contact.email}`}
-                className="underline underline-offset-4 hover:text-foreground"
-              >
-                {DATA.contact.email}
-              </a>
-              .
-            </p>
-          </section>
-        </BlurFade>
-      )}
     </main>
   );
 }

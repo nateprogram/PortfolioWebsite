@@ -135,21 +135,57 @@ export const DATA = {
       status: "Active",
       categories: ["AI/ML"],
       summary:
-        "ML-driven stock research system. PyTorch price predictor combined with HMM regime detection and a multi-source sentiment pipeline, streaming to a live FastAPI dashboard.",
+        "Production-shaped ML trading research system. 23 scrapers feed 148 engineered features into a MultiHeadLSTM that predicts 10 timeframes at once. Closed-loop feature attention, HMM regime detection, and retrain-with-rollback all stream to a live FastAPI + WebSocket dashboard.",
       description:
-        "A PyTorch price predictor with continuous learning runs alongside HMM-based market-regime detection and a multi-source sentiment pipeline (Reddit via PRAW, Google Trends, yfinance prices). Signal aggregation, correlation analysis, and a backtester all stream into a live FastAPI dashboard with log streaming. Runs in continuous, single-pass, or backtest mode and is config-driven via YAML so models, tickers, and pipelines can be swapped without code changes. Private repo. Walkthrough available on request.",
+        "Production-shaped ML trading research system. 23 scrapers feed 148 engineered features into a MultiHeadLSTM that predicts 10 timeframes at once. Closed-loop feature attention, HMM regime detection, and retrain-with-rollback all stream to a live FastAPI + WebSocket dashboard. ~11,500 lines of Python across 42 modules.",
       technologies: [
         "Python",
         "PyTorch",
-        "FastAPI",
+        "LSTM",
         "hmmlearn",
+        "FastAPI",
+        "WebSocket",
+        "scikit-learn",
         "pandas",
-        "PRAW (Reddit)",
+        "SQLite",
+        "Parquet",
+        "PRAW",
         "yfinance",
       ],
       links: [],
       image: "/projects/stockai/hero.png",
       video: "",
+    },
+    {
+      title: "Mayhem Engine · Zeppelin Rush",
+      slug: "mayhem-engine",
+      href: "/projects/mayhem-engine",
+      dates: "2023 - 2024",
+      active: true,
+      status: "Coursework",
+      categories: ["Systems", "Games"],
+      summary:
+        "Custom C++ engine built from scratch by three programmers, no commercial middleware. I own two data-driven subsystems end-to-end: a particle system with JSON-serialized emitters (hot-reloadable from disk, seven-emitter live demo scene) and a component-based stat/upgrade system. ~3,000 LOC across 14+ source files. The engine shipped a game to Steam as its proof-of-work.",
+      description:
+        "A C++ engine written from scratch on a 3-programmer team, no commercial middleware anywhere in the stack: rendering, scene graph, particle system, input, asset pipeline, and audio hooks are all hand-written. My primary ownership: an emitter-based particle system (~1,260 LOC across ParticleSystem.cpp/h and 4 emitter behaviors; emitters are JSON-serialized so every parameter, SpawnRate, SprayAngle, speed range, fade mode, scale curve, frame animation, is hot-reloadable from disk without a rebuild); a component-based stat/upgrade system (Stats.cpp/h, ~710 LOC: serialized fields for health, reload, respawn, damage, speed, cost plus per-level upgrade arrays and a first-class upgrade API); the engine's input abstraction (GLFW wrapper with per-frame edge detection shared across every subsystem); and a shared random utility. On a small team, I also contributed to every other subsystem at some point. The engine shipped a tower-offense game to Steam (Zeppelin Rush) as its proof-of-work, but the interesting story is the engine layer, not the game.",
+      technologies: [
+        "C++",
+        "Custom engine",
+        "Particle systems",
+        "Component architecture",
+        "GLFW",
+        "OpenGL",
+        "rapidjson",
+      ],
+      links: [
+        {
+          type: "Steam",
+          href: "https://store.steampowered.com/app/3794410/Zeppelin_Rush/",
+          icon: <Icons.steam className="size-3" />,
+        },
+      ],
+      image: "/projects/mayhem-engine/hero.jpg",
+      video: "/projects/mayhem-engine/particle-demo.mp4",
     },
     {
       title: "Zeppelin Rush · Genetic AI",
@@ -160,9 +196,9 @@ export const DATA = {
       status: "Coursework",
       categories: ["AI/ML", "Systems"],
       summary:
-        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a tower-offense game shipped on Steam running on Mayhem Engine, a C++ engine my team and I wrote from scratch. After 16 generations of evolution it converged to a score of 401, matching the game's three-star rating threshold.",
+        "A Python genetic algorithm that teaches itself to win Zeppelin Rush, a Steam tower-offense game running on Mayhem, the C++ engine my team and I built from scratch. In 16 generations it hit a score of 401, crossing the game's three-star threshold. I've hit three stars playing it myself exactly once.",
       description:
-        "Genetic algorithm (Python) that learns to win Zeppelin Rush, a tower-offense game shipped on Steam running on Mayhem Engine, a C++ engine my team and I wrote from scratch. The AI drives the live game by injecting keyboard actions and reads game state back (gold, gamestate, timer) through a shared JSON file. Starting from 60 randomly-played games, it runs 16 generations of selection, single-point crossover, mutation, and elitism, with a constraint-aware repair pass that rewrites illegal action sequences into legal ones before evaluation. After a 24-hour run the best game scored 401, matching the game's three-star threshold of 400. CS380 AI coursework at DigiPen.",
+        "A Python genetic algorithm that teaches itself to win Zeppelin Rush, a Steam tower-offense game running on Mayhem, the C++ engine my team and I built from scratch. The AI drives the live game by injecting keyboard actions and reads game state back (gold, gamestate, timer) through a shared JSON file. Starting from 60 randomly-played games, it runs 16 generations of selection, single-point crossover, mutation, and elitism, with a constraint-aware repair pass that rewrites illegal action sequences into legal ones before evaluation. After a 24-hour run the best game scored 401, crossing the three-star threshold of 400. CS380 AI coursework at DigiPen.",
       technologies: [
         "Python",
         "Genetic Algorithms",
@@ -190,13 +226,18 @@ export const DATA = {
       status: "Coursework",
       categories: ["Games"],
       summary:
-        "Third-person action combat game built over two semesters at DigiPen with a 19-person multi-disciplinary team. Unreal Engine.",
+        "Third-person action combat game built over two semesters on Unreal Engine 5.2 with a 19-person DigiPen team. I own the pause menu (C++ and Blueprints), the combat hitstop system, and a Blueprint-callable C++ helper library used across the project.",
       description:
-        "Team makeup: 5 engineers, 3 designers, 10 artists, and 1 audio engineer.",
+        "Third-person action combat game built over two semesters at DigiPen with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Unreal Engine 5.2, Wwise for audio, Enhanced Input, CommonUI. Jenkins for automated builds and ClickUp for bug tracking (Asana-style workflow). My share: the pause menu end-to-end (primary UI, quit/restart confirmations, settings panel, Wwise SFX, and the combat-state-machine integration), the combat hitstop freeze-frame system inside CombatActionManager, and a UBlueprintFunctionLibrary of C++ helpers used by both engineers and designers.",
       technologies: [
-        "Unreal Engine",
+        "Unreal Engine 5.2",
         "C++",
         "Blueprints",
+        "Wwise",
+        "Enhanced Input",
+        "CommonUI",
+        "Jenkins",
+        "ClickUp",
         "Team of 19",
       ],
       links: [
@@ -206,7 +247,7 @@ export const DATA = {
           icon: <Youtube className="size-3" />,
         },
       ],
-      image: "/games/isshin/hero.png",
+      image: "/games/isshin/hero.jpg",
       video: "",
     },
     {
@@ -218,10 +259,10 @@ export const DATA = {
       status: "Coursework",
       categories: ["Games"],
       summary:
-        "4-player party game built as a DigiPen team project in Unity. ~10K LOC across ~200 C# scripts.",
+        "Local 4-player couch party game built at Saucecup Studios (DigiPen, team of 6) in Unity. I owned the Reflex Rush minigame, the game-wide AudioManager, and the Bad Luck board tile.",
       description:
-        "Features a board map, minigames, boss battles, and item-driven stat modifications.",
-      technologies: ["Unity", "C#", "Local multiplayer"],
+        "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios (DigiPen). My share: the Reflex Rush minigame end-to-end (state machine, per-player scoring, difficulty ramp), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
+      technologies: ["Unity 2022.3 LTS", "C#", "URP", "Local 4-player", "Team of 6"],
       links: [],
       image: "/games/treasure-party/hero.png",
       video: "",
@@ -296,11 +337,100 @@ export const PROJECT_DETAILS: Record<
       "Shipping under Veltarium Software LLC. Walkthrough and live-app demo available on request.",
     ],
   },
+  stockai: {
+    problem:
+      "Three traps kill most ML trading systems before they can say anything useful. **Leakage**, because time-series cross-validation is easy to get wrong; standard K-Fold lets tomorrow's information teach yesterday's model. **Drift**, because markets switch regime faster than weekly bars and a model trained on trending tape silently breaks once volatility flips. And the **'predict zero' attractor**, where a loss function minimized on raw returns learns that the safest bet is always 'no move'. The model looks great on paper and forecasts nothing. The goal wasn't to hit a magic accuracy number; it was to build an end-to-end research platform that makes those three failure modes hard, not easy.",
+    approach:
+      "**Ingest.** 23 scrapers pull from five source families (market data via yfinance and Alpha Vantage, Reddit sentiment via PRAW across r/wallstreetbets / r/stocks / r/investing, SEC filings, macro indicators, and per-ticker news) on independent refresh cadences. Each scraper writes to a 3-tier store: hot SQLite for live reads, warm Parquet for model training, cold compressed archives for long-range backtests.\n\n**Transform.** A FeatureEngine derives 148 engineered features from the raw ingest: rolling volatility cones, regime-adjusted momentum, cross-asset correlation deltas, sentiment z-scores, microstructure proxies, and lagged macro surprises. Correlation-based feature selection prunes redundant inputs per run.\n\n**Regime.** An HMM (hmmlearn) over returns and realized-vol classifies the current regime into one of a small set of states (bull-trending, bear-trending, high-vol chop, low-vol grind). The regime label is both a feature and a gate; certain heads only fire in certain regimes.\n\n**Predict.** A MultiHeadLSTM shares a single sequence encoder across 10 per-timeframe prediction heads (minutes through weeks). A closed-loop feature-attention module tracks each feature's contribution via EMA (α=0.15, output clipped to [0.5, 2.0]) and scales the next forward pass's input weights live, so a feature that stops mattering in the current regime gets quietly down-weighted instead of dominating the loss.\n\n**Validate.** Training uses Lopez de Prado's **Purged K-Fold** cross-validation with embargo zones on either side of each fold, which is the only way to honestly score a time-series model. Evaluation is direction-aware (hit rate on sign) and regime-stratified. A model is only 'good' if it's good in more than one regime.\n\n**Deploy gate.** A retrain-with-rollback ladder: every new model has to beat the incumbent on out-of-fold direction accuracy AND on regime-stratified accuracy before promotion. If the live model degrades on either axis for N consecutive windows, the system rolls back to the prior checkpoint. There is no silent redeploy.\n\n**Serve.** A FastAPI backend streams predictions, feature attention weights, current regime label, and validator stats over a WebSocket to a live dashboard. The same process exposes a REST surface for batch backtests.",
+    stackRationale: [
+      {
+        tech: "MultiHeadLSTM (shared encoder, 10 heads)",
+        why: "One encoder learns the general sequence representation once; per-timeframe heads specialize. Cheaper to train than 10 separate models and gives consistent latent representations across horizons, which is what makes cross-timeframe ensembling honest.",
+      },
+      {
+        tech: "Closed-loop feature attention (EMA α=0.15)",
+        why: "Regime shifts change which inputs matter. Rather than retrain from scratch every week, the attention module watches per-feature contribution and rescales the next pass's input weights live. Bounded to [0.5, 2.0] so it can't collapse or explode.",
+      },
+      {
+        tech: "HMM regime detection (hmmlearn)",
+        why: "Direction accuracy averaged across regimes is a lie. A model can look 55% while being 70% in one regime and 40% in another. The HMM label feeds the validator so evaluation is regime-stratified, and gates a subset of heads so regime-specific signals don't leak into the wrong state.",
+      },
+      {
+        tech: "Purged K-Fold + embargo (Lopez de Prado)",
+        why: "Standard K-Fold leaks future information into training folds on overlapping-bar targets. Purging drops overlapping observations; the embargo window blocks post-test leakage. Without both, every backtest number is optimistic fiction.",
+      },
+      {
+        tech: "3-tier storage (SQLite / Parquet / compressed archive)",
+        why: "Live path reads from SQLite (low-latency, single-writer). Training reads columnar Parquet (10-100× faster scan on numeric features). Long-range backtests and audits read from compressed archives. Each tier's cost profile matches its access pattern.",
+      },
+      {
+        tech: "Retrain-with-rollback",
+        why: "A model that silently degrades in production is worse than no model. Every candidate has to beat the incumbent on two metrics before promotion, and sustained live degradation triggers automatic rollback to the prior checkpoint.",
+      },
+      {
+        tech: "FastAPI + WebSocket dashboard",
+        why: "Research platforms with no frontend stop being used. Streaming predictions, attention weights, regime label, and validator stats live over a WebSocket means diagnosing a bad hour of signals is a glance, not a notebook run.",
+      },
+    ],
+    highlights: [
+      "~11,500 lines of Python across 42 modules covering ingest, feature engineering, regime detection, modeling, validation, and live serving.",
+      "23 scrapers pulling from 5 source families (market data, Reddit sentiment, SEC filings, macro indicators, per-ticker news) on independent refresh cadences.",
+      "148 engineered features with correlation-based selection pruning redundant inputs per run.",
+      "MultiHeadLSTM shared-encoder architecture predicts 10 timeframes simultaneously from minutes to weeks.",
+      "3-phase progressive pre-training (Daily → Hourly → Minute) transfers the LSTM encoder forward between phases with fresh per-timeframe heads at each stage. Longer timeframes bootstrap representation for shorter ones.",
+      "Closed-loop feature attention via EMA (α=0.15, clipped [0.5, 2.0]) rescales input weights live as regimes shift, with no full retrain required.",
+      "HMM-based regime detection gates per-regime heads and drives regime-stratified evaluation so a model must be good in more than one regime to promote.",
+      "Purged K-Fold cross-validation with embargo zones (Lopez de Prado) is the backbone of every reported number. It's the only time-series CV that doesn't leak.",
+      "Retrain-with-rollback ladder: candidates must beat the incumbent on out-of-fold direction accuracy AND regime-stratified accuracy before promotion; sustained live degradation auto-rolls back.",
+      "3-tier storage (SQLite hot / Parquet warm / compressed archive cold) matches each access pattern's cost profile.",
+      "FastAPI + WebSocket dashboard streams predictions, feature attention weights, current regime label, and validator stats live.",
+    ],
+  },
+  "mayhem-engine": {
+    problem:
+      "Building a C++ game engine from scratch and shipping a game on it is usually a 5-to-6 programmer job. We had 3. On top of that, the designers on the team didn't deliver on their scope, so the programmers picked up tuning, level flow, and encounter pacing too. The biggest risk in that setup wasn't any single subsystem; it was that anything we didn't make self-serve for the rest of the team would burn programmer cycles we couldn't afford.",
+    approach:
+      "**Particle system.** ~1,260 LOC across `ParticleSystem.cpp` (708), `ParticleSystem.h` (133), and four emitter behaviors (`BehaviorEmitterTest`, `BehaviorEmitterKey`, `BehaviorEmitterDeath`, `BehaviorEmitterExplosion`). Emitters are JSON-serialized components: `SpawnRate`, `ParticleLife`, `SprayAngle`, `MinSpeed`, `MaxSpeed`, `Fade` (In / Out / None) with `FadeTime`, `ScaleSetting` (In / Pop / Out) with `ScaleMultiplier` and `ScaleTime`, `ParticleMoveWithObject`, frame animation (`FrameCount`, `FrameDuration`, `IsLooping`). Designers edit the JSON on disk and the emitter spawns the effect they wrote; programmers stay out of the loop.\n\n**Particle demo screen + live tuning.** Two iteration tools built on the same keyboard convention. On the main menu, pressing P jumps straight into a dedicated `ParticleTesting` space that spawns seven emitters side-by-side: different spray angles (20°, 90°, 180°, 360°), HiveMind on/off, Rotate vs. point patterns, every Scale mode (In / Pop / Out), both Fade modes, and uniform vs. non-uniform frame animation. ESC returns to the menu. It's the showroom for what the emitter JSON can express, with no gameplay loop in the way. In-game, held GLFW_KEY_P drives `BehaviorEmitterKey`: particles spawn frame-by-frame for the emitter config currently loaded, so tuning loops from 'tweak JSON, reload, hold P, watch.'\n\n**Stat system.** `Stats.cpp` (587) + `Stats.h` (123): a Component subclass instantiated on every stat-bearing entity. Serialized fields cover the tower-offense design space: MaxHealth, ReloadTime, RespawnRate, AttackDamage, MaxSpeed, Cost. Runtime state tracks live Health, reload/respawn timers, and IsHurt / IsAttacking / IsDead flags. Upgrade progression is first-class: per-level arrays (`MaxHealthLvls`, `MaxSpeedLvls`, `AttackDamageLvls`) indexed by level, with `UpgradeMaxHealth()` / `UpgradeMaxSpeed()` / `UpgradeAttackDamage()` advancing the index.\n\n**Input abstraction.** `MEInput.cpp/h` (~241 LOC) wraps GLFW with per-frame edge-detected `IsKeyPressed` / `IsKeyHeld` / `IsKeyReleased` (plus mouse equivalents). Every system in the engine polls through this single abstraction, which is what lets higher-level code treat menus, gameplay, and debug keybinds consistently.\n\n**Cross-subsystem contributions.** With a 3-programmer team, nobody stayed in their lane. I touched rendering, asset loading, gameplay code (`TowerBehavior`, `CannonBehavior`, `BehaviorHealthBar`), and UI wiring alongside the two programmers who were primary owners. When the designers' scope fell through, the programmers absorbed tuning and level flow too.",
+    stackRationale: [
+      {
+        tech: "C++ with no commercial middleware",
+        why: "The course (and the goal) was to understand the engine layer end-to-end. Every rendering call, every memory pool, every hot path is ours. No black boxes blaming a crash on a vendor.",
+      },
+      {
+        tech: "JSON-serialized emitters (rapidjson)",
+        why: "Particles are a system designers touch constantly. Moving every emitter parameter into a data file meant iteration happened in a text editor, not in C++. Hot-reload + GLFW_KEY_P live-spawn closed the loop without building a custom editor.",
+      },
+      {
+        tech: "Component-based entity model (Stats : public Component)",
+        why: "Every entity that had stats got the same component. Serialization, update logic, and upgrade flow live in one place; towers, zeppelins, and cannons just tag themselves by `ObjectType` and inherit the rest.",
+      },
+      {
+        tech: "Per-level upgrade arrays",
+        why: "Tower upgrades are the core progression loop. Storing each stat's level values as an indexed array (rather than hard-coded multipliers) let designers retune the upgrade curve by editing config, and the `Upgrade*` methods just advance the index. No balancing changes required a rebuild.",
+      },
+      {
+        tech: "Edge-detected input (MEInput)",
+        why: "Shipping input logic needs the distinction between \"just pressed this frame\" and \"held since last frame.\" One polling abstraction gives every caller the same per-frame semantics and keeps GLFW details out of gameplay code.",
+      },
+    ],
+    highlights: [
+      "Custom C++ engine written from scratch with zero commercial middleware: rendering, scene graph, particle system, input, asset pipeline, and audio hooks all hand-written by a 3-programmer team.",
+      "~3,000 LOC authored across 14+ engine source files spanning particle system, stats, input, gameplay behaviors, and utilities.",
+      "Particle system ~1,260 LOC: ParticleSystem.cpp/h plus four emitter behaviors (Test, Key, Death, Explosion).",
+      "Data-driven emitters (rapidjson): every knob designers need (spawn rate, spray angle, speed range, fade mode + time, scale setting + multiplier, frame animation) is hot-reloadable from disk without a rebuild.",
+      "Press P on the main menu to jump into a dedicated ParticleTesting demo scene: seven side-by-side emitters showing every pattern, spray angle, scale, fade, and frame-animation combination the system supports. ESC returns to the menu.",
+      "Held GLFW_KEY_P in-game drives BehaviorEmitterKey: particles spawn frame-by-frame for the loaded emitter config, so JSON tuning loops in seconds.",
+      "Stat system ~710 LOC: per-entity component with serialized health/reload/respawn/damage/speed/cost plus per-level upgrade arrays and a first-class upgrade API.",
+      "Engine-wide input abstraction (MEInput, ~241 LOC): GLFW wrapper with per-frame edge detection so every caller sees identical pressed / held / released semantics.",
+      "Touched every subsystem in the engine at some point across the project; the 3-programmer team also absorbed design work when that scope fell through.",
+      "Engine's proof-of-work: shipped a tower-offense game to Steam (Zeppelin Rush) running entirely on the hand-rolled stack.",
+    ],
+  },
   "zeppelin-rush": {
     problem:
-      "Zeppelin Rush is a 600-second tower-offense game. Every game is a sequence of nine possible actions (select small/medium/large zeppelin, upgrade health/attack/speed, spawn in top/middle/bottom lane). I wanted to see whether a genetic algorithm could discover a winning action sequence from scratch, without hard-coded heuristics and without touching the engine's gameplay systems. The load-bearing design problem was the fitness function: the game awards 0/1/2/3 stars, and those bands are too coarse to drive selection. Any two losing games look identical at zero stars, so there's no gradient to climb.",
+      "Genetic algorithms fail or succeed on one thing: fitness. Zeppelin Rush's built-in score is 0/1/2/3 stars, and those bands are too coarse to drive evolution. Two losing games both sit at zero, so selection has nothing to pick between them. No gradient, no climb. Before a single mutation could happen, the fitness function had to tell 'lost in 20 seconds' apart from 'nearly won', and 'just barely won' apart from 'three-star finish'.",
     approach:
-      "Fitness is set to the time remaining when you win (0 to 600, higher is better), with losses mapped to a large negative. That gives a continuous gradient from 'lost slowly' through 'barely won' to 'three-star finish', so selection can always distinguish between two individuals. Control flows in one direction, state flows in the other. The game was mouse-driven, so I remapped the engine's inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. For the return channel I originally planned shared memory, but it would have meant rewriting too much of the engine's gameplay code. Instead the engine writes `SharedData.json` continuously (Gold, Gamestate, Timer) and the Python side reads it on a tight poll. Windows file-locking made that safe: if the engine was mid-write, the read threw `IOError`, the Python code caught it, slept a millisecond, and retried.\n\nBefore evaluation, every mutated or crossed-over individual runs through a `FixMutation` repair pass that walks the action list and rewrites illegal moves (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap, etc.) into a random spawn. This keeps the search confined to sequences the game will actually execute and stops the GA from wasting generations on individuals that were going to no-op anyway.\n\nThe outer loop is 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, mutates the best individuals (8 action-flips per mutation), plays every new individual in-game, and carries the top 4 through unchanged via elitism so a good run is never lost to a bad mutation. Every generation's full action sequences plus final times write out to per-generation JSON files for post-hoc analysis.",
+      "**Fitness.** Use time remaining on win (0 to 600, higher is better) instead of the 0/1/2/3 star bands. Losses map to a large negative. Every individual now gets a distinct score, and the gradient runs continuously from 'lost slowly' through 'barely won' to 'three-star finish'. Selection always has something to pick.\n\n**I/O.** The game was mouse-driven. I remapped its inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. Keystrokes are faster and more reliable than screen-grabbing coordinates. Data comes back through `SharedData.json`: the engine writes gold/gamestate/timer continuously, the Python side polls. Shared memory would have meant rewriting too much of the engine's gameplay code. Windows file-locking turned the OS lock into a free sync primitive: if a read landed mid-write, the `IOError` was caught, the Python code slept a millisecond, and retried.\n\n**Repair pass.** Mutation and crossover regularly produce illegal sequences (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap). Rather than penalize them in fitness and hope they evolve out, `FixMutation` walks the action list and rewrites each illegal move into a random spawn. Every evaluated individual is actually playable, and the GA stops wasting generations on no-ops.\n\n**Outer loop.** 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, applies 8-action-flip mutations to the best individuals, plays every new individual in-game, and carries the top 4 through unchanged via elitism. A good run is never lost to a bad mutation.",
     stackRationale: [
       {
         tech: "Python + `keyboard` library",
@@ -324,13 +454,13 @@ export const PROJECT_DETAILS: Record<
       },
     ],
     highlights: [
-      "Best game scored 401, matching Zeppelin Rush's three-star rating threshold of 400. For reference, I've hit three stars once playing the game myself.",
-      "60 randomly-played starting games, 16 generations of evolution, ~24 hours of wall-clock compute to converge.",
-      "Fitness function built around time-remaining-on-win (0 to 600 continuous) rather than the game's built-in 0/1/2/3-star bands, giving selection a usable gradient on both sides of the win/lose line.",
-      "Constraint-aware `FixMutation` repair rewrites illegal mutated sequences into legal ones so every evaluated individual is actually playable, which cuts the effective search space substantially.",
-      "JSON-file IPC with Windows file-lock retries, no engine refactor needed.",
-      "Per-generation JSON output of every action sequence and final time means any specific game can be replayed and inspected, and generation-vs-fitness can be charted directly from the files.",
-      "Built before AI coding assistants were mature enough to help. The fitness design, the IPC pivot, and the FixMutation repair pass were all worked out by hand.",
+      "Best game: 401, crossing the three-star threshold of 400. I've done that playing the game myself exactly once.",
+      "60 random starts, 16 generations, ~24 hours of wall-clock compute to converge.",
+      "Continuous time-remaining fitness (0 to 600) instead of 0/1/2/3 star bands. That one design choice is what made evolution work at all.",
+      "FixMutation repair keeps every evaluated individual playable. Illegal moves get rewritten to legal ones before fitness runs.",
+      "JSON IPC with Windows file-lock retry. No engine gameplay refactor required.",
+      "Per-generation JSON output: any specific game can be replayed in-engine, and the scatter plot rebuilt straight from the files.",
+      "Built before AI coding assistants were mature enough to help. Fitness design, IPC pivot, and the repair pass were all worked out by hand.",
     ],
     figures: [
       {
@@ -345,6 +475,43 @@ export const PROJECT_DETAILS: Record<
         caption:
           "The three on-disk outputs. Left: the winning action sequence, ending at 401.84. Middle: a JSON per generation, each holding the full action list for every game so any run can be replayed in the engine. Right: the times-only counterpart. The Games(TimesOnly) folder writes one of these per generation with just the finishing times, for quick analysis without loading full action lists.",
       },
+    ],
+  },
+  isshin: {
+    problem:
+      "Two-semester capstone in Unreal Engine 5 with a 19-person team building a third-person action combat game. The engineering scope was the kind that sounds trivial until you ship it: a pause menu that suspends a live combat state machine cleanly, freeze-frame hits that feel punchy without desyncing the animation graph, and a helper library that both engineers and designers want to call from anywhere without each team reinventing it.",
+    approach:
+      "**Pause menu.** Owned end-to-end across C++ and Blueprints. Primary pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so the combat state machine cleanly suspends action ticks while paused and resumes on the same frame it left.\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four heavily-used utilities via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n**Cross-team plumbing.** Touched many other Blueprints and systems across the two semesters. Beyond code: Jenkins for automated builds (so designers and artists always had a recent runnable build without waiting on a programmer), and ClickUp for bug tracking, which is the same shape as Asana (what most studios use).",
+    stackRationale: [
+      {
+        tech: "Unreal Engine 5.2",
+        why: "The right tool for a 19-person team: AAA-style rendering, a mature animation graph, and a Blueprint layer that lets designers and artists iterate without waiting on a C++ rebuild.",
+      },
+      {
+        tech: "Hitstop via frame counter (not wall-clock seconds)",
+        why: "Combat feel is frame-deterministic. Counting animation frames keeps freeze duration locked across frame-rate spikes and matches how animators think about impact frames.",
+      },
+      {
+        tech: "UBlueprintFunctionLibrary for helpers",
+        why: "Designers and engineers both needed the same utilities. A Blueprint function library exposes the C++ surface to event graphs with no extra glue, so one implementation serves both worlds.",
+      },
+      {
+        tech: "Wwise (audio middleware)",
+        why: "Audio-engineer-facing workflow: event-driven sound, dynamic mixing, and a real authoring tool. Pause-menu SFX wiring becomes a one-line `AkAudioEvent` reference instead of a custom sound-manager subsystem.",
+      },
+      {
+        tech: "Jenkins + ClickUp",
+        why: "Jenkins ran automated builds so the whole team had a recent runnable build every day without asking a programmer for one. ClickUp handled bug reports and task triage in the same shape as Asana, which is what most studios use.",
+      },
+    ],
+    highlights: [
+      "Team of 19 (5 engineers, 3 designers, 10 artists, 1 audio engineer) across two semesters.",
+      "62 C++ files across the Runtime and Editor modules. 107+ Blueprint assets.",
+      "Pause menu owned end-to-end: primary UI, quit/restart confirmations, settings panel, Wwise SFX, and clean suspension of the combat state machine via `FTimerHandle activePause`.",
+      "Hitstop implemented inside `CombatActionManager` with per-action tunable frame counts on `FCombatAction`. Designers retune combat feel without touching code.",
+      "`UHelperFunctions` Blueprint library with 4 widely-used utilities (rotation targeting, frenzy damage scaling, player access, relative positioning). Same surface from C++ and Blueprints.",
+      "Wwise audio middleware, Enhanced Input, and CommonUI across the UI stack.",
+      "Jenkins for automated builds. ClickUp for bug tracking (Asana-style workflow).",
     ],
   },
 };

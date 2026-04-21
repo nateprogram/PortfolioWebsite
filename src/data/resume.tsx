@@ -111,9 +111,9 @@ export const DATA = {
       status: "Active",
       categories: ["Full-Stack"],
       summary:
-        "Cross-platform team-coordination app. One TypeScript codebase ships to web, iOS, and Android via Capacitor; Prisma + PostgreSQL backend. Closed source, shipping under my LLC.",
+        "Scheduling and RSVP app for adult soccer team managers. Pulls schedule, opponent, and roster data directly from the GSSL and Rats league sites so the hours of weekly copy-paste work disappear. Shipping under Veltarium Software LLC.",
       description:
-        "Cross-platform team-coordination app with events, RSVPs, and a built-in marketplace for clubs and friend groups. A single TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, backed by a Prisma + PostgreSQL data layer (Neon in production, Docker locally). Type safety is end-to-end: Prisma generates TS types from the schema, so every API route and React component talks to the database through the same checked surface. Closed source, ships under my LLC. Walkthrough available on request.",
+        "Scheduling and RSVP app for volunteer managers of adult soccer teams. Running a GSSL or Rats team currently means hours of unpaid weekly admin: copying game times off the league website, tracking roster changes, chasing RSVPs in a group chat. SquadPact scrapes the league sites directly, auto-fills the team's schedule and roster, and gives the whole squad one place to confirm attendance. Built as a single TypeScript codebase that ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, with a Prisma + PostgreSQL backend (Neon in production, Docker locally). Shipping under Veltarium Software LLC. Walkthrough available on request.",
       technologies: [
         "Next.js",
         "TypeScript",
@@ -256,25 +256,29 @@ export const PROJECT_DETAILS: Record<
 > = {
   squadpact: {
     problem:
-      "Team-coordination apps usually ship as native iOS/Android only (which means writing the app twice for a solo build) or stay web-only and give up push notifications, native calendar integration, and home-screen install. I wanted one TypeScript codebase that ships to web, iOS, and Android, with a single backend and end-to-end type safety from the database up into every React component.",
+      "Volunteer managers of adult soccer teams in the GSSL and Rats leagues burn hours every week on unpaid admin. Game times, opponent info, and roster changes all live on the league websites, but those sites are read-only UIs meant for browsing. So each week a manager opens the league site, copies the schedule into a group chat, texts the roster to ask who's coming, chases the non-responders, and posts the final lineup. The data already exists in a canonical form; the managers are just acting as a human API between it and their team.",
     approach:
-      "Build the app as a Next.js web app first, then wrap the same production build in Capacitor to ship iOS and Android binaries. One build, three platforms, no duplicate UI code. API routes live inside the same Next.js project (`src/app/api/...`), so the web client, the iOS app, and the Android app all hit the exact same endpoints. Prisma generates TypeScript types directly from the PostgreSQL schema, so the `Event`, `Rsvp`, and `TeamMembership` types flow unbroken from DB to API to React props. Server components fetch via Prisma directly on the server (no client-side data layer to maintain for read paths); small `\"use client\"` islands handle interactivity. Rejected alternatives: **React Native / Expo** would have forced a second, parallel mobile codebase; **.NET MAUI** would have kept me in C# but given up Clerk auth, mature push tooling, and cloud-Postgres ergonomics.",
+      "Treat the league sites as the source of truth and build a scraper per league (GSSL, Rats) that resolves a public team page into a structured schedule and roster. Scrapers run on a cron and on manager-triggered sync, hydrating the app's domain model: a league-site event becomes an `Event` row in Postgres, an opponent becomes a `Team`, the default RSVP state propagates to every roster member. Manager-facing flows are diffs (\"here's what changed since last sync, confirm\"), so their weekly job collapses from an hour of copy-paste into a single review pass. Cross-platform delivery is a secondary concern: a single Next.js build wraps in Capacitor to ship web, iOS, and Android from one codebase, so the scraper and domain logic are written and maintained exactly once.",
     stackRationale: [
       {
+        tech: "League scrapers (GSSL, Rats)",
+        why: "Resolve a public team URL into a structured schedule and roster. Run on a cron plus a manager-triggered sync button. One module per league, so adding a new league is a new module rather than a rewrite.",
+      },
+      {
         tech: "Next.js (App Router)",
-        why: "One project hosts pages, server components, and API routes. No separate backend server to deploy or version.",
+        why: "Hosts the web UI, server components, API routes, and the scraper jobs in one project. No separate backend to deploy or version.",
       },
       {
         tech: "Capacitor",
-        why: "Wraps the same Next.js build for iOS and Android. Unlike React Native, there is no second UI codebase; the web bundle *is* the mobile app.",
+        why: "Wraps the same Next.js build for iOS and Android. Scraper, auth, and domain logic are written once and reused across web, iOS, and Android.",
       },
       {
         tech: "Prisma + PostgreSQL",
-        why: "Migration-first schema, generated TS types, composite-key upserts (e.g. one RSVP per user per event enforced at the DB layer, not in app code).",
+        why: "Canonical store for synced league data. Composite-key upserts (e.g. `eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
       },
       {
         tech: "Clerk",
-        why: "Pre-built auth UI for both Next.js and Capacitor contexts; webhook-driven user sync into Prisma on first sign-in.",
+        why: "Same auth flow across the web app and the Capacitor wrappers; webhook-driven user sync into Prisma on first sign-in.",
       },
       {
         tech: "Neon (prod) / Docker Postgres (dev)",
@@ -282,11 +286,12 @@ export const PROJECT_DETAILS: Record<
       },
     ],
     highlights: [
-      "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
+      "Scrapes GSSL and Rats league sites to auto-fill schedules, opponents, and roster data. Managers review a diff instead of copying data by hand.",
       "19-model Prisma schema covering leagues, seasons, teams, roster memberships, events, RSVPs, chat, payments, and a player marketplace.",
       "40+ API route handlers across leagues, teams, events, RSVPs, rosters, invites, chat, marketplace, and a Clerk webhook.",
       "Composite-key upserts (`eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
-      "Closed source, shipping under NateWhite.dev LLC. Walkthrough and live-app demo available on request.",
+      "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
+      "Shipping under Veltarium Software LLC. Walkthrough and live-app demo available on request.",
     ],
   },
 };

@@ -22,9 +22,9 @@ export const DATA = {
   locationLink: "https://www.google.com/maps/place/redmond+wa",
   role: "Software Engineer · New Grad · May 2026",
   description:
-    "C++ and systems programmer at DigiPen, graduating May 2026. I ship games on teams and build ML and full-stack projects on my own.",
+    "Redmond, WA · Open for new-grad SWE roles starting Summer 2026.",
   summary:
-    "BS Computer Science at [DigiPen Institute of Technology](/#education), graduating May 2026. I'm a C++ and systems programmer first. My team and I wrote a custom C++ engine from scratch, and I later wrote a Python genetic algorithm that learns to win a real-time strategy game running on it. That game shipped on Steam. I've also built in Unreal and Unity with teams of engineers, designers, and artists. On my own, I maintain an ML-driven stock research system and a cross-platform team-coordination app. I like hard problems and good teammates.",
+    "BS Computer Science at [DigiPen Institute of Technology](/#education), graduating May 2026. I'm a C++ and systems programmer first. My team and I wrote a custom C++ engine from scratch, and I later wrote a Python genetic algorithm that learns to win a real-time strategy game running on it. That game shipped on Steam. I've also built in Unreal and Unity with teams of engineers, designers, and artists. On my own, I've built an ML-driven stock research system and a cross-platform team-coordination app. I like hard problems and good teammates.",
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
   skillGroups: [

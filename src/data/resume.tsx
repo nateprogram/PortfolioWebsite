@@ -165,7 +165,7 @@ export const DATA = {
       status: "Coursework",
       categories: ["Systems", "Games"],
       summary:
-        "Custom C++ engine built from scratch by three programmers, zero commercial middleware. I own two data-driven subsystems end-to-end: a JSON-serialized particle system and a component-based stat/upgrade system, plus the engine's input abstraction and a shared RNG. ~3,000 LOC across 14+ source files. The engine shipped a game to Steam as its proof-of-work.",
+        "Custom C++ engine built from scratch by three programmers, zero commercial middleware. I own two data-driven subsystems end-to-end (particle system and stat/upgrade system) plus the engine's input abstraction and a shared RNG. Shipped to Steam as the engine's proof-of-work.",
       description:
         "A C++ engine written from scratch on a 3-programmer team, no commercial middleware anywhere in the stack: rendering, scene graph, particle system, input, asset pipeline, and audio hooks are all hand-written. My primary ownership: an emitter-based particle system (~1,260 LOC across ParticleSystem.cpp/h and 4 emitter behaviors; emitters are JSON-serialized so every parameter, SpawnRate, SprayAngle, speed range, fade mode, scale curve, frame animation, is hot-reloadable from disk without a rebuild); a component-based stat/upgrade system (Stats.cpp/h, ~710 LOC: serialized fields for health, reload, respawn, damage, speed, cost plus per-level upgrade arrays and a first-class upgrade API); the engine's input abstraction (GLFW wrapper with per-frame edge detection shared across every subsystem); and a shared random utility. On a small team, I also contributed to every other subsystem at some point. The engine shipped a tower-offense game to Steam (Zeppelin Rush) as its proof-of-work, but the interesting story is the engine layer, not the game.",
       technologies: [
@@ -414,9 +414,11 @@ export const PROJECT_DETAILS: Record<
       },
     ],
     highlights: [
-      "Hand-rolled stack spans rendering, scene graph, particles, input, asset pipeline, and audio hooks: no vendor libraries at any level.",
-      "rapidjson-driven data pipeline for both owned subsystems: emitter parameters and stat/upgrade curves live in text files and hot-reload without a rebuild.",
-      "The engine, not the game, is the portfolio piece; Steam shipping was the stack's stress test.",
+      "~3,000 LOC authored across 14+ engine source files.",
+      "Particle system: ~1,260 LOC (ParticleSystem.cpp/h plus four emitter behaviors). Stat/upgrade system: ~710 LOC. Input abstraction: ~241 LOC.",
+      "Hand-rolled stack covers 6 subsystems: rendering, scene graph, particles, input, asset pipeline, audio hooks.",
+      "rapidjson pipeline: every emitter parameter and every upgrade curve lives in text files and hot-reloads without a rebuild.",
+      "Shipped Zeppelin Rush to Steam running entirely on the custom stack.",
     ],
   },
   "zeppelin-rush": {

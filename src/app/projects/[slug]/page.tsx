@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import StockAIFlow from "@/components/stockai-flow";
@@ -10,6 +10,29 @@ import { DATA, PROJECT_DETAILS } from "@/data/resume";
 import { cn } from "@/lib/utils";
 
 const BLUR_FADE_DELAY = 0.04;
+
+function Collapsible({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <details className="group border-t border-border pt-6">
+      <summary className="flex cursor-pointer items-center justify-between gap-3 rounded-sm list-none [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+        <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-foreground">
+          {label}
+        </h2>
+        <ChevronDown
+          className="size-4 text-muted-foreground transition-transform group-open:rotate-180"
+          aria-hidden
+        />
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
+  );
+}
 
 export async function generateStaticParams() {
   return DATA.projects.map((p) => ({ slug: p.slug }));
@@ -132,53 +155,9 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {!details?.problem && project.description && (
-        <BlurFade delay={BLUR_FADE_DELAY * 7}>
-          <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Overview
-            </h2>
-            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-              <Markdown>{project.description}</Markdown>
-            </div>
-          </section>
-        </BlurFade>
-      )}
-
-      {details?.problem && (
-        <BlurFade delay={BLUR_FADE_DELAY * 8}>
-          <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Problem
-            </h2>
-            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-              <Markdown>{details.problem}</Markdown>
-            </div>
-          </section>
-        </BlurFade>
-      )}
-
-      {details?.approach && (
-        <BlurFade delay={BLUR_FADE_DELAY * 9}>
-          <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Approach
-            </h2>
-            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-              <Markdown>{details.approach}</Markdown>
-            </div>
-          </section>
-        </BlurFade>
-      )}
-
-      {slug === "stockai" && (
-        <BlurFade delay={BLUR_FADE_DELAY * 9.5}>
-          <StockAIFlow />
-        </BlurFade>
-      )}
-
+      {/* Highlights lead the page: scannable, quantifiable outcomes. */}
       {details?.highlights && details.highlights.length > 0 && (
-        <BlurFade delay={BLUR_FADE_DELAY * 10}>
+        <BlurFade delay={BLUR_FADE_DELAY * 7}>
           <section className="flex flex-col gap-3">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Highlights
@@ -198,8 +177,80 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
+      {/* Stack chips stay visible; rationale is tucked into a collapsible below. */}
+      {project.technologies && project.technologies.length > 0 && (
+        <BlurFade delay={BLUR_FADE_DELAY * 8}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Stack
+            </h2>
+            <div className="flex flex-wrap gap-1.5">
+              {project.technologies.map((tech) => (
+                <Badge
+                  key={tech}
+                  variant="outline"
+                  className="text-[11px] font-medium border border-border h-6 px-2"
+                >
+                  {tech}
+                </Badge>
+              ))}
+            </div>
+          </section>
+        </BlurFade>
+      )}
+
+      {/* Problem, Approach, and the tech rationale are collapsed by default. */}
+      {details?.problem && (
+        <BlurFade delay={BLUR_FADE_DELAY * 9}>
+          <Collapsible label="Problem">
+            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
+              <Markdown>{details.problem}</Markdown>
+            </div>
+          </Collapsible>
+        </BlurFade>
+      )}
+
+      {details?.approach && (
+        <BlurFade delay={BLUR_FADE_DELAY * 10}>
+          <Collapsible label="Approach">
+            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
+              <Markdown>{details.approach}</Markdown>
+            </div>
+          </Collapsible>
+        </BlurFade>
+      )}
+
+      {details?.stackRationale && details.stackRationale.length > 0 && (
+        <BlurFade delay={BLUR_FADE_DELAY * 11}>
+          <Collapsible label="Why these choices">
+            <dl className="flex flex-col gap-3">
+              {details.stackRationale.map((entry) => (
+                <div
+                  key={entry.tech}
+                  className="grid gap-1 sm:grid-cols-[180px_1fr] sm:gap-4"
+                >
+                  <dt className="font-mono text-[11px] uppercase tracking-widest text-foreground/80">
+                    {entry.tech}
+                  </dt>
+                  <dd className="text-sm text-pretty leading-relaxed text-muted-foreground">
+                    {entry.why}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Collapsible>
+        </BlurFade>
+      )}
+
+      {slug === "stockai" && (
+        <BlurFade delay={BLUR_FADE_DELAY * 11.5}>
+          <StockAIFlow />
+        </BlurFade>
+      )}
+
+      {/* Figures stay visible; they're scannable on their own. */}
       {details?.figures && details.figures.length > 0 && (
-        <BlurFade delay={BLUR_FADE_DELAY * 10.5}>
+        <BlurFade delay={BLUR_FADE_DELAY * 12}>
           <section className="flex flex-col gap-3">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Figures
@@ -227,46 +278,22 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {project.technologies && project.technologies.length > 0 && (
-        <BlurFade delay={BLUR_FADE_DELAY * 11}>
+      {/* Overview fallback for projects that don't have a Problem entry. */}
+      {!details?.problem && project.description && (
+        <BlurFade delay={BLUR_FADE_DELAY * 13}>
           <section className="flex flex-col gap-3">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Stack
+              Overview
             </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {project.technologies.map((tech) => (
-                <Badge
-                  key={tech}
-                  variant="outline"
-                  className="text-[11px] font-medium border border-border h-6 px-2"
-                >
-                  {tech}
-                </Badge>
-              ))}
+            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
+              <Markdown>{project.description}</Markdown>
             </div>
-            {details?.stackRationale && details.stackRationale.length > 0 && (
-              <dl className="mt-3 flex flex-col gap-3 border-t border-border pt-4">
-                {details.stackRationale.map((entry) => (
-                  <div
-                    key={entry.tech}
-                    className="grid gap-1 sm:grid-cols-[180px_1fr] sm:gap-4"
-                  >
-                    <dt className="font-mono text-[11px] uppercase tracking-widest text-foreground/80">
-                      {entry.tech}
-                    </dt>
-                    <dd className="text-sm text-pretty leading-relaxed text-muted-foreground">
-                      {entry.why}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            )}
           </section>
         </BlurFade>
       )}
 
       {!details && (
-        <BlurFade delay={BLUR_FADE_DELAY * 12}>
+        <BlurFade delay={BLUR_FADE_DELAY * 14}>
           <section className="flex flex-col gap-3 border-t border-border pt-8">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               More to come

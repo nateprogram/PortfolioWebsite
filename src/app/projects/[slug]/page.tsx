@@ -1,38 +1,20 @@
 /* eslint-disable @next/next/no-img-element */
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
-import StockAIFlow from "@/components/stockai-flow";
 import { Badge } from "@/components/ui/badge";
 import { DATA, PROJECT_DETAILS } from "@/data/resume";
 import { cn } from "@/lib/utils";
 
 const BLUR_FADE_DELAY = 0.04;
 
-function Collapsible({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <details className="group border-t border-border pt-6">
-      <summary className="flex cursor-pointer items-center justify-between gap-3 rounded-sm list-none [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-        <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-foreground">
-          {label}
-        </h2>
-        <ChevronDown
-          className="size-4 text-muted-foreground transition-transform group-open:rotate-180"
-          aria-hidden
-        />
-      </summary>
-      <div className="mt-4">{children}</div>
-    </details>
-  );
-}
+// Silver edging: inset top highlight gives bordered surfaces a subtle metallic catch-the-light feel.
+const SILVER_CARD =
+  "ring-1 ring-inset ring-white/[0.04] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]";
+const SILVER_CHIP =
+  "ring-1 ring-inset ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]";
 
 export async function generateStaticParams() {
   return DATA.projects.map((p) => ({ slug: p.slug }));
@@ -115,7 +97,12 @@ export default async function ProjectDetailPage({
 
       {(project.video || project.image) && (
         <BlurFade delay={BLUR_FADE_DELAY * 5}>
-          <div className="overflow-hidden rounded-xl border border-border bg-muted/30">
+          <div
+            className={cn(
+              "overflow-hidden rounded-xl border border-border bg-muted/30",
+              SILVER_CARD
+            )}
+          >
             {project.video ? (
               <video
                 src={project.video}
@@ -145,7 +132,10 @@ export default async function ProjectDetailPage({
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card/60 px-3 py-1.5 text-xs font-medium hover:border-foreground/30 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md border border-border bg-card/60 px-3 py-1.5 text-xs font-medium hover:border-foreground/30 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  SILVER_CHIP
+                )}
               >
                 {link.icon}
                 {link.type}
@@ -155,7 +145,7 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {/* Highlights lead the page: scannable, quantifiable outcomes. */}
+      {/* Highlights lead: scannable, quantifiable. */}
       {details?.highlights && details.highlights.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 7}>
           <section className="flex flex-col gap-3">
@@ -166,7 +156,7 @@ export default async function ProjectDetailPage({
               {details.highlights.map((item, i) => (
                 <li key={i} className="flex gap-2">
                   <span
-                    className="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"
+                    className="mt-2 size-1 shrink-0 rounded-full bg-gradient-to-b from-zinc-200 to-zinc-500 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
                     aria-hidden
                   />
                   <span className="text-pretty leading-relaxed">{item}</span>
@@ -177,7 +167,6 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {/* Stack chips stay visible; rationale is tucked into a collapsible below. */}
       {project.technologies && project.technologies.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 8}>
           <section className="flex flex-col gap-3">
@@ -189,7 +178,10 @@ export default async function ProjectDetailPage({
                 <Badge
                   key={tech}
                   variant="outline"
-                  className="text-[11px] font-medium border border-border h-6 px-2"
+                  className={cn(
+                    "text-[11px] font-medium border border-border h-6 px-2",
+                    SILVER_CHIP
+                  )}
                 >
                   {tech}
                 </Badge>
@@ -199,30 +191,71 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {/* Problem, Approach, and the tech rationale are collapsed by default. */}
       {details?.problem && (
         <BlurFade delay={BLUR_FADE_DELAY * 9}>
-          <Collapsible label="Problem">
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Problem
+            </h2>
             <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
               <Markdown>{details.problem}</Markdown>
             </div>
-          </Collapsible>
+          </section>
         </BlurFade>
       )}
 
       {details?.approach && (
         <BlurFade delay={BLUR_FADE_DELAY * 10}>
-          <Collapsible label="Approach">
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Approach
+            </h2>
             <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
               <Markdown>{details.approach}</Markdown>
             </div>
-          </Collapsible>
+          </section>
+        </BlurFade>
+      )}
+
+      {/* Figures live right under Approach so diagrams read as part of the story. */}
+      {details?.figures && details.figures.length > 0 && (
+        <BlurFade delay={BLUR_FADE_DELAY * 11}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Figures
+            </h2>
+            <div className="flex flex-col gap-6">
+              {details.figures.map((figure, i) => (
+                <figure
+                  key={i}
+                  className={cn(
+                    "flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-muted/30",
+                    SILVER_CARD
+                  )}
+                >
+                  <img
+                    src={figure.src}
+                    alt={figure.alt}
+                    className="w-full h-auto bg-background"
+                  />
+                  {figure.caption && (
+                    <figcaption className="px-4 pb-3 text-xs text-pretty leading-relaxed text-muted-foreground">
+                      {figure.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          </section>
         </BlurFade>
       )}
 
       {details?.stackRationale && details.stackRationale.length > 0 && (
-        <BlurFade delay={BLUR_FADE_DELAY * 11}>
-          <Collapsible label="Why these choices">
+        <BlurFade delay={BLUR_FADE_DELAY * 12}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Why these choices
+            </h2>
             <dl className="flex flex-col gap-3">
               {details.stackRationale.map((entry) => (
                 <div
@@ -238,47 +271,10 @@ export default async function ProjectDetailPage({
                 </div>
               ))}
             </dl>
-          </Collapsible>
-        </BlurFade>
-      )}
-
-      {slug === "stockai" && (
-        <BlurFade delay={BLUR_FADE_DELAY * 11.5}>
-          <StockAIFlow />
-        </BlurFade>
-      )}
-
-      {/* Figures stay visible; they're scannable on their own. */}
-      {details?.figures && details.figures.length > 0 && (
-        <BlurFade delay={BLUR_FADE_DELAY * 12}>
-          <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Figures
-            </h2>
-            <div className="flex flex-col gap-6">
-              {details.figures.map((figure, i) => (
-                <figure
-                  key={i}
-                  className="flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-muted/30"
-                >
-                  <img
-                    src={figure.src}
-                    alt={figure.alt}
-                    className="w-full max-h-[560px] object-contain bg-background"
-                  />
-                  {figure.caption && (
-                    <figcaption className="px-4 pb-3 text-xs text-pretty leading-relaxed text-muted-foreground">
-                      {figure.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
-            </div>
           </section>
         </BlurFade>
       )}
 
-      {/* Overview fallback for projects that don't have a Problem entry. */}
       {!details?.problem && project.description && (
         <BlurFade delay={BLUR_FADE_DELAY * 13}>
           <section className="flex flex-col gap-3">

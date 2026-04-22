@@ -207,13 +207,7 @@ export const DATA = {
         "JSON IPC",
         "keyboard (lib)",
       ],
-      links: [
-        {
-          type: "Steam",
-          href: "https://store.steampowered.com/app/3794410/Zeppelin_Rush/",
-          icon: <Icons.steam className="size-3" />,
-        },
-      ],
+      links: [],
       image: "/projects/zeppelin-rush/hero.png",
       video: "",
     },
@@ -384,6 +378,14 @@ export const PROJECT_DETAILS: Record<
       "Retrain-with-rollback ladder: candidates must beat the incumbent on out-of-fold direction accuracy AND regime-stratified accuracy before promotion; sustained live degradation auto-rolls back.",
       "3-tier storage (SQLite hot / Parquet warm / compressed archive cold) matches each access pattern's cost profile.",
       "FastAPI + WebSocket dashboard streams predictions, feature attention weights, current regime label, and validator stats live.",
+    ],
+    figures: [
+      {
+        src: "/projects/stockai/architecture.jpg",
+        alt: "V6 data flow for Neural Stock Predictor, top-to-bottom: config, database, data controller, 23 scrapers across 5 source categories, feature engine, three domain analyzers (order flow, sentiment, smart money), correlation analyzer, signal aggregator, HMM regime detection, MultiHeadLSTM neural predictor with 10 heads, 6-check prediction validator, rich-terminal console output, continuous learner with weekly retrain, and Purged K-Fold backtester acting as the deploy gate.",
+        caption:
+          "V6 data flow, layer by layer. Config → database → data controller → 23 scrapers (5 categories) → feature engine → 3 domain analyzers + correlation → signal aggregator → HMM regime → MultiHeadLSTM (10 heads, feature attention) → 6-check validator → console. Continuous learner and Purged K-Fold backtester close the loop as the retrain and deploy gate.",
+      },
     ],
   },
   "mayhem-engine": {

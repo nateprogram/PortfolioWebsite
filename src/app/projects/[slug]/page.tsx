@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
@@ -275,8 +275,60 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {!details?.problem && project.description && (
+      {/* Code snippets live behind expandables so the narrative stays clean
+          but recruiters who want the actual shape of the code can click in. */}
+      {details?.codeSnippets && details.codeSnippets.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 13}>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              Code
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Expand a snippet to see the relevant code. Real shapes from the
+              project, trimmed for readability.
+            </p>
+            <div className="flex flex-col gap-2">
+              {details.codeSnippets.map((snippet, i) => (
+                <details
+                  key={i}
+                  className={cn(
+                    "group overflow-hidden rounded-xl border border-border bg-card/40",
+                    SILVER_CARD
+                  )}
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm select-none hover:bg-card/70 transition-colors [&::-webkit-details-marker]:hidden">
+                    <span className="flex items-center gap-2 min-w-0">
+                      <ChevronDown
+                        className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+                        aria-hidden
+                      />
+                      <span className="font-medium truncate">
+                        {snippet.title}
+                      </span>
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground shrink-0">
+                      {snippet.language}
+                    </span>
+                  </summary>
+                  {snippet.description && (
+                    <div className="border-t border-border/60 px-4 py-3 text-xs text-pretty leading-relaxed text-muted-foreground">
+                      {snippet.description}
+                    </div>
+                  )}
+                  <pre className="overflow-x-auto border-t border-border/60 bg-background/50 px-4 py-3 text-[12px] leading-relaxed">
+                    <code className="font-mono text-foreground/90">
+                      {snippet.code}
+                    </code>
+                  </pre>
+                </details>
+              ))}
+            </div>
+          </section>
+        </BlurFade>
+      )}
+
+      {!details?.problem && project.description && (
+        <BlurFade delay={BLUR_FADE_DELAY * 14}>
           <section className="flex flex-col gap-3">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Overview
@@ -289,7 +341,7 @@ export default async function ProjectDetailPage({
       )}
 
       {!details && (
-        <BlurFade delay={BLUR_FADE_DELAY * 14}>
+        <BlurFade delay={BLUR_FADE_DELAY * 15}>
           <section className="flex flex-col gap-3 border-t border-border pt-8">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               More to come

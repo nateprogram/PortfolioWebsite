@@ -281,6 +281,9 @@ export const PROJECT_FILTERS = [
 //   approach:       key decisions made, and alternatives that were rejected
 //   stackRationale: each piece of tech paired with why it was chosen
 //   highlights:     scope and outcome bullets
+//   figures:        diagrams/screenshots that belong inline with the approach
+//   codeSnippets:   real code behind expandables so recruiters who want the
+//                   actual shape can click in without crowding the narrative
 export const PROJECT_DETAILS: Record<
   string,
   {
@@ -289,6 +292,12 @@ export const PROJECT_DETAILS: Record<
     stackRationale?: ReadonlyArray<{ tech: string; why: string }>;
     highlights?: ReadonlyArray<string>;
     figures?: ReadonlyArray<{ src: string; alt: string; caption?: string }>;
+    codeSnippets?: ReadonlyArray<{
+      title: string;
+      description?: string;
+      language: string;
+      code: string;
+    }>;
   }
 > = {
   squadpact: {
@@ -329,6 +338,66 @@ export const PROJECT_DETAILS: Record<
       "Composite-key upserts (`eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
       "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
       "Shipping under Veltarium Software LLC. Walkthrough and live-app demo available on request.",
+    ],
+    codeSnippets: [
+      {
+        title: "One-RSVP-per-user-per-event: composite-key upsert",
+        description:
+          "RSVP uniqueness is a database invariant, not something app code enforces. A compound unique index on (eventId, userId) plus Prisma's composite-key upsert means a user clicking 'Going' twice writes the same row, and flipping between 'Going' and 'Maybe' mutates one row instead of inserting two.",
+        language: "typescript",
+        code: `// prisma/schema.prisma
+// model RSVP {
+//   id        String     @id @default(cuid())
+//   eventId   String
+//   userId    String
+//   status    RsvpStatus
+//   updatedAt DateTime   @updatedAt
+//   event     Event      @relation(fields: [eventId], references: [id])
+//   user      User       @relation(fields: [userId], references: [id])
+//   @@unique([eventId, userId])
+// }
+
+export async function setRsvp(
+  eventId: string,
+  userId: string,
+  status: RsvpStatus,
+) {
+  return prisma.rSVP.upsert({
+    where: { eventId_userId: { eventId, userId } }, // composite key
+    create: { eventId, userId, status },
+    update: { status },
+  });
+}`,
+      },
+      {
+        title: "League scraper contract: one module per league, same shape",
+        description:
+          "GSSL and Rats publish their schedules and rosters on their own read-only websites. Each league gets its own scraper module that implements the same interface, so adding a new league is a new module, not a rewrite. The domain model (Event, Team, Roster) is shared.",
+        language: "typescript",
+        code: `export interface LeagueScraper {
+  leagueKey: "gssl" | "rats";
+  fetchSchedule(teamUrl: string): Promise<ScrapedEvent[]>;
+  fetchRoster(teamUrl: string): Promise<ScrapedPlayer[]>;
+}
+
+export interface ScrapedEvent {
+  leagueEventId: string;   // stable id we dedupe on
+  kickoffAt: Date;
+  opponentName: string;
+  location: string;
+}
+
+// Manager-triggered sync: scrape, diff against what's in Postgres,
+// show the manager the diff, apply on confirmation. No silent writes.
+export async function syncTeam(team: Team, scraper: LeagueScraper) {
+  const [events, roster] = await Promise.all([
+    scraper.fetchSchedule(team.leagueUrl),
+    scraper.fetchRoster(team.leagueUrl),
+  ]);
+  const diff = await computeDiff(team.id, events, roster);
+  return { diff, apply: () => persistDiff(team.id, diff) };
+}`,
+      },
     ],
   },
   stockai: {
@@ -387,12 +456,97 @@ export const PROJECT_DETAILS: Record<
           "V6 data flow, layer by layer. Config → database → data controller → 23 scrapers (5 categories) → feature engine → 3 domain analyzers + correlation → signal aggregator → HMM regime → MultiHeadLSTM (10 heads, feature attention) → 6-check validator → console. Continuous learner and Purged K-Fold backtester close the loop as the retrain and deploy gate.",
       },
     ],
+    codeSnippets: [
+      {
+        title: "Closed-loop feature attention (EMA, bounded)",
+        description:
+          "The one live adaptation the model does without retraining. Each feature's contribution is tracked with an EMA (α=0.15), normalized against the rolling mean, and clipped to [0.5, 2.0] so a bad batch can't collapse an input to zero or let a hot input dominate the loss.",
+        language: "python",
+        code: `class FeatureAttention:
+    def __init__(self, n_features: int, alpha: float = 0.15,
+                 lo: float = 0.5, hi: float = 2.0):
+        self.alpha, self.lo, self.hi = alpha, lo, hi
+        self.ema  = np.ones(n_features)     # per-feature weight
+        self.hist = np.ones(n_features)     # EMA of |contribution|
+
+    def update(self, contrib: np.ndarray) -> np.ndarray:
+        """
+        contrib[i] = running importance score for feature i
+        (e.g. |grad_i * x_i| averaged over the last batch).
+        Returns the weight to scale feature i by on the next pass.
+        """
+        self.hist = (1 - self.alpha) * self.hist \\
+                  + self.alpha * np.abs(contrib)
+        mean   = self.hist.mean() + 1e-9
+        target = self.hist / mean                      # >1 = important
+        self.ema = np.clip(target, self.lo, self.hi)   # bound rescale
+        return self.ema`,
+      },
+      {
+        title: "Purged K-Fold with embargo (Lopez de Prado)",
+        description:
+          "The only time-series CV that doesn't lie. For each test fold we purge training observations whose label window overlaps the test window, then embargo a gap on the right so leakage after the test can't bleed back into training.",
+        language: "python",
+        code: `def purged_kfold_indices(n: int, k: int,
+                         label_h: int, embargo: int):
+    fold_size = n // k
+    for i in range(k):
+        test_start = i * fold_size
+        test_end   = test_start + fold_size
+        test_idx   = np.arange(test_start, test_end)
+
+        # Purge: drop training points whose label window
+        # (t .. t + label_h) overlaps the test fold.
+        train_idx = np.arange(n)
+        train_idx = train_idx[(train_idx + label_h < test_start)
+                              | (train_idx >= test_end)]
+
+        # Embargo: drop the first 'embargo' training points
+        # immediately after the test fold to block post-test leakage.
+        train_idx = train_idx[(train_idx < test_start)
+                              | (train_idx >= test_end + embargo)]
+
+        yield train_idx, test_idx`,
+      },
+      {
+        title: "Retrain-with-rollback promotion gate",
+        description:
+          "A candidate only replaces the incumbent if it wins on two metrics: out-of-fold direction accuracy AND worst-regime accuracy (so a model that shines in one regime but crumbles in another can't promote). Sustained live degradation auto-rolls back.",
+        language: "python",
+        code: `def promote_if_better(candidate, incumbent,
+                      folds, regimes) -> bool:
+    c_dir = oof_direction_accuracy(candidate, folds)
+    i_dir = oof_direction_accuracy(incumbent, folds)
+
+    c_reg = regime_stratified_accuracy(candidate, folds, regimes)
+    i_reg = regime_stratified_accuracy(incumbent, folds, regimes)
+
+    # Must beat incumbent on BOTH axes before replacing.
+    if c_dir > i_dir and min(c_reg.values()) > min(i_reg.values()):
+        deploy(candidate)
+        log.info("PROMOTE: dir %.3f -> %.3f, "
+                 "worst-regime %.3f -> %.3f",
+                 i_dir, c_dir,
+                 min(i_reg.values()), min(c_reg.values()))
+        return True
+    return False
+
+
+def live_rollback_check(live, window: int = 5):
+    # If live direction accuracy has fallen below the prior
+    # checkpoint's validation score for 'window' consecutive
+    # days, roll back to the prior checkpoint.
+    recent = live.recent_daily_accuracy(window)
+    if all(a < live.prior_checkpoint.val_accuracy for a in recent):
+        live.rollback()`,
+      },
+    ],
   },
   "mayhem-engine": {
     problem:
       "Building a C++ game engine from scratch and shipping a game on it is usually a 5-to-6 programmer job. We had 3. On top of that, the designers on the team didn't deliver on their scope, so the programmers picked up tuning, level flow, and encounter pacing too. The biggest risk in that setup wasn't any single subsystem; it was that anything we didn't make self-serve for the rest of the team would burn programmer cycles we couldn't afford.",
     approach:
-      "**Particle system.** ~1,260 LOC across `ParticleSystem.cpp` (708), `ParticleSystem.h` (133), and four emitter behaviors (`BehaviorEmitterTest`, `BehaviorEmitterKey`, `BehaviorEmitterDeath`, `BehaviorEmitterExplosion`). Emitters are JSON-serialized components: designers edit a file, the emitter spawns the effect. Every tunable field lives in config:\n\n```json\n{\n  \"Emitter\": {\n    \"ParticleMoveWithObject\": false,\n    \"PatternType\": \"Rotate\",\n    \"SpawnRate\": 100,\n    \"ParticleLife\": 3,\n    \"SprayAngle\": 20,\n    \"MinSpeed\": 100,\n    \"MaxSpeed\": 150,\n    \"HiveMind\": false,\n    \"UniformAnimation\": true,\n    \"Fade\": \"Out\",\n    \"FadeTime\": 0.2,\n    \"ScaleSetting\": \"Pop\",\n    \"ScaleMultiplier\": 4.0,\n    \"ScaleTime\": 2.9\n  },\n  \"Animation\": {\n    \"FrameCount\": 32,\n    \"FrameDuration\": 0.01,\n    \"IsLooping\": true,\n    \"DiffAnimations\": false\n  },\n  \"Sprite\": { \"SpriteSource\": \"particlemagic\" }\n}\n```\n\n`Fade` accepts In/Out/None, `ScaleSetting` accepts In/Pop/Out, `PatternType` accepts Rotate or a directional vector. `BehaviorEmitterKey` is the live-tuning hook: hold a key in-engine, particles spawn frame-by-frame for the loaded config, so iteration is 'edit JSON, reload, hold key, watch.'\n\n**Stat system.** `Stats.cpp` (587) + `Stats.h` (123): a Component subclass instantiated on every stat-bearing entity. Serialized fields cover the tower-offense design space: MaxHealth, ReloadTime, RespawnRate, AttackDamage, MaxSpeed, Cost. Runtime state tracks live Health, reload/respawn timers, and IsHurt / IsAttacking / IsDead flags. Upgrade progression is first-class: per-level arrays (`MaxHealthLvls`, `MaxSpeedLvls`, `AttackDamageLvls`) indexed by level, with `UpgradeMaxHealth()` / `UpgradeMaxSpeed()` / `UpgradeAttackDamage()` advancing the index.\n\n**Input abstraction.** `MEInput.cpp/h` (~241 LOC) wraps GLFW with per-frame edge-detected `IsKeyPressed` / `IsKeyHeld` / `IsKeyReleased` (plus mouse equivalents). Every system in the engine polls through this single abstraction, which is what lets higher-level code treat menus, gameplay, and debug keybinds consistently.\n\n**Cross-subsystem contributions.** With a 3-programmer team, nobody stayed in their lane. I touched rendering, asset loading, gameplay code (`TowerBehavior`, `CannonBehavior`, `BehaviorHealthBar`), and UI wiring alongside the two programmers who were primary owners. When the designers' scope fell through, the programmers absorbed tuning and level flow too.",
+      "**Particle system.** An emitter-component model: every visual effect in the game (explosions, muzzle flash, death puffs, pickup sparkles) is an `Emitter` component owning a pool of particles, a JSON config, and a behavior. `ParticleSystem.cpp/h` (~840 LOC) runs the update loop; four emitter behaviors (`BehaviorEmitterTest`, `BehaviorEmitterKey`, `BehaviorEmitterDeath`, `BehaviorEmitterExplosion`, ~420 LOC together) specialize when and why an emitter fires. Every tunable field lives in JSON (full schema in the `Emitter.json` code snippet):\n\n- **PatternType**: `Rotate` spawns particles around the emitter's origin at sweeping angles, so a muzzle flash fans out. A directional vector spawns along that vector, so a thruster plume goes one way.\n- **SpawnRate**: particles per second. The emitter keeps an accumulator and spawns whole particles on frames where the fractional part tips over 1.\n- **ParticleLife**: seconds each particle lives. On spawn, age starts at 0; when age hits ParticleLife, the slot returns to the pool's free list.\n- **SprayAngle**: half-angle cone (degrees) around the pattern direction. Each particle's launch vector is rotated by a uniform random value in [-SprayAngle, +SprayAngle].\n- **MinSpeed / MaxSpeed**: uniform random launch speed along the sprayed direction.\n- **ParticleMoveWithObject**: when true, particles inherit the emitter's transform each frame (good for a trail stuck to a moving zeppelin). When false, particles live in world space (good for an explosion that stays where it detonated).\n- **HiveMind**: when true, every particle in the emitter advances its animation frame in lockstep. When false, each particle animates on its own age.\n- **UniformAnimation**: when true, all particles use the same sprite sheet. When false, each particle can pick from a set for visual variety.\n- **Fade**: `Out` fades alpha from 1 to 0 over the final `FadeTime` seconds of life. `In` fades 0 to 1 over the first `FadeTime` seconds. `None` keeps alpha at 1 the whole time.\n- **ScaleSetting**: `In` scales linearly from 1 up to `ScaleMultiplier` over `ScaleTime` seconds (growth). `Out` scales from `ScaleMultiplier` down to 1 (shrink). `Pop` scales up then back down around `ScaleTime`, which is the 'punch' curve used for impact effects.\n- **Animation**: sprite-sheet flipbook. A particle advances a frame every `FrameDuration` seconds and wraps if looping (else clamps on the last frame).\n\n**How the emitter manages particles.** Each emitter owns a fixed-size particle pool sized at load from `SpawnRate * ParticleLife` so no allocations happen at play time. Per frame the emitter does four things: (1) the spawn accumulator increments by `SpawnRate * dt` and each time it tips over 1 a free slot is pulled from the pool and filled with initial state (position, velocity sampled from spray + speed range, age=0, random animation offset); (2) one pass over the live particles advances age, integrates position by velocity * dt, evaluates the fade and scale curves against the particle's age, and advances the flipbook; (3) any particle whose age exceeds ParticleLife returns to the free list; (4) the render pass batches live particles by sprite source into a single draw call. `BehaviorEmitterKey` is the iteration hook: hold a bound key in-engine and the emitter spawns one particle per frame against the current JSON config, so the loop is 'edit JSON, reload, hold key, watch the difference' with no C++ rebuild.\n\n**Stat system.** `Stats.cpp` (587) + `Stats.h` (123): a Component subclass instantiated on every stat-bearing entity (towers, zeppelins, cannons). Serialized fields cover the tower-offense design space: MaxHealth, ReloadTime, RespawnRate, AttackDamage, MaxSpeed, Cost. Runtime state tracks live Health, reload/respawn timers, and IsHurt / IsAttacking / IsDead flags. Upgrade progression is first-class: per-level arrays (`MaxHealthLvls`, `MaxSpeedLvls`, `AttackDamageLvls`, `UpgradeCostLvls`) indexed by the entity's current upgrade level. When the UI calls `UpgradeMaxHealth()`, the method bounds-checks against the level cap, charges the player `UpgradeCostLvls[level]`, advances the level, and reads the new MaxHealth out of `MaxHealthLvls[level]`. Designers retune the upgrade curve by editing JSON, no rebuild. Full interface in the `Stats.h` code snippet.\n\n**Input abstraction.** `MEInput.cpp/h` (~241 LOC) wraps GLFW with per-frame edge detection. `PollEvents()` at the top of every frame snapshots current key/mouse state into one array and last frame's state into another; `IsKeyPressed(key)` returns true only on the frame the key transitioned from up to down (current=down, previous=up); `IsKeyHeld` checks current=down; `IsKeyReleased` is the down-to-up transition. Every system in the engine polls through this single abstraction, so menus, gameplay, and debug keybinds all share the same per-frame semantics without pulling GLFW into gameplay code.\n\n**Cross-subsystem contributions.** With a 3-programmer team, nobody stayed in their lane. I touched rendering, asset loading, gameplay code (`TowerBehavior`, `CannonBehavior`, `BehaviorHealthBar`), and UI wiring alongside the two programmers who were primary owners. When the designers' scope fell through, the programmers absorbed tuning and level flow too.",
     stackRationale: [
       {
         tech: "C++ with no commercial middleware",
@@ -408,7 +562,7 @@ export const PROJECT_DETAILS: Record<
       },
       {
         tech: "Per-level upgrade arrays",
-        why: "Tower upgrades are the core progression loop. Storing each stat's level values as an indexed array (rather than hard-coded multipliers) let designers retune the upgrade curve by editing config, and the `Upgrade*` methods just advance the index. No balancing changes required a rebuild.",
+        why: "Tower upgrades are the core progression loop. Storing each stat's level values as an indexed array (rather than hard-coded per-level multipliers) let designers retune the upgrade curve by editing JSON. The `Upgrade*` methods bounds-check the level cap, charge the cost from `UpgradeCostLvls[level]`, advance the level, and read the new stat value out of the matching level array. No balancing change required a rebuild.",
       },
       {
         tech: "Edge-detected input (MEInput)",
@@ -421,6 +575,142 @@ export const PROJECT_DETAILS: Record<
       "Hand-rolled stack covers 6 subsystems: rendering, scene graph, particles, input, asset pipeline, audio hooks.",
       "rapidjson pipeline: every emitter parameter and every upgrade curve lives in text files and hot-reloads without a rebuild.",
       "Shipped Zeppelin Rush to Steam running entirely on the custom stack.",
+    ],
+    codeSnippets: [
+      {
+        title: "Emitter.json: full data-driven emitter schema",
+        description:
+          "What every effect in the game is: a JSON file. The particle system reads this via rapidjson and rebuilds the emitter's runtime parameters on each reload, so changing a fade curve is a text-editor save and a key hold, not a rebuild.",
+        language: "json",
+        code: `{
+  "Emitter": {
+    "ParticleMoveWithObject": false,
+    "PatternType": "Rotate",
+    "SpawnRate": 100,
+    "ParticleLife": 3,
+    "SprayAngle": 20,
+    "MinSpeed": 100,
+    "MaxSpeed": 150,
+    "HiveMind": false,
+    "UniformAnimation": true,
+    "Fade": "Out",
+    "FadeTime": 0.2,
+    "ScaleSetting": "Pop",
+    "ScaleMultiplier": 4.0,
+    "ScaleTime": 2.9
+  },
+  "Animation": {
+    "FrameCount": 32,
+    "FrameDuration": 0.01,
+    "IsLooping": true,
+    "DiffAnimations": false
+  },
+  "Sprite": { "SpriteSource": "particlemagic" }
+}`,
+      },
+      {
+        title: "ParticleSystem::Update: the per-frame emitter loop",
+        description:
+          "What each emitter does every frame: accumulator-driven spawn, aging, motion integration, curve evaluation, flipbook advance, recycle. No allocations at play time; the pool is sized at load from SpawnRate * ParticleLife.",
+        language: "cpp",
+        code: `void ParticleSystem::Update(float dt)
+{
+  // 1. Spawn. Accumulator spawns whole particles on frames
+  //    where the fractional part tips over 1.
+  spawnAcc_ += config_.SpawnRate * dt;
+  while (spawnAcc_ >= 1.0f && !pool_.Full())
+  {
+    Particle* p = pool_.Acquire();
+    p->pos       = ResolveSpawnPos(config_);
+    p->vel       = SampleLaunchVector(config_);   // spray + speed
+    p->age       = 0.0f;
+    p->animFrame = config_.HiveMind ? hiveFrame_ : 0;
+    spawnAcc_   -= 1.0f;
+  }
+
+  // 2. Update every live particle in one pass.
+  for (Particle& p : pool_.Alive())
+  {
+    p.age += dt;
+    if (p.age >= config_.ParticleLife) { pool_.Release(p); continue; }
+
+    p.pos  += p.vel * dt;
+    p.alpha = EvalFade(config_.Fade, p.age,
+                       config_.ParticleLife, config_.FadeTime);
+    p.scale = EvalScale(config_.ScaleSetting, p.age,
+                        config_.ScaleMultiplier, config_.ScaleTime);
+
+    AdvanceFlipbook(p, anim_, dt);
+  }
+
+  if (config_.HiveMind) AdvanceFlipbook(hiveFrame_, anim_, dt);
+}`,
+      },
+      {
+        title: "Stats.h: component interface for any stat-bearing entity",
+        description:
+          "Every entity with health or damage gets one of these. Serialized fields cover the tower-offense design space, per-level arrays drive the upgrade curve, and the Upgrade* methods bounds-check the cap, charge the cost, and advance the level.",
+        language: "cpp",
+        code: `class Stats : public Component
+{
+public:
+  // Serialized design fields (read from JSON).
+  int   MaxHealth, ReloadTime, RespawnRate, AttackDamage;
+  float MaxSpeed;
+  int   Cost;
+
+  // Per-level upgrade curves. [0] is the base stat, [1] first
+  // upgrade, [2] second. Designers edit these arrays in JSON.
+  std::vector<int>   MaxHealthLvls;
+  std::vector<float> MaxSpeedLvls;
+  std::vector<int>   AttackDamageLvls;
+  std::vector<int>   UpgradeCostLvls;
+
+  // Runtime state.
+  int   Health;
+  float reloadTimer_, respawnTimer_;
+  bool  IsHurt, IsAttacking, IsDead;
+
+  // Upgrade API. Each method bounds-checks against the level cap,
+  // charges UpgradeCostLvls[level], advances the level, and reads
+  // the new value out of the matching level array. Returns false
+  // if already at cap or player can't afford.
+  bool UpgradeMaxHealth();
+  bool UpgradeMaxSpeed();
+  bool UpgradeAttackDamage();
+
+  // Called on JSON (re)load to rebuild the serialized fields.
+  void Deserialize(const rapidjson::Value& v) override;
+};`,
+      },
+      {
+        title: "MEInput: edge-detected input over GLFW",
+        description:
+          "One polling abstraction for the whole engine. PollEvents snapshots the current-frame state; the query methods diff against the previous frame so every caller gets the same 'just pressed this frame' semantics without pulling in GLFW directly.",
+        language: "cpp",
+        code: `class MEInput
+{
+public:
+  // Call once at the top of every frame.
+  static void PollEvents();
+
+  // Edge-detected queries: true only on the frame the key
+  // transitioned. No repeat, no autorepeat, no timing surprises.
+  static bool IsKeyPressed(int key);    // up -> down this frame
+  static bool IsKeyHeld(int key);       // currently down
+  static bool IsKeyReleased(int key);   // down -> up this frame
+
+  static bool IsMousePressed(int btn);
+  static bool IsMouseHeld(int btn);
+  static bool IsMouseReleased(int btn);
+
+  static glm::vec2 MousePos();
+
+private:
+  static std::array<bool, MAX_KEYS>  curr_, prev_;
+  static std::array<bool, MOUSE_BTNS> currMouse_, prevMouse_;
+};`,
+      },
     ],
   },
   "zeppelin-rush": {
@@ -473,6 +763,95 @@ export const PROJECT_DETAILS: Record<
           "The three on-disk outputs. Left: the winning action sequence, ending at 401.84. Middle: a JSON per generation, each holding the full action list for every game so any run can be replayed in the engine. Right: the times-only counterpart. The Games(TimesOnly) folder writes one of these per generation with just the finishing times, for quick analysis without loading full action lists.",
       },
     ],
+    codeSnippets: [
+      {
+        title: "Fitness: time remaining on win, negative on loss",
+        description:
+          "The single design choice that made evolution possible. 0/1/2/3 stars is too coarse (two losing games both sit at zero, so selection has nothing to pick). Continuous time-remaining gives every individual a distinct score and a gradient that runs from 'lost slowly' through 'barely won' to 'three-star finish'.",
+        language: "python",
+        code: `def fitness(game_result: dict) -> float:
+    """
+    game_result is parsed from SharedData.json after the game ends.
+    Winning is rewarded by how much time was left (0..600 seconds).
+    Losing is a large negative so the GA always prefers any win over
+    any loss, but still gradients between 'lost fast' and 'lost slow'.
+    """
+    timer = game_result["Timer"]       # seconds left when game ended
+    state = game_result["Gamestate"]   # "Win" or "Lose"
+    if state == "Win":
+        return timer                   # higher = finished faster
+    return -600.0 + timer              # still a gradient between losses`,
+      },
+      {
+        title: "FixMutation: constraint-aware repair of illegal sequences",
+        description:
+          "Mutation and crossover regularly produce sequences that violate the game's rules (selecting the same zeppelin twice in a row, upgrading a stat past the two-upgrade cap). Rather than penalize them in fitness and wait for them to evolve out, the repair pass rewrites each illegal move into a random legal spawn. Every evaluated individual is actually playable.",
+        language: "python",
+        code: `SELECT  = {"S", "M", "L"}
+UPGRADE = {"H": "health", "A": "attack", "Q": "speed"}
+SPAWNS  = ["Z", "X", "C"]   # top / middle / bottom lane
+
+def FixMutation(actions):
+    fixed = []
+    selected = "S"                                   # small by default
+    upgrades = {z: {"health": 0, "attack": 0, "speed": 0}
+                for z in SELECT}
+
+    for a in actions:
+        if a in SELECT:
+            # Illegal: two selects in a row. The previous select was
+            # pointless, so replace THIS one with a random spawn.
+            if fixed and fixed[-1] in SELECT:
+                fixed.append(random.choice(SPAWNS)); continue
+            selected = a
+            fixed.append(a)
+        elif a in UPGRADE:
+            stat = UPGRADE[a]
+            # Illegal: upgrading past the 2-upgrade cap.
+            if upgrades[selected][stat] >= 2:
+                fixed.append(random.choice(SPAWNS)); continue
+            upgrades[selected][stat] += 1
+            fixed.append(a)
+        else:
+            fixed.append(a)
+    return fixed`,
+      },
+      {
+        title: "Crossover + mutation on action lists",
+        description:
+          "Each genome is just the action list the AI fed into the game. Single-point crossover splices two parents at a random index. Mutation flips 8 positions uniformly. Illegal tails from either op are repaired by FixMutation before evaluation.",
+        language: "python",
+        code: `ACTIONS = ["M", "L", "H", "A", "Q", "Z", "X", "C"]
+
+def crossover(p1, p2):
+    idx = random.randrange(1, min(len(p1), len(p2)))
+    child1 = p1[:idx] + p2[idx:]
+    child2 = p2[:idx] + p1[idx:]
+    return FixMutation(child1), FixMutation(child2)
+
+def mutate(genome, flips: int = 8):
+    g = list(genome)
+    for _ in range(flips):
+        i = random.randrange(len(g))
+        g[i] = random.choice(ACTIONS)
+    return FixMutation(g)`,
+      },
+      {
+        title: "SharedData.json read loop with Windows file-lock retry",
+        description:
+          "The engine writes gamestate/gold/timer to SharedData.json every frame. The Python side polls. If a read lands mid-write, Windows file-locking raises IOError, the catch block waits a millisecond, and retries. Shared memory would have required a significant engine-side refactor; this got IPC working in an afternoon.",
+        language: "python",
+        code: `def read_game_state(path="SharedData.json", max_retries=50):
+    for _ in range(max_retries):
+        try:
+            with open(path, "r") as f:
+                return json.load(f)["GameInfo"]
+        except (IOError, json.JSONDecodeError):
+            # Engine is mid-write. Back off one tick and retry.
+            time.sleep(0.001)
+    raise RuntimeError("SharedData.json never settled")`,
+      },
+    ],
   },
   isshin: {
     problem:
@@ -509,6 +888,118 @@ export const PROJECT_DETAILS: Record<
       "`UHelperFunctions` Blueprint library with 4 widely-used utilities (rotation targeting, frenzy damage scaling, player access, relative positioning). Same surface from C++ and Blueprints.",
       "Wwise audio middleware, Enhanced Input, and CommonUI across the UI stack.",
       "Jenkins for automated builds. ClickUp for bug tracking (Asana-style workflow).",
+    ],
+    codeSnippets: [
+      {
+        title: "Hitstop: frame-counted freeze-on-hit in CombatActionManager",
+        description:
+          "Counting animation frames, not wall-clock seconds. Freeze duration stays deterministic across frame-rate spikes and matches how animators think about impact frames. Per-action ceilings live on the FCombatAction struct so designers tune feel per move without touching code.",
+        language: "cpp",
+        code: `// CombatActionManager.h
+struct FCombatAction
+{
+    // ... other fields ...
+    int Hitstop_frames = 3;   // per-move ceiling, designer-tunable
+};
+
+// CombatActionManager.cpp
+void UCombatActionManager::TickComponent(float DeltaTime, ...)
+{
+    if (hitstop_active)
+    {
+        // Frozen: skip action ticks, count one frame, auto-release.
+        ++hitstop_frame_counter;
+        if (hitstop_frame_counter >= CurrentAction.Hitstop_frames)
+        {
+            SetHitstop(false);
+            hitstop_frame_counter = 0;
+        }
+        return;                    // nothing else runs while frozen
+    }
+    AdvanceAction(DeltaTime);      // normal path
+}
+
+void UCombatActionManager::OnHitConfirmed(const FHitResult& hit)
+{
+    // Only flip the flag on a confirmed hit; the tick does the rest.
+    SetHitstop(true);
+    hitstop_frame_counter = 0;
+}`,
+      },
+      {
+        title: "Pause menu / combat state-machine handoff",
+        description:
+          "An FTimerHandle held by the pause subsystem is the suspend token. Pause pauses the handle, freezing combat ticks; resume unpauses and the combat manager picks up on the same frame it left. Widgets drive this via BlueprintCallable wrappers so designers wire it in Blueprint without calling into C++.",
+        language: "cpp",
+        code: `// GameUI_PauseSubsystem.h
+UCLASS()
+class UGameUI_PauseSubsystem : public UWorldSubsystem
+{
+    GENERATED_BODY()
+public:
+    UFUNCTION(BlueprintCallable) void Pause();
+    UFUNCTION(BlueprintCallable) void Resume();
+
+private:
+    FTimerHandle activePause;
+    TWeakObjectPtr<UCombatActionManager> Combat;
+};
+
+// GameUI_PauseSubsystem.cpp
+void UGameUI_PauseSubsystem::Pause()
+{
+    if (Combat.IsValid())
+    {
+        Combat->SuspendTicks();                           // combat freezes
+        GetWorld()->GetTimerManager().PauseTimer(activePause);
+    }
+    ShowPauseWidget();
+}
+
+void UGameUI_PauseSubsystem::Resume()
+{
+    HidePauseWidget();
+    if (Combat.IsValid())
+    {
+        GetWorld()->GetTimerManager().UnPauseTimer(activePause);
+        Combat->ResumeTicks();
+    }
+}`,
+      },
+      {
+        title: "UHelperFunctions: one Blueprint library, four utilities",
+        description:
+          "Engineers and designers both needed the same utilities. A UBlueprintFunctionLibrary exposes the C++ surface to Blueprint event graphs with no glue, so one implementation serves both worlds. BlueprintPure where the function is side-effect-free so it can be called in-graph without an exec pin.",
+        language: "cpp",
+        code: `UCLASS()
+class UHelperFunctions : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+
+public:
+    // Rotation targeting: degrees from Source to Target in the XY plane.
+    // Used by combat positioning and camera-relative input mapping.
+    UFUNCTION(BlueprintPure, Category = "Isshin|Math")
+    static float FindRotationDegrees(FVector Source, FVector Target);
+
+    // Frenzy damage scaling: base damage scaled by the player's
+    // current frenzy level using the level-stat curve.
+    UFUNCTION(BlueprintPure, Category = "Isshin|Combat")
+    static float CalculateFrenzyDamage(int32 BaseDamage, int32 FrenzyLevel);
+
+    // Safe player access from any UObject context.
+    UFUNCTION(BlueprintPure, Category = "Isshin|Player",
+              meta = (WorldContext = "WorldContextObject"))
+    static AIsshinCharacter* GetPlayerCharacter(
+        const UObject* WorldContextObject);
+
+    // Relative-space positioning: offset in Source's local frame,
+    // returned in world space. Used for attach points and VFX.
+    UFUNCTION(BlueprintPure, Category = "Isshin|Math")
+    static FVector GetPositionFromRelative(FVector Origin, FRotator Rot,
+                                           FVector LocalOffset);
+};`,
+      },
     ],
   },
 };

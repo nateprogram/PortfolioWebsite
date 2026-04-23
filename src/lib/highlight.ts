@@ -4,8 +4,13 @@ import { codeToHtml, type BundledLanguage } from "shiki";
 // snippets. Runs at build / render time in the (server) project page, so
 // the client bundle never sees shiki — we just ship the pre-generated HTML.
 //
-// Theme is "dark-plus" (Microsoft's VS Code Dark+), so a reader who spends
-// their day in VS Code recognizes the colors immediately.
+// Uses shiki's *dual theme* mode: both "light-plus" (VS Code Light+) and
+// "dark-plus" (VS Code Dark+) colors are written into the HTML as CSS
+// custom properties (`--shiki-light`, `--shiki-dark`). The site's
+// `globals.css` then flips between them based on the `.dark` class on
+// `<html>`. That means the same rendered snippet looks correct in both
+// color modes — light mode readers get the familiar Light+ palette on a
+// light background instead of a jarring black inline block.
 
 // Map the loose language labels we author in `resume.tsx` to shiki's bundled
 // grammar names. Anything not in this table falls through to a plaintext
@@ -52,7 +57,16 @@ export async function highlightCode(
   try {
     return await codeToHtml(code, {
       lang: lang ?? "text",
-      theme: "dark-plus",
+      themes: {
+        // Keys here become the CSS-variable suffixes on every span
+        // (`--shiki-light`, `--shiki-dark`). `defaultColor: false` stops
+        // shiki from writing an inline `color:` / `background-color:`
+        // fallback that would pin the snippet to one theme regardless
+        // of the site's current color mode.
+        light: "light-plus",
+        dark: "dark-plus",
+      },
+      defaultColor: false,
     });
   } catch (err) {
     // Grammar failed to load (rare — bundled list is small), or shiki died.

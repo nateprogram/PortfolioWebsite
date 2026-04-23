@@ -67,13 +67,19 @@ function FigureRenderer({ figure }: { figure: Figure }) {
       // absolutely positioned on the wrapper, and with `overflow-hidden`
       // the tooltip gets clipped against the figure's rounded edge when a
       // point is near the border.
+      //
+      // We don't add `role="img"` on the inner wrapper anymore — each
+      // diagram component provides its own landmark role (`img` for the
+      // static SVG chart, `region` for the interactive dataflow). Adding
+      // a generic `role="img"` here would swallow the buttons inside the
+      // interactive dataflow for screen readers.
       <figure
         className={cn(
           "flex flex-col gap-2 rounded-xl border border-border bg-muted/20 p-3 sm:p-4",
           SILVER_CARD
         )}
       >
-        <div className="w-full" aria-label={figure.alt} role="img">
+        <div className="w-full">
           <Diagram />
         </div>
         {figure.caption && (

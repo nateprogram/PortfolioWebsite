@@ -241,23 +241,26 @@ export function InlineCodeSnippet({ snippet }: { snippet: CodeSnippet }) {
           {snippet.description}
         </div>
       )}
-      {/* Code body. Shiki produces a styled <pre><code> tree with inline
-          colors; we just wrap it to get the border-top + overflow behavior
-          the card expects. The descendant selectors below strip shiki's
-          default margins so it sits flush and keep the font-size consistent. */}
+      {/* Code body. Shiki now emits both Light+ and Dark+ palettes as CSS
+          custom properties on every token; `globals.css` flips between
+          them based on the `.dark` class and forces the shiki node's own
+          `background-color` to `transparent`, so the wrapper's background
+          below is what the reader actually sees. We use `bg-muted/50` in
+          light mode (a soft off-white that matches the rest of the page)
+          and `bg-background/60` in dark mode (a slightly deeper-than-card
+          tone that still reads as a distinct code region). */}
       {snippet.highlightedHtml ? (
         <div
           className={cn(
             "overflow-x-auto border-t border-border/60",
-            // shiki emits <pre style="background-color: #1e1e1e; ..."> which
-            // we preserve; just strip margin, add padding, normalize type.
+            "bg-muted/50 dark:bg-background/60",
             "[&>pre]:m-0 [&>pre]:px-5 [&>pre]:py-3.5 [&>pre]:text-[12px] [&>pre]:leading-relaxed",
             "[&_code]:font-mono"
           )}
           dangerouslySetInnerHTML={{ __html: snippet.highlightedHtml }}
         />
       ) : (
-        <pre className="m-0 overflow-x-auto border-t border-border/60 bg-background/60 px-5 py-3.5 text-[12px] leading-relaxed">
+        <pre className="m-0 overflow-x-auto border-t border-border/60 bg-muted/50 dark:bg-background/60 px-5 py-3.5 text-[12px] leading-relaxed">
           <code className="font-mono text-foreground/90">{snippet.code}</code>
         </pre>
       )}

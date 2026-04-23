@@ -25,14 +25,7 @@ const C = {
 } as const;
 
 const W = 1200;
-const H = 1640;
-
-// The layout we liked was authored at base type sizes; scaling them up by
-// ~45 % here gives readable labels at the widths the SVG actually renders
-// (the page scales the 1200-wide viewBox down to ~800 px, which ate too
-// much type). Layout geometry is untouched — only the per-label fontSize
-// is multiplied.
-const TEXT_SCALE = 1.45;
+const H = 1540;
 
 // ---------- Scraper categories (5 columns of peers) ----------
 const CAT_Y = 70;
@@ -84,22 +77,22 @@ const CAT_X = (i: number) => 16 + i * (CAT_W + CAT_GAP);
 const FLOW_X = 30;
 const FLOW_W = 880 - 30; // 850 wide
 const FLOW = {
-  controller: { y: 330, h: 108 },
-  featureEngine: { y: 460, h: 108 },
-  analyzers: { y: 590, h: 170 },
-  correlation: { y: 780, h: 86 },
-  aggregator: { y: 890, h: 96 },
-  regimeAndModel: { y: 1010, h: 190 },
-  validator: { y: 1220, h: 96 },
-  console: { y: 1340, h: 96 },
+  controller: { y: 330, h: 92 },
+  featureEngine: { y: 450, h: 92 },
+  analyzers: { y: 570, h: 150 },
+  correlation: { y: 750, h: 74 },
+  aggregator: { y: 852, h: 80 },
+  regimeAndModel: { y: 960, h: 160 },
+  validator: { y: 1150, h: 82 },
+  console: { y: 1260, h: 82 },
 } as const;
 
 // ---------- Right column (database + feedback infra) ----------
 const DB_X = 908;
 const DB_W = 272;
-const DB = { y: 330, h: 656 }; // spans controller -> aggregator
-const LEARNER = { y: 1010, h: 140 };
-const BACKTESTER = { y: 1170, h: 150 };
+const DB = { y: 330, h: 602 }; // spans controller -> aggregator
+const LEARNER = { y: 960, h: 120 };
+const BACKTESTER = { y: 1112, h: 120 };
 
 // ---------- Helpers ----------
 function Box({
@@ -199,7 +192,7 @@ function TextLine({
       x={x}
       y={y}
       fill={fill}
-      fontSize={size * TEXT_SCALE}
+      fontSize={size}
       fontWeight={weight}
       textAnchor={anchor}
       fontFamily={
@@ -303,7 +296,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
               <TextLine
                 key={item}
                 x={x + 14}
-                y={CAT_Y + 62 + j * 22}
+                y={CAT_Y + 62 + j * 18}
                 size={12}
                 weight={500}
                 fill={C.text}
@@ -335,7 +328,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.controller.y + 30}
+          y={FLOW.controller.y + 24}
           size={13}
           weight={700}
           fill={C.text}
@@ -344,7 +337,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.controller.y + 58}
+          y={FLOW.controller.y + 44}
           size={11}
           fill={C.subtext}
           mono
@@ -353,7 +346,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.controller.y + 82}
+          y={FLOW.controller.y + 62}
           size={11}
           fill={C.subtext}
           mono
@@ -400,7 +393,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.featureEngine.y + 30}
+          y={FLOW.featureEngine.y + 24}
           size={13}
           weight={700}
           fill={C.text}
@@ -409,7 +402,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.featureEngine.y + 58}
+          y={FLOW.featureEngine.y + 44}
           size={11}
           fill={C.subtext}
           mono
@@ -418,7 +411,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.featureEngine.y + 82}
+          y={FLOW.featureEngine.y + 62}
           size={11}
           fill={C.subtext}
           mono
@@ -479,7 +472,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
               <Box x={x} y={ay} w={aW} h={ah} />
               <TextLine
                 x={x + aW / 2}
-                y={ay + 30}
+                y={ay + 26}
                 anchor="middle"
                 size={13}
                 weight={700}
@@ -489,7 +482,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
               </TextLine>
               <TextLine
                 x={x + aW / 2}
-                y={ay + 52}
+                y={ay + 44}
                 anchor="middle"
                 size={10}
                 fill={C.subtext}
@@ -501,7 +494,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
                 <TextLine
                   key={line}
                   x={x + aW / 2}
-                  y={ay + 82 + j * 24}
+                  y={ay + 68 + j * 18}
                   anchor="middle"
                   size={11}
                   fill={C.subtext}
@@ -554,7 +547,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={FLOW_X + FLOW_W / 2}
-          y={FLOW.correlation.y + 30}
+          y={FLOW.correlation.y + 24}
           anchor="middle"
           size={12}
           weight={700}
@@ -564,7 +557,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + FLOW_W / 2}
-          y={FLOW.correlation.y + 58}
+          y={FLOW.correlation.y + 44}
           anchor="middle"
           size={10}
           fill={C.subtext}
@@ -592,7 +585,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.aggregator.y + 32}
+          y={FLOW.aggregator.y + 24}
           size={13}
           weight={700}
           fill={C.text}
@@ -601,7 +594,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.aggregator.y + 64}
+          y={FLOW.aggregator.y + 44}
           size={11}
           fill={C.subtext}
           mono
@@ -648,7 +641,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             <Box x={FLOW_X} y={y} w={hmmW} h={h} />
             <TextLine
               x={FLOW_X + hmmW / 2}
-              y={y + 30}
+              y={y + 26}
               anchor="middle"
               size={13}
               weight={700}
@@ -658,7 +651,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW / 2}
-              y={y + 52}
+              y={y + 46}
               anchor="middle"
               size={10}
               fill={C.subtext}
@@ -668,7 +661,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW / 2}
-              y={y + 82}
+              y={y + 70}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -678,7 +671,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW / 2}
-              y={y + 106}
+              y={y + 88}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -688,7 +681,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW / 2}
-              y={y + 130}
+              y={y + 106}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -698,7 +691,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW / 2}
-              y={y + 154}
+              y={y + 124}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -734,7 +727,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             />
             <TextLine
               x={FLOW_X + hmmW + gap + lstmW / 2}
-              y={y + 32}
+              y={y + 26}
               anchor="middle"
               size={14}
               weight={700}
@@ -744,7 +737,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW + gap + lstmW / 2}
-              y={y + 58}
+              y={y + 46}
               anchor="middle"
               size={11}
               fill={C.accent}
@@ -754,7 +747,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW + gap + lstmW / 2}
-              y={y + 88}
+              y={y + 70}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -764,7 +757,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW + gap + lstmW / 2}
-              y={y + 114}
+              y={y + 88}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -774,7 +767,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={FLOW_X + hmmW + gap + lstmW / 2}
-              y={y + 146}
+              y={y + 112}
               anchor="middle"
               size={11}
               fill={C.subtext}
@@ -806,7 +799,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.validator.y + 28}
+          y={FLOW.validator.y + 24}
           size={13}
           weight={700}
           fill={C.text}
@@ -815,7 +808,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.validator.y + 54}
+          y={FLOW.validator.y + 44}
           size={11}
           fill={C.subtext}
           mono
@@ -825,7 +818,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.validator.y + 78}
+          y={FLOW.validator.y + 62}
           size={11}
           fill={C.subtext}
           mono
@@ -852,7 +845,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.console.y + 28}
+          y={FLOW.console.y + 24}
           size={13}
           weight={700}
           fill={C.text}
@@ -861,7 +854,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.console.y + 54}
+          y={FLOW.console.y + 44}
           size={11}
           fill={C.subtext}
           mono
@@ -871,7 +864,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={FLOW_X + 18}
-          y={FLOW.console.y + 78}
+          y={FLOW.console.y + 62}
           size={11}
           fill={C.subtext}
           mono
@@ -894,7 +887,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={DB_X + DB_W / 2}
-          y={DB.y + 32}
+          y={DB.y + 28}
           anchor="middle"
           size={14}
           weight={700}
@@ -904,7 +897,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={DB.y + 56}
+          y={DB.y + 48}
           anchor="middle"
           size={10}
           fill={C.subtext}
@@ -922,16 +915,16 @@ export function StockaiDataflow({ className }: { className?: string }) {
           <g key={t}>
             <rect
               x={DB_X + 16}
-              y={DB.y + 88 + i * 72}
+              y={DB.y + 78 + i * 62}
               width={DB_W - 32}
-              height={60}
+              height={52}
               rx={8}
               fill={C.boxAccent}
               stroke={C.stroke}
             />
             <TextLine
               x={DB_X + DB_W / 2}
-              y={DB.y + 88 + i * 72 + 26}
+              y={DB.y + 78 + i * 62 + 22}
               anchor="middle"
               size={12}
               weight={600}
@@ -941,7 +934,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </TextLine>
             <TextLine
               x={DB_X + DB_W / 2}
-              y={DB.y + 88 + i * 72 + 48}
+              y={DB.y + 78 + i * 62 + 40}
               anchor="middle"
               size={10}
               fill={C.subtext}
@@ -984,7 +977,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={DB_X + DB_W / 2}
-          y={LEARNER.y + 30}
+          y={LEARNER.y + 26}
           anchor="middle"
           size={13}
           weight={700}
@@ -994,7 +987,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={LEARNER.y + 54}
+          y={LEARNER.y + 46}
           anchor="middle"
           size={10}
           fill={C.subtext}
@@ -1004,7 +997,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={LEARNER.y + 84}
+          y={LEARNER.y + 72}
           anchor="middle"
           size={11}
           fill={C.subtext}
@@ -1014,7 +1007,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={LEARNER.y + 112}
+          y={LEARNER.y + 92}
           anchor="middle"
           size={11}
           fill={C.subtext}
@@ -1036,7 +1029,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         />
         <TextLine
           x={DB_X + DB_W / 2}
-          y={BACKTESTER.y + 48}
+          y={BACKTESTER.y + 44}
           anchor="middle"
           size={13}
           weight={700}
@@ -1046,7 +1039,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={BACKTESTER.y + 72}
+          y={BACKTESTER.y + 64}
           anchor="middle"
           size={10}
           fill={C.subtext}
@@ -1056,7 +1049,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={BACKTESTER.y + 102}
+          y={BACKTESTER.y + 88}
           anchor="middle"
           size={11}
           fill={C.feedback}
@@ -1067,7 +1060,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={BACKTESTER.y + 128}
+          y={BACKTESTER.y + 108}
           anchor="middle"
           size={11}
           fill={C.subtext}
@@ -1077,7 +1070,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </TextLine>
         <TextLine
           x={DB_X + DB_W / 2}
-          y={BACKTESTER.y + 150}
+          y={BACKTESTER.y + 124}
           anchor="middle"
           size={11}
           fill={C.subtext}

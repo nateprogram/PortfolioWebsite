@@ -58,9 +58,13 @@ function FigureRenderer({ figure }: { figure: Figure }) {
         : null;
     if (!Diagram) return null;
     return (
+      // NOTE: no `overflow-hidden` here. The GA chart's hover tooltip is
+      // absolutely positioned on the wrapper, and with `overflow-hidden`
+      // the tooltip gets clipped against the figure's rounded edge when a
+      // point is near the border.
       <figure
         className={cn(
-          "flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-muted/20 p-3 sm:p-4",
+          "flex flex-col gap-2 rounded-xl border border-border bg-muted/20 p-3 sm:p-4",
           SILVER_CARD
         )}
       >

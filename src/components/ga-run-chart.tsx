@@ -42,8 +42,11 @@ const BEST_PER_GEN: ReadonlyArray<{ gen: number; best: number }> =
 
 // ----- coordinate math -----
 const W = 820;
-const H = 460;
-const PAD = { top: 32, right: 28, bottom: 60, left: 72 };
+const H = 480;
+// Generous top padding reserves room for a title + best-score badge above the
+// plot frame, and — just as importantly — gives hovered-tooltip space so
+// points high on the chart don't get clipped by the top edge.
+const PAD = { top: 84, right: 28, bottom: 60, left: 72 };
 
 const X_MIN = -0.5;
 const X_MAX = 16.5;
@@ -280,9 +283,12 @@ export function GaRunChart({ className }: { className?: string }) {
         ))}
 
         {/* Per-game scatter points (hoverable). Invisible larger hit circle
-            wraps each visible dot so mouseover isn't brittle. */}
+            wraps each visible dot so mouseover isn't brittle. All dots for a
+            given generation are stacked on that generation's integer x —
+            user asked for points to sit directly on the generation line, not
+            jittered across the gap. */}
         {POINTS.map((p, i) => {
-          const cx = sx(p.gen + (p.idx - 5) * 0.045); // jitter within generation
+          const cx = sx(p.gen);
           const cy = sy(p.score);
           const isHovered =
             hovered !== null &&
@@ -330,32 +336,25 @@ export function GaRunChart({ className }: { className?: string }) {
           );
         })}
 
-        {/* Legend (top-left inside plot) */}
+        {/* Legend (top-left inside plot). The "win" row was dropped — hovering
+            a blue dot already shows its exact value in the tooltip, and the
+            win/loss zero line plus the best-of-gen trend already anchor what
+            blue means. */}
         <g transform={`translate(${PAD.left + 12}, ${PAD.top + 12})`}>
           <rect
             x={0}
             y={0}
             width={196}
-            height={66}
+            height={48}
             rx={6}
             fill="rgba(15,23,42,0.75)"
             stroke={C.axis}
             strokeWidth={1}
           />
-          <circle cx={14} cy={16} r={3.5} fill={C.win} />
+          <circle cx={14} cy={16} r={3.5} fill={C.loss} />
           <text
             x={26}
             y={19}
-            fill={C.subtext}
-            fontSize={10.5}
-            fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
-          >
-            win (hover for value)
-          </text>
-          <circle cx={14} cy={34} r={3.5} fill={C.loss} />
-          <text
-            x={26}
-            y={37}
             fill={C.subtext}
             fontSize={10.5}
             fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
@@ -365,14 +364,14 @@ export function GaRunChart({ className }: { className?: string }) {
           <line
             x1={8}
             x2={22}
-            y1={52}
-            y2={52}
+            y1={34}
+            y2={34}
             stroke={C.trend}
             strokeWidth={2}
           />
           <text
             x={26}
-            y={55}
+            y={37}
             fill={C.subtext}
             fontSize={10.5}
             fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
@@ -381,20 +380,45 @@ export function GaRunChart({ className }: { className?: string }) {
           </text>
         </g>
 
-        {/* Summary badge (top-right) */}
-        <g transform={`translate(${PAD.left + PLOT_W - 168}, ${PAD.top + 12})`}>
+        {/* ---------- Header band (lives inside the new PAD.top headroom) ---------- */}
+
+        {/* Title (top-left of header band) */}
+        <text
+          x={PAD.left}
+          y={26}
+          fill={C.text}
+          fontSize={14}
+          fontWeight={700}
+          fontFamily="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
+        >
+          Genetic AI training run
+        </text>
+        <text
+          x={PAD.left}
+          y={46}
+          fill={C.subtext}
+          fontSize={11}
+          fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
+        >
+          {gaData.generations.length} generations · {totalGames} games · {totalLosses} losses
+        </text>
+
+        {/* Best-score badge (top-right of header band, now safely above the
+            plot so the 3★ threshold line no longer runs through it) */}
+        <g transform={`translate(${PAD.left + PLOT_W - 172}, 14)`}>
           <rect
             x={0}
             y={0}
-            width={156}
-            height={48}
-            rx={6}
+            width={172}
+            height={56}
+            rx={8}
             fill="rgba(15,23,42,0.75)"
-            stroke={C.axis}
+            stroke={C.threshold}
+            strokeOpacity={0.5}
             strokeWidth={1}
           />
           <text
-            x={12}
+            x={14}
             y={20}
             fill={C.subtext}
             fontSize={10}
@@ -403,51 +427,72 @@ export function GaRunChart({ className }: { className?: string }) {
             BEST SCORE
           </text>
           <text
-            x={12}
-            y={38}
+            x={14}
+            y={42}
             fill={C.threshold}
-            fontSize={16}
+            fontSize={18}
             fontWeight={700}
             fontFamily="ui-sans-serif, system-ui, -apple-system, sans-serif"
           >
             {bestOverall.toFixed(2)} ★
           </text>
+          <text
+            x={158}
+            y={42}
+            fill={C.subtext}
+            fontSize={10}
+            textAnchor="end"
+            fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
+          >
+            sec left
+          </text>
         </g>
       </svg>
 
-      {/* Tooltip — positioned as % of wrapper so it tracks the scaled SVG. */}
-      {hovered && (
-        <div
-          className={cn(
-            "pointer-events-none absolute z-10 rounded-md border border-border bg-background/95 px-2.5 py-1.5 text-xs shadow-lg ring-1 ring-inset ring-white/[0.05]",
-            "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
-          )}
-          style={{
-            left: `${(sx(hovered.gen + (hovered.idx - 5) * 0.045) / W) * 100}%`,
-            top: `${(sy(hovered.score) / H) * 100}%`,
-            transform: "translate(-50%, calc(-100% - 12px))",
-          }}
-        >
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Gen {hovered.gen} · Game {hovered.idx}
-          </div>
+      {/* Tooltip — positioned as % of wrapper so it tracks the scaled SVG.
+          When a point is near the top of the plot, the default "above the
+          dot" placement would clip against the chart's top edge. We detect
+          that and flip the tooltip below the dot instead. */}
+      {hovered && (() => {
+        const pxY = sy(hovered.score);
+        // If the dot sits in the upper band of the chart, flip the tooltip
+        // below so it doesn't crash into the top edge / header badge.
+        const flipBelow = pxY < PAD.top + 60;
+        return (
           <div
             className={cn(
-              "font-semibold",
-              hovered.win ? "text-sky-300" : "text-red-300"
+              "pointer-events-none absolute z-10 rounded-md border border-border bg-background/95 px-2.5 py-1.5 text-xs shadow-lg ring-1 ring-inset ring-white/[0.05]",
+              "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
             )}
+            style={{
+              left: `${(sx(hovered.gen) / W) * 100}%`,
+              top: `${(pxY / H) * 100}%`,
+              transform: flipBelow
+                ? "translate(-50%, 14px)"
+                : "translate(-50%, calc(-100% - 12px))",
+            }}
           >
-            {hovered.win
-              ? `${hovered.score.toFixed(2)} s remaining`
-              : "Loss"}
-          </div>
-          {hovered.win && hovered.score >= 400 && (
-            <div className="text-[10px] font-semibold text-amber-400">
-              ★★★ above 3-star threshold
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Gen {hovered.gen} · Game {hovered.idx}
             </div>
-          )}
-        </div>
-      )}
+            <div
+              className={cn(
+                "font-semibold",
+                hovered.win ? "text-sky-300" : "text-red-300"
+              )}
+            >
+              {hovered.win
+                ? `${hovered.score.toFixed(2)} s remaining`
+                : "Loss"}
+            </div>
+            {hovered.win && hovered.score >= 400 && (
+              <div className="text-[10px] font-semibold text-amber-400">
+                ★★★ above 3-star threshold
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

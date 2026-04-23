@@ -250,7 +250,7 @@ export function GaRunChart({ className }: { className?: string }) {
           transform={`rotate(-90, 18, ${PAD.top + PLOT_H / 2})`}
           fontFamily="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
         >
-          Score (seconds remaining · −99 = loss)
+          Score
         </text>
 
         {/* Best-per-gen trend line (wins only) */}
@@ -336,42 +336,57 @@ export function GaRunChart({ className }: { className?: string }) {
           );
         })}
 
-        {/* Legend (top-left inside plot). The "win" row was dropped — hovering
-            a blue dot already shows its exact value in the tooltip, and the
-            win/loss zero line plus the best-of-gen trend already anchor what
-            blue means. */}
-        <g transform={`translate(${PAD.left + 12}, ${PAD.top + 12})`}>
-          <rect
-            x={0}
-            y={0}
-            width={196}
-            height={48}
-            rx={6}
-            fill="rgba(15,23,42,0.75)"
-            stroke={C.axis}
-            strokeWidth={1}
-          />
-          <circle cx={14} cy={16} r={3.5} fill={C.loss} />
+        {/* ---------- Header band (lives inside the PAD.top headroom) ----------
+            The legend used to sit inside the plot at top-left and overlap
+            the early generations' data. It now lives here in the header so
+            the plot surface is clean. */}
+
+        {/* Title */}
+        <text
+          x={PAD.left}
+          y={22}
+          fill={C.text}
+          fontSize={14}
+          fontWeight={700}
+          fontFamily="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
+        >
+          Genetic AI training run
+        </text>
+
+        {/* Subtitle */}
+        <text
+          x={PAD.left}
+          y={42}
+          fill={C.subtext}
+          fontSize={11}
+          fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
+        >
+          {gaData.generations.length} generations · {totalGames} games · {totalLosses} losses
+        </text>
+
+        {/* Compact inline legend, one row underneath the subtitle */}
+        <g transform={`translate(${PAD.left}, 62)`}>
+          <circle cx={4} cy={0} r={3.5} fill={C.loss} />
           <text
-            x={26}
-            y={19}
+            x={14}
+            y={3}
             fill={C.subtext}
             fontSize={10.5}
             fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
           >
-            loss (sentinel −99)
+            loss (−99)
           </text>
           <line
-            x1={8}
-            x2={22}
-            y1={34}
-            y2={34}
+            x1={96}
+            x2={114}
+            y1={0}
+            y2={0}
             stroke={C.trend}
             strokeWidth={2}
           />
           <text
-            x={26}
-            y={37}
+            x={120}
+            y={3}
             fill={C.subtext}
             fontSize={10.5}
             fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
@@ -380,36 +395,13 @@ export function GaRunChart({ className }: { className?: string }) {
           </text>
         </g>
 
-        {/* ---------- Header band (lives inside the new PAD.top headroom) ---------- */}
-
-        {/* Title (top-left of header band) */}
-        <text
-          x={PAD.left}
-          y={26}
-          fill={C.text}
-          fontSize={14}
-          fontWeight={700}
-          fontFamily="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
-        >
-          Genetic AI training run
-        </text>
-        <text
-          x={PAD.left}
-          y={46}
-          fill={C.subtext}
-          fontSize={11}
-          fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
-        >
-          {gaData.generations.length} generations · {totalGames} games · {totalLosses} losses
-        </text>
-
-        {/* Best-score badge (top-right of header band, now safely above the
-            plot so the 3★ threshold line no longer runs through it) */}
-        <g transform={`translate(${PAD.left + PLOT_W - 172}, 14)`}>
+        {/* Best-score badge (top-right of header band, above the plot so the
+            3★ threshold line no longer runs through it) */}
+        <g transform={`translate(${PAD.left + PLOT_W - 160}, 14)`}>
           <rect
             x={0}
             y={0}
-            width={172}
+            width={160}
             height={56}
             rx={8}
             fill="rgba(15,23,42,0.75)"
@@ -419,7 +411,7 @@ export function GaRunChart({ className }: { className?: string }) {
           />
           <text
             x={14}
-            y={20}
+            y={22}
             fill={C.subtext}
             fontSize={10}
             fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
@@ -428,23 +420,13 @@ export function GaRunChart({ className }: { className?: string }) {
           </text>
           <text
             x={14}
-            y={42}
+            y={44}
             fill={C.threshold}
-            fontSize={18}
+            fontSize={20}
             fontWeight={700}
             fontFamily="ui-sans-serif, system-ui, -apple-system, sans-serif"
           >
             {bestOverall.toFixed(2)} ★
-          </text>
-          <text
-            x={158}
-            y={42}
-            fill={C.subtext}
-            fontSize={10}
-            textAnchor="end"
-            fontFamily="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
-          >
-            sec left
           </text>
         </g>
       </svg>

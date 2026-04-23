@@ -7,10 +7,15 @@ import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
 import { DATA, PROJECT_DETAILS } from "@/data/resume";
 import { cn } from "@/lib/utils";
-import { InterleavedProse, InlineCodeSnippet } from "@/components/interleaved-prose";
+import {
+  InterleavedProse,
+  InlineCodeSnippet,
+  type CodeSnippet,
+} from "@/components/interleaved-prose";
 import { LightboxFigure } from "@/components/lightbox-figure";
 import { StockaiDataflow } from "@/components/stockai-dataflow";
 import { GaRunChart } from "@/components/ga-run-chart";
+import { highlightCode } from "@/lib/highlight";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -98,10 +103,19 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
   const details = PROJECT_DETAILS[slug];
 
+  // Pre-run every snippet through shiki so the client gets ready-to-paint
+  // VS Code Dark+ HTML and the shiki bundle never ships to the browser.
+  const highlightedSnippets: ReadonlyArray<CodeSnippet> = await Promise.all(
+    (details?.codeSnippets ?? []).map(async (s) => ({
+      ...s,
+      highlightedHtml: await highlightCode(s.code, s.language),
+    }))
+  );
+
   // Snippets that weren't referenced by a `{{code:id}}` placeholder in the
   // approach/problem prose fall back to a "More code" section at the bottom
   // so nothing gets silently dropped. Normally this is empty.
-  const allSnippetIds = new Set((details?.codeSnippets ?? []).map((s) => s.id));
+  const allSnippetIds = new Set(highlightedSnippets.map((s) => s.id));
   const referenced = new Set<string>();
   const placeholderRe = /\{\{code:([a-zA-Z0-9_-]+)\}\}/g;
   for (const body of [details?.problem, details?.approach]) {
@@ -109,10 +123,9 @@ export default async function ProjectDetailPage({
     let m: RegExpExecArray | null;
     while ((m = placeholderRe.exec(body)) !== null) referenced.add(m[1]);
   }
-  const orphanSnippets =
-    details?.codeSnippets?.filter(
-      (s) => allSnippetIds.has(s.id) && !referenced.has(s.id)
-    ) ?? [];
+  const orphanSnippets = highlightedSnippets.filter(
+    (s) => allSnippetIds.has(s.id) && !referenced.has(s.id)
+  );
 
   return (
     <main className="min-h-dvh flex flex-col gap-10 relative">
@@ -269,7 +282,7 @@ export default async function ProjectDetailPage({
             </h2>
             <InterleavedProse
               markdown={details.problem}
-              snippets={details.codeSnippets}
+              snippets={highlightedSnippets}
             />
           </section>
         </BlurFade>
@@ -283,7 +296,7 @@ export default async function ProjectDetailPage({
             </h2>
             <InterleavedProse
               markdown={details.approach}
-              snippets={details.codeSnippets}
+              snippets={highlightedSnippets}
             />
           </section>
         </BlurFade>

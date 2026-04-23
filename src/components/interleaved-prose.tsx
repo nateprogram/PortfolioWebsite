@@ -10,11 +10,13 @@ import { cn } from "@/lib/utils";
 // dropdowns sit next to the text that talks about them (user's request)
 // instead of piling up at the bottom.
 //
-// Also provides light beautification for the prose itself: **bold** is
-// brightened, inline `code` becomes a subtle chip, blockquotes get a
-// vertical accent, and lists inherit sensible markers. The goal is to
-// give the paragraphs more visual texture than "plain text + bold"
-// without drowning them in color.
+// Also provides *visible* beautification for the prose: **bold** gets a
+// sky-tinted color + subtle highlighter underline so the bolded lead-ins
+// actually stand out (the previous "just make it bold" treatment was
+// invisible because `prose` already does that). Inline code becomes a chip,
+// blockquotes get a vertical accent, and — when `highlightedHtml` is
+// provided — code snippet bodies render with VS Code's Dark+ colors via
+// shiki.
 
 export type CodeSnippet = {
   id: string;
@@ -22,6 +24,10 @@ export type CodeSnippet = {
   description?: string;
   language: string;
   code: string;
+  // Optional pre-rendered shiki HTML. Produced server-side in
+  // `src/lib/highlight.ts` and passed down — keeps the shiki bundle out of
+  // the client payload.
+  highlightedHtml?: string | null;
 };
 
 const PLACEHOLDER_RE = /\{\{code:([a-zA-Z0-9_-]+)\}\}/g;
@@ -35,8 +41,22 @@ const SILVER_CHIP =
 // (defined at module scope) so react-markdown doesn't remount on each
 // render of the parent.
 const PROSE_COMPONENTS: Components = {
+  // Bold gets a *visible* treatment — sky accent color plus a faint
+  // highlighter band underneath. This is the change that makes the prose
+  // stop looking like "plain text with font-weight: 700" everywhere bold.
   strong: ({ children }) => (
-    <strong className="font-semibold text-foreground">{children}</strong>
+    <strong
+      className={cn(
+        "font-semibold text-sky-100",
+        // highlighter: draw a soft sky-tinted band behind the last 35% of
+        // the line-height so it looks like underline-highlight. `box-decoration-clone`
+        // keeps the effect continuous when bold wraps across lines.
+        "bg-gradient-to-b from-transparent from-60% to-sky-400/15 to-60% box-decoration-clone",
+        "px-0.5 rounded-[2px]"
+      )}
+    >
+      {children}
+    </strong>
   ),
   em: ({ children }) => (
     <em className="italic text-foreground/90">{children}</em>
@@ -221,9 +241,26 @@ export function InlineCodeSnippet({ snippet }: { snippet: CodeSnippet }) {
           {snippet.description}
         </div>
       )}
-      <pre className="overflow-x-auto border-t border-border/60 bg-background/60 px-5 py-3.5 text-[12px] leading-relaxed">
-        <code className="font-mono text-foreground/90">{snippet.code}</code>
-      </pre>
+      {/* Code body. Shiki produces a styled <pre><code> tree with inline
+          colors; we just wrap it to get the border-top + overflow behavior
+          the card expects. The descendant selectors below strip shiki's
+          default margins so it sits flush and keep the font-size consistent. */}
+      {snippet.highlightedHtml ? (
+        <div
+          className={cn(
+            "overflow-x-auto border-t border-border/60",
+            // shiki emits <pre style="background-color: #1e1e1e; ..."> which
+            // we preserve; just strip margin, add padding, normalize type.
+            "[&>pre]:m-0 [&>pre]:px-5 [&>pre]:py-3.5 [&>pre]:text-[12px] [&>pre]:leading-relaxed",
+            "[&_code]:font-mono"
+          )}
+          dangerouslySetInnerHTML={{ __html: snippet.highlightedHtml }}
+        />
+      ) : (
+        <pre className="m-0 overflow-x-auto border-t border-border/60 bg-background/60 px-5 py-3.5 text-[12px] leading-relaxed">
+          <code className="font-mono text-foreground/90">{snippet.code}</code>
+        </pre>
+      )}
     </details>
   );
 }

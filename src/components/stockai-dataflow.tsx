@@ -184,6 +184,7 @@ function TextLine({
   weight = 600,
   anchor = "start",
   mono = false,
+  raw = false,
 }: {
   x: number;
   y: number;
@@ -193,13 +194,17 @@ function TextLine({
   weight?: number;
   anchor?: "start" | "middle" | "end";
   mono?: boolean;
+  // Skip the TEXT_SCALE multiplier. Use this for peripheral labels that
+  // need to stay physically small (arrow annotations, gutter feedback
+  // callouts) so they don't overrun their container.
+  raw?: boolean;
 }) {
   return (
     <text
       x={x}
       y={y}
       fill={fill}
-      fontSize={size * TEXT_SCALE}
+      fontSize={raw ? size : size * TEXT_SCALE}
       fontWeight={weight}
       textAnchor={anchor}
       fontFamily={
@@ -360,7 +365,9 @@ export function StockaiDataflow({ className }: { className?: string }) {
         >
           per-source refresh cadences from 50 ms up to 24 h
         </TextLine>
-        {/* Hot-store side-arrow to Database */}
+        {/* Hot-store side-arrow to Database. Its semantics are covered by
+            the "database read / write" legend row, so no inline label —
+            scaled type made the previous caption overrun the DB box. */}
         <Arrow
           x1={FLOW_X + FLOW_W}
           y1={FLOW.controller.y + FLOW.controller.h / 2}
@@ -369,15 +376,6 @@ export function StockaiDataflow({ className }: { className?: string }) {
           color={C.stroke}
           dash="4 3"
         />
-        <TextLine
-          x={FLOW_X + FLOW_W + 4}
-          y={FLOW.controller.y + FLOW.controller.h / 2 - 6}
-          size={10}
-          fill={C.subtext}
-          mono
-        >
-          stores real-time
-        </TextLine>
         {/* Down to feature engine */}
         <Arrow
           x1={FLOW_X + FLOW_W / 2}
@@ -523,7 +521,8 @@ export function StockaiDataflow({ className }: { className?: string }) {
         });
       })()}
 
-      {/* Analyzers raw-read from DB */}
+      {/* Analyzers raw-read from DB — dashed arrow already conveys the
+          read relationship via the legend; inline label dropped. */}
       <Arrow
         x1={DB_X}
         y1={FLOW.analyzers.y + FLOW.analyzers.h / 2}
@@ -532,15 +531,6 @@ export function StockaiDataflow({ className }: { className?: string }) {
         color={C.stroke}
         dash="4 3"
       />
-      <TextLine
-        x={FLOW_X + FLOW_W + 4}
-        y={FLOW.analyzers.y + FLOW.analyzers.h / 2 - 6}
-        size={10}
-        fill={C.subtext}
-        mono
-      >
-        reads historical
-      </TextLine>
 
       {/* =============================================================== */}
       {/* Row 5: Correlation analyzer */}
@@ -617,15 +607,6 @@ export function StockaiDataflow({ className }: { className?: string }) {
           color={C.stroke}
           dash="4 3"
         />
-        <TextLine
-          x={FLOW_X + FLOW_W + 4}
-          y={FLOW.aggregator.y + FLOW.aggregator.h / 2 - 6}
-          size={10}
-          fill={C.subtext}
-          mono
-        >
-          stores signals
-        </TextLine>
         <Arrow
           x1={FLOW_X + FLOW_W / 2}
           y1={FLOW.aggregator.y + FLOW.aggregator.h}
@@ -902,15 +883,30 @@ export function StockaiDataflow({ className }: { className?: string }) {
         >
           DATABASE LAYER
         </TextLine>
+        {/* 3-tier storage description. Split across two `raw` lines
+            because at scaled 10pt the single sentence ran past the
+            DB box's right edge. */}
         <TextLine
           x={DB_X + DB_W / 2}
-          y={DB.y + 56}
+          y={DB.y + 54}
           anchor="middle"
-          size={10}
+          size={11}
           fill={C.subtext}
           mono
+          raw
         >
-          3-tier: SQLite hot · Parquet warm · archive cold
+          3-tier: SQLite · Parquet · archive
+        </TextLine>
+        <TextLine
+          x={DB_X + DB_W / 2}
+          y={DB.y + 70}
+          anchor="middle"
+          size={11}
+          fill={C.subtext}
+          mono
+          raw
+        >
+          hot · warm · cold
         </TextLine>
         {/* Four sub-stores */}
         {[
@@ -1092,56 +1088,47 @@ export function StockaiDataflow({ className }: { className?: string }) {
            Backtester → Learner → PROMOTED MODEL back up to LSTM Predictor */}
       {/* =============================================================== */}
       <g>
-        {/* Backtester bottom -> Learner bottom label already implicit.
-            We draw ONE bold curved arrow from Learner all the way up
-            through the right gutter back into the Predictor. */}
+        {/* One bold curved arrow from the Learner top center, arcing
+            up-and-left through the empty bottom region of the DB box,
+            then dropping into the top of the LSTM predictor. All four
+            control points stay inside the 0–1200 viewBox (the earlier
+            control at x = 1240 was what pushed the arrow off-canvas and
+            back through the Continuous Learner's own text). */}
         <path
           d={`M ${DB_X + DB_W / 2} ${LEARNER.y}
               C ${DB_X + DB_W / 2} ${LEARNER.y - 80},
-                ${DB_X + DB_W + 60} ${FLOW.regimeAndModel.y + 40},
-                ${FLOW_X + FLOW_W - 8} ${FLOW.regimeAndModel.y + 30}`}
+                ${FLOW_X + FLOW_W - 60} ${LEARNER.y - 80},
+                ${FLOW_X + FLOW_W - 60} ${FLOW.regimeAndModel.y - 4}`}
           fill="none"
           stroke={C.feedback}
           strokeWidth={2.25}
           markerEnd="url(#arrowFeedback)"
         />
+        {/* Label sits above the arc's peak, centered horizontally on
+            the midpoint between start and end so it reads as a caption
+            for the whole feedback path. */}
         <TextLine
-          x={DB_X + DB_W + 8}
-          y={LEARNER.y - 90}
+          x={(DB_X + DB_W / 2 + FLOW_X + FLOW_W - 60) / 2}
+          y={LEARNER.y - 96}
           size={12}
           weight={700}
           fill={C.feedback}
           mono
+          raw
+          anchor="middle"
         >
-          retrain
+          retrain / rollback
         </TextLine>
         <TextLine
-          x={DB_X + DB_W + 8}
-          y={LEARNER.y - 74}
-          size={12}
-          weight={700}
-          fill={C.feedback}
-          mono
-        >
-          &amp; rollback
-        </TextLine>
-        <TextLine
-          x={DB_X + DB_W + 8}
-          y={LEARNER.y - 58}
+          x={(DB_X + DB_W / 2 + FLOW_X + FLOW_W - 60) / 2}
+          y={LEARNER.y - 82}
           size={10}
           fill={C.subtext}
           mono
+          raw
+          anchor="middle"
         >
-          promoted
-        </TextLine>
-        <TextLine
-          x={DB_X + DB_W + 8}
-          y={LEARNER.y - 44}
-          size={10}
-          fill={C.subtext}
-          mono
-        >
-          checkpoints
+          promoted checkpoint → predictor
         </TextLine>
       </g>
 

@@ -13,7 +13,7 @@ import {
   type CodeSnippet,
 } from "@/components/interleaved-prose";
 import { LightboxFigure } from "@/components/lightbox-figure";
-import { StockaiDataflow } from "@/components/stockai-dataflow";
+import { StockaiDataflow } from "@/components/dataflow";
 import { GaRunChart } from "@/components/ga-run-chart";
 import { highlightCode } from "@/lib/highlight";
 

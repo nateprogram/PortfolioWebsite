@@ -278,12 +278,19 @@ export const PROJECT_FILTERS = [
 //
 // Shape (loosely STAR):
 //   problem:        what the project set out to solve
-//   approach:       key decisions made, and alternatives that were rejected
+//   approach:       key decisions made, and alternatives that were rejected.
+//                   may contain `{{code:<id>}}` placeholders which the page
+//                   renderer splices in as an expandable code block inline
+//                   with the surrounding prose (matching the user's request
+//                   to put snippets next to the text that talks about them).
 //   stackRationale: each piece of tech paired with why it was chosen
 //   highlights:     scope and outcome bullets
-//   figures:        diagrams/screenshots that belong inline with the approach
-//   codeSnippets:   real code behind expandables so recruiters who want the
-//                   actual shape can click in without crowding the narrative
+//   figures:        diagrams/screenshots that belong inline with the approach.
+//                   either `{ src, alt, caption }` for an image (which the page
+//                   renders click-to-zoom) or `{ diagram: <id>, alt, caption }`
+//                   which swaps in a custom React diagram component.
+//   codeSnippets:   real code behind expandables. each snippet gets an `id`
+//                   so prose can reference it via `{{code:<id>}}`.
 export const PROJECT_DETAILS: Record<
   string,
   {
@@ -291,8 +298,16 @@ export const PROJECT_DETAILS: Record<
     approach?: string;
     stackRationale?: ReadonlyArray<{ tech: string; why: string }>;
     highlights?: ReadonlyArray<string>;
-    figures?: ReadonlyArray<{ src: string; alt: string; caption?: string }>;
+    figures?: ReadonlyArray<
+      | { src: string; alt: string; caption?: string }
+      | {
+          diagram: "stockai-dataflow" | "ga-scatter";
+          alt: string;
+          caption?: string;
+        }
+    >;
     codeSnippets?: ReadonlyArray<{
+      id: string;
       title: string;
       description?: string;
       language: string;
@@ -304,7 +319,7 @@ export const PROJECT_DETAILS: Record<
     problem:
       "Volunteer managers of adult soccer teams in the GSSL and Rats leagues burn hours every week on unpaid admin. Game times, opponent info, and roster changes all live on the league websites, but those sites are read-only UIs meant for browsing. So each week a manager opens the league site, copies the schedule into a group chat, texts the roster to ask who's coming, chases the non-responders, and posts the final lineup. The data already exists in a canonical form; the managers are just acting as a human API between it and their team.",
     approach:
-      "Treat the league sites as the source of truth and build a scraper per league (GSSL, Rats) that resolves a public team page into a structured schedule and roster. Scrapers run on a cron and on manager-triggered sync, hydrating the app's domain model: a league-site event becomes an `Event` row in Postgres, an opponent becomes a `Team`, the default RSVP state propagates to every roster member. Manager-facing flows are diffs (\"here's what changed since last sync, confirm\"), so their weekly job collapses from an hour of copy-paste into a single review pass. Cross-platform delivery is a secondary concern: a single Next.js build wraps in Capacitor to ship web, iOS, and Android from one codebase, so the scraper and domain logic are written and maintained exactly once.",
+      "Treat the league sites as the source of truth and build a scraper per league (GSSL, Rats) that resolves a public team page into a structured schedule and roster. One module per league, same interface, so adding a new league is a new module rather than a rewrite:\n\n{{code:scraper-contract}}\n\nScrapers run on a cron and on manager-triggered sync, hydrating the app's domain model: a league-site event becomes an `Event` row in Postgres, an opponent becomes a `Team`, the default RSVP state propagates to every roster member. RSVP uniqueness is a database invariant, not an app-code check: a compound unique index on `(eventId, userId)` plus a composite-key upsert means a user clicking \"Going\" twice writes the same row, and flipping between \"Going\" and \"Maybe\" mutates one row instead of inserting two.\n\n{{code:rsvp-upsert}}\n\nManager-facing flows are diffs (\"here's what changed since last sync, confirm\"), so their weekly job collapses from an hour of copy-paste into a single review pass. Cross-platform delivery is a secondary concern: a single Next.js build wraps in Capacitor to ship web, iOS, and Android from one codebase, so the scraper and domain logic are written and maintained exactly once.",
     stackRationale: [
       {
         tech: "League scrapers (GSSL, Rats)",
@@ -341,6 +356,7 @@ export const PROJECT_DETAILS: Record<
     ],
     codeSnippets: [
       {
+        id: "rsvp-upsert",
         title: "One-RSVP-per-user-per-event: composite-key upsert",
         description:
           "RSVP uniqueness is a database invariant, not something app code enforces. A compound unique index on (eventId, userId) plus Prisma's composite-key upsert means a user clicking 'Going' twice writes the same row, and flipping between 'Going' and 'Maybe' mutates one row instead of inserting two.",
@@ -370,6 +386,7 @@ export async function setRsvp(
 }`,
       },
       {
+        id: "scraper-contract",
         title: "League scraper contract: one module per league, same shape",
         description:
           "GSSL and Rats publish their schedules and rosters on their own read-only websites. Each league gets its own scraper module that implements the same interface, so adding a new league is a new module, not a rewrite. The domain model (Event, Team, Roster) is shared.",
@@ -404,7 +421,7 @@ export async function syncTeam(team: Team, scraper: LeagueScraper) {
     problem:
       "Three traps kill most ML trading systems before they can say anything useful. **Leakage**, because time-series cross-validation is easy to get wrong; standard K-Fold lets tomorrow's information teach yesterday's model. **Drift**, because markets switch regime faster than weekly bars and a model trained on trending tape silently breaks once volatility flips. And the **'predict zero' attractor**, where a loss function minimized on raw returns learns that the safest bet is always 'no move'. The model looks great on paper and forecasts nothing. The goal wasn't to hit a magic accuracy number; it was to build an end-to-end research platform that makes those three failure modes hard, not easy.",
     approach:
-      "**Ingest.** 23 scrapers pull from five source families (market data via yfinance and Alpha Vantage, Reddit sentiment via PRAW across r/wallstreetbets / r/stocks / r/investing, SEC filings, macro indicators, and per-ticker news) on independent refresh cadences. Each scraper writes to a 3-tier store: hot SQLite for live reads, warm Parquet for model training, cold compressed archives for long-range backtests.\n\n**Transform.** A FeatureEngine derives 148 engineered features from the raw ingest: rolling volatility cones, regime-adjusted momentum, cross-asset correlation deltas, sentiment z-scores, microstructure proxies, and lagged macro surprises. Correlation-based feature selection prunes redundant inputs per run.\n\n**Regime.** An HMM (hmmlearn) over returns and realized-vol classifies the current regime into one of a small set of states (bull-trending, bear-trending, high-vol chop, low-vol grind). The regime label is both a feature and a gate; certain heads only fire in certain regimes.\n\n**Predict.** A MultiHeadLSTM shares a single sequence encoder across 10 per-timeframe prediction heads (minutes through weeks). A closed-loop feature-attention module tracks each feature's contribution via EMA (α=0.15, output clipped to [0.5, 2.0]) and scales the next forward pass's input weights live, so a feature that stops mattering in the current regime gets quietly down-weighted instead of dominating the loss.\n\n**Validate.** Training uses Lopez de Prado's **Purged K-Fold** cross-validation with embargo zones on either side of each fold, which is the only way to honestly score a time-series model. Evaluation is direction-aware (hit rate on sign) and regime-stratified. A model is only 'good' if it's good in more than one regime.\n\n**Deploy gate.** A retrain-with-rollback ladder: every new model has to beat the incumbent on out-of-fold direction accuracy AND on regime-stratified accuracy before promotion. If the live model degrades on either axis for N consecutive windows, the system rolls back to the prior checkpoint. There is no silent redeploy.\n\n**Serve.** A FastAPI backend streams predictions, feature attention weights, current regime label, and validator stats over a WebSocket to a live dashboard. The same process exposes a REST surface for batch backtests.",
+      "**Ingest.** 23 scrapers pull from five source families (market data via yfinance and Alpha Vantage, Reddit sentiment via PRAW across r/wallstreetbets / r/stocks / r/investing, SEC filings, macro indicators, and per-ticker news) on independent refresh cadences. Each scraper writes to a 3-tier store: hot SQLite for live reads, warm Parquet for model training, cold compressed archives for long-range backtests.\n\n**Transform.** A FeatureEngine derives 148 engineered features from the raw ingest: rolling volatility cones, regime-adjusted momentum, cross-asset correlation deltas, sentiment z-scores, microstructure proxies, and lagged macro surprises. Correlation-based feature selection prunes redundant inputs per run.\n\n**Regime.** An HMM (hmmlearn) over returns and realized-vol classifies the current regime into one of a small set of states (bull-trending, bear-trending, high-vol chop, low-vol grind). The regime label is both a feature and a gate; certain heads only fire in certain regimes.\n\n**Predict.** A MultiHeadLSTM shares a single sequence encoder across 10 per-timeframe prediction heads (minutes through weeks). A closed-loop feature-attention module tracks each feature's contribution via EMA (α=0.15, output clipped to [0.5, 2.0]) and scales the next forward pass's input weights live, so a feature that stops mattering in the current regime gets quietly down-weighted instead of dominating the loss.\n\n{{code:feature-attention}}\n\n**Validate.** Training uses Lopez de Prado's **Purged K-Fold** cross-validation with embargo zones on either side of each fold, which is the only way to honestly score a time-series model. Evaluation is direction-aware (hit rate on sign) and regime-stratified. A model is only 'good' if it's good in more than one regime.\n\n{{code:purged-kfold}}\n\n**Deploy gate.** A retrain-with-rollback ladder: every new model has to beat the incumbent on out-of-fold direction accuracy AND on regime-stratified accuracy before promotion. If the live model degrades on either axis for N consecutive windows, the system rolls back to the prior checkpoint. There is no silent redeploy.\n\n{{code:rollback-gate}}\n\n**Serve.** A FastAPI backend streams predictions, feature attention weights, current regime label, and validator stats over a WebSocket to a live dashboard. The same process exposes a REST surface for batch backtests.",
     stackRationale: [
       {
         tech: "MultiHeadLSTM (shared encoder, 10 heads)",
@@ -450,14 +467,15 @@ export async function syncTeam(team: Team, scraper: LeagueScraper) {
     ],
     figures: [
       {
-        src: "/projects/stockai/architecture.jpg",
-        alt: "V6 data flow for Neural Stock Predictor, top-to-bottom: config, database, data controller, 23 scrapers across 5 source categories, feature engine, three domain analyzers (order flow, sentiment, smart money), correlation analyzer, signal aggregator, HMM regime detection, MultiHeadLSTM neural predictor with 10 heads, 6-check prediction validator, rich-terminal console output, continuous learner with weekly retrain, and Purged K-Fold backtester acting as the deploy gate.",
+        diagram: "stockai-dataflow",
+        alt: "V6 data flow. 23 scrapers in 5 peer categories (price/volume, market context, social/news, institutional, economic/alt) feed a Working Data Controller. A Feature Engine derives 148 features consumed by three parallel analyzers (order flow, sentiment, smart money) plus a correlation analyzer. A signal aggregator feeds an HMM regime detector and the MultiHeadLSTM predictor with 10 heads. A 6-check prediction validator gates the FastAPI WebSocket dashboard. A database layer off to the right interacts with multiple stages (stores real-time, reads historical, stores signals, stores checkpoints). A continuous learner and Purged K-Fold backtester form the retrain and deploy gate, with an explicit amber feedback arrow back into the predictor.",
         caption:
-          "V6 data flow, layer by layer. Config → database → data controller → 23 scrapers (5 categories) → feature engine → 3 domain analyzers + correlation → signal aggregator → HMM regime → MultiHeadLSTM (10 heads, feature attention) → 6-check validator → console. Continuous learner and Purged K-Fold backtester close the loop as the retrain and deploy gate.",
+          "V6 data flow, positional. Peers sit side-by-side (the 5 scraper categories share a level and don't cross-talk; the 3 analyzers share a level). The database layer is off to the right so its multi-layer interactions are visible. The amber arrow is the explicit feedback loop: the continuous learner writes candidates, the backtester gates promotion, and the promoted checkpoint returns to the predictor.",
       },
     ],
     codeSnippets: [
       {
+        id: "feature-attention",
         title: "Closed-loop feature attention (EMA, bounded)",
         description:
           "The one live adaptation the model does without retraining. Each feature's contribution is tracked with an EMA (α=0.15), normalized against the rolling mean, and clipped to [0.5, 2.0] so a bad batch can't collapse an input to zero or let a hot input dominate the loss.",
@@ -483,6 +501,7 @@ export async function syncTeam(team: Team, scraper: LeagueScraper) {
         return self.ema`,
       },
       {
+        id: "purged-kfold",
         title: "Purged K-Fold with embargo (Lopez de Prado)",
         description:
           "The only time-series CV that doesn't lie. For each test fold we purge training observations whose label window overlaps the test window, then embargo a gap on the right so leakage after the test can't bleed back into training.",
@@ -509,6 +528,7 @@ export async function syncTeam(team: Team, scraper: LeagueScraper) {
         yield train_idx, test_idx`,
       },
       {
+        id: "rollback-gate",
         title: "Retrain-with-rollback promotion gate",
         description:
           "A candidate only replaces the incumbent if it wins on two metrics: out-of-fold direction accuracy AND worst-regime accuracy (so a model that shines in one regime but crumbles in another can't promote). Sustained live degradation auto-rolls back.",
@@ -546,7 +566,7 @@ def live_rollback_check(live, window: int = 5):
     problem:
       "Building a C++ game engine from scratch and shipping a game on it is usually a 5-to-6 programmer job. We had 3. On top of that, the designers on the team didn't deliver on their scope, so the programmers picked up tuning, level flow, and encounter pacing too. The biggest risk in that setup wasn't any single subsystem; it was that anything we didn't make self-serve for the rest of the team would burn programmer cycles we couldn't afford.",
     approach:
-      "**Particle system.** An emitter-component model: every visual effect in the game (explosions, muzzle flash, death puffs, pickup sparkles) is an `Emitter` component owning a pool of particles, a JSON config, and a behavior. `ParticleSystem.cpp/h` (~840 LOC) runs the update loop; four emitter behaviors (`BehaviorEmitterTest`, `BehaviorEmitterKey`, `BehaviorEmitterDeath`, `BehaviorEmitterExplosion`, ~420 LOC together) specialize when and why an emitter fires. Every tunable field lives in JSON (full schema in the `Emitter.json` code snippet):\n\n- **PatternType**: `Rotate` spawns particles around the emitter's origin at sweeping angles, so a muzzle flash fans out. A directional vector spawns along that vector, so a thruster plume goes one way.\n- **SpawnRate**: particles per second. The emitter keeps an accumulator and spawns whole particles on frames where the fractional part tips over 1.\n- **ParticleLife**: seconds each particle lives. On spawn, age starts at 0; when age hits ParticleLife, the slot returns to the pool's free list.\n- **SprayAngle**: half-angle cone (degrees) around the pattern direction. Each particle's launch vector is rotated by a uniform random value in [-SprayAngle, +SprayAngle].\n- **MinSpeed / MaxSpeed**: uniform random launch speed along the sprayed direction.\n- **ParticleMoveWithObject**: when true, particles inherit the emitter's transform each frame (good for a trail stuck to a moving zeppelin). When false, particles live in world space (good for an explosion that stays where it detonated).\n- **HiveMind**: when true, every particle in the emitter advances its animation frame in lockstep. When false, each particle animates on its own age.\n- **UniformAnimation**: when true, all particles use the same sprite sheet. When false, each particle can pick from a set for visual variety.\n- **Fade**: `Out` fades alpha from 1 to 0 over the final `FadeTime` seconds of life. `In` fades 0 to 1 over the first `FadeTime` seconds. `None` keeps alpha at 1 the whole time.\n- **ScaleSetting**: `In` scales linearly from 1 up to `ScaleMultiplier` over `ScaleTime` seconds (growth). `Out` scales from `ScaleMultiplier` down to 1 (shrink). `Pop` scales up then back down around `ScaleTime`, which is the 'punch' curve used for impact effects.\n- **Animation**: sprite-sheet flipbook. A particle advances a frame every `FrameDuration` seconds and wraps if looping (else clamps on the last frame).\n\n**How the emitter manages particles.** Each emitter owns a fixed-size particle pool sized at load from `SpawnRate * ParticleLife` so no allocations happen at play time. Per frame the emitter does four things: (1) the spawn accumulator increments by `SpawnRate * dt` and each time it tips over 1 a free slot is pulled from the pool and filled with initial state (position, velocity sampled from spray + speed range, age=0, random animation offset); (2) one pass over the live particles advances age, integrates position by velocity * dt, evaluates the fade and scale curves against the particle's age, and advances the flipbook; (3) any particle whose age exceeds ParticleLife returns to the free list; (4) the render pass batches live particles by sprite source into a single draw call. `BehaviorEmitterKey` is the iteration hook: hold a bound key in-engine and the emitter spawns one particle per frame against the current JSON config, so the loop is 'edit JSON, reload, hold key, watch the difference' with no C++ rebuild.\n\n**Stat system.** `Stats.cpp` (587) + `Stats.h` (123): a Component subclass instantiated on every stat-bearing entity (towers, zeppelins, cannons). Serialized fields cover the tower-offense design space: MaxHealth, ReloadTime, RespawnRate, AttackDamage, MaxSpeed, Cost. Runtime state tracks live Health, reload/respawn timers, and IsHurt / IsAttacking / IsDead flags. Upgrade progression is first-class: per-level arrays (`MaxHealthLvls`, `MaxSpeedLvls`, `AttackDamageLvls`, `UpgradeCostLvls`) indexed by the entity's current upgrade level. When the UI calls `UpgradeMaxHealth()`, the method bounds-checks against the level cap, charges the player `UpgradeCostLvls[level]`, advances the level, and reads the new MaxHealth out of `MaxHealthLvls[level]`. Designers retune the upgrade curve by editing JSON, no rebuild. Full interface in the `Stats.h` code snippet.\n\n**Input abstraction.** `MEInput.cpp/h` (~241 LOC) wraps GLFW with per-frame edge detection. `PollEvents()` at the top of every frame snapshots current key/mouse state into one array and last frame's state into another; `IsKeyPressed(key)` returns true only on the frame the key transitioned from up to down (current=down, previous=up); `IsKeyHeld` checks current=down; `IsKeyReleased` is the down-to-up transition. Every system in the engine polls through this single abstraction, so menus, gameplay, and debug keybinds all share the same per-frame semantics without pulling GLFW into gameplay code.\n\n**Cross-subsystem contributions.** With a 3-programmer team, nobody stayed in their lane. I touched rendering, asset loading, gameplay code (`TowerBehavior`, `CannonBehavior`, `BehaviorHealthBar`), and UI wiring alongside the two programmers who were primary owners. When the designers' scope fell through, the programmers absorbed tuning and level flow too.",
+      "**Particle system.** An emitter-component model: every visual effect in the game (explosions, muzzle flash, death puffs, pickup sparkles) is an `Emitter` component owning a pool of particles, a JSON config, and a behavior. `ParticleSystem.cpp/h` (~840 LOC) runs the update loop; four emitter behaviors (`BehaviorEmitterTest`, `BehaviorEmitterKey`, `BehaviorEmitterDeath`, `BehaviorEmitterExplosion`, ~420 LOC together) specialize when and why an emitter fires. Every tunable field lives in JSON:\n\n{{code:emitter-json}}\n\nField-by-field, here is what each option actually does:\n\n- **PatternType**: `Rotate` spawns particles around the emitter's origin at sweeping angles, so a muzzle flash fans out. A directional vector spawns along that vector, so a thruster plume goes one way.\n- **SpawnRate**: particles per second. The emitter keeps an accumulator and spawns whole particles on frames where the fractional part tips over 1.\n- **ParticleLife**: seconds each particle lives. On spawn, age starts at 0; when age hits ParticleLife, the slot returns to the pool's free list.\n- **SprayAngle**: half-angle cone (degrees) around the pattern direction. Each particle's launch vector is rotated by a uniform random value in [-SprayAngle, +SprayAngle].\n- **MinSpeed / MaxSpeed**: uniform random launch speed along the sprayed direction.\n- **ParticleMoveWithObject**: when true, particles inherit the emitter's transform each frame (good for a trail stuck to a moving zeppelin). When false, particles live in world space (good for an explosion that stays where it detonated).\n- **HiveMind**: when true, every particle in the emitter advances its animation frame in lockstep. When false, each particle animates on its own age.\n- **UniformAnimation**: when true, all particles use the same sprite sheet. When false, each particle can pick from a set for visual variety.\n- **Fade**: `Out` fades alpha from 1 to 0 over the final `FadeTime` seconds of life. `In` fades 0 to 1 over the first `FadeTime` seconds. `None` keeps alpha at 1 the whole time.\n- **ScaleSetting**: `In` scales linearly from 1 up to `ScaleMultiplier` over `ScaleTime` seconds (growth). `Out` scales from `ScaleMultiplier` down to 1 (shrink). `Pop` scales up then back down around `ScaleTime`, which is the 'punch' curve used for impact effects.\n- **Animation**: sprite-sheet flipbook. A particle advances a frame every `FrameDuration` seconds and wraps if looping (else clamps on the last frame).\n\n**How the emitter manages particles.** Each emitter owns a fixed-size particle pool sized at load from `SpawnRate * ParticleLife` so no allocations happen at play time. Per frame the emitter does four things: (1) the spawn accumulator increments by `SpawnRate * dt` and each time it tips over 1 a free slot is pulled from the pool and filled with initial state (position, velocity sampled from spray + speed range, age=0, random animation offset); (2) one pass over the live particles advances age, integrates position by velocity * dt, evaluates the fade and scale curves against the particle's age, and advances the flipbook; (3) any particle whose age exceeds ParticleLife returns to the free list; (4) the render pass batches live particles by sprite source into a single draw call. `BehaviorEmitterKey` is the iteration hook: hold a bound key in-engine and the emitter spawns one particle per frame against the current JSON config, so the loop is 'edit JSON, reload, hold key, watch the difference' with no C++ rebuild.\n\n{{code:particle-update}}\n\n**Stat system.** `Stats.cpp` (587) + `Stats.h` (123): a Component subclass instantiated on every stat-bearing entity (towers, zeppelins, cannons). Serialized fields cover the tower-offense design space: MaxHealth, ReloadTime, RespawnRate, AttackDamage, MaxSpeed, Cost. Runtime state tracks live Health, reload/respawn timers, and IsHurt / IsAttacking / IsDead flags. Upgrade progression is first-class: per-level arrays (`MaxHealthLvls`, `MaxSpeedLvls`, `AttackDamageLvls`, `UpgradeCostLvls`) indexed by the entity's current upgrade level. When the UI calls `UpgradeMaxHealth()`, the method bounds-checks against the level cap, charges the player `UpgradeCostLvls[level]`, advances the level, and reads the new MaxHealth out of `MaxHealthLvls[level]`. Designers retune the upgrade curve by editing JSON, no rebuild.\n\n{{code:stats-h}}\n\n**Input abstraction.** `MEInput.cpp/h` (~241 LOC) wraps GLFW with per-frame edge detection. `PollEvents()` at the top of every frame snapshots current key/mouse state into one array and last frame's state into another; `IsKeyPressed(key)` returns true only on the frame the key transitioned from up to down (current=down, previous=up); `IsKeyHeld` checks current=down; `IsKeyReleased` is the down-to-up transition. Every system in the engine polls through this single abstraction, so menus, gameplay, and debug keybinds all share the same per-frame semantics without pulling GLFW into gameplay code.\n\n{{code:meinput}}\n\n**Cross-subsystem contributions.** With a 3-programmer team, nobody stayed in their lane. I touched rendering, asset loading, gameplay code (`TowerBehavior`, `CannonBehavior`, `BehaviorHealthBar`), and UI wiring alongside the two programmers who were primary owners. When the designers' scope fell through, the programmers absorbed tuning and level flow too.",
     stackRationale: [
       {
         tech: "C++ with no commercial middleware",
@@ -578,6 +598,7 @@ def live_rollback_check(live, window: int = 5):
     ],
     codeSnippets: [
       {
+        id: "emitter-json",
         title: "Emitter.json: full data-driven emitter schema",
         description:
           "What every effect in the game is: a JSON file. The particle system reads this via rapidjson and rebuilds the emitter's runtime parameters on each reload, so changing a fade curve is a text-editor save and a key hold, not a rebuild.",
@@ -609,6 +630,7 @@ def live_rollback_check(live, window: int = 5):
 }`,
       },
       {
+        id: "particle-update",
         title: "ParticleSystem::Update: the per-frame emitter loop",
         description:
           "What each emitter does every frame: accumulator-driven spawn, aging, motion integration, curve evaluation, flipbook advance, recycle. No allocations at play time; the pool is sized at load from SpawnRate * ParticleLife.",
@@ -647,6 +669,7 @@ def live_rollback_check(live, window: int = 5):
 }`,
       },
       {
+        id: "stats-h",
         title: "Stats.h: component interface for any stat-bearing entity",
         description:
           "Every entity with health or damage gets one of these. Serialized fields cover the tower-offense design space, per-level arrays drive the upgrade curve, and the Upgrade* methods bounds-check the cap, charge the cost, and advance the level.",
@@ -684,6 +707,7 @@ public:
 };`,
       },
       {
+        id: "meinput",
         title: "MEInput: edge-detected input over GLFW",
         description:
           "One polling abstraction for the whole engine. PollEvents snapshots the current-frame state; the query methods diff against the previous frame so every caller gets the same 'just pressed this frame' semantics without pulling in GLFW directly.",
@@ -717,7 +741,7 @@ private:
     problem:
       "Genetic algorithms fail or succeed on one thing: fitness. Zeppelin Rush's built-in score is 0/1/2/3 stars, and those bands are too coarse to drive evolution. Two losing games both sit at zero, so selection has nothing to pick between them. No gradient, no climb. Before a single mutation could happen, the fitness function had to tell 'lost in 20 seconds' apart from 'nearly won', and 'just barely won' apart from 'three-star finish'.",
     approach:
-      "**Fitness.** Use time remaining on win (0 to 600, higher is better) instead of the 0/1/2/3 star bands. Losses map to a large negative. Every individual now gets a distinct score, and the gradient runs continuously from 'lost slowly' through 'barely won' to 'three-star finish'. Selection always has something to pick.\n\n**I/O.** The game was mouse-driven. I remapped its inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. Keystrokes are faster and more reliable than screen-grabbing coordinates. Data comes back through `SharedData.json`: the engine writes gold/gamestate/timer continuously, the Python side polls. Shared memory would have meant rewriting too much of the engine's gameplay code. Windows file-locking turned the OS lock into a free sync primitive: if a read landed mid-write, the `IOError` was caught, the Python code slept a millisecond, and retried.\n\n**Repair pass.** Mutation and crossover regularly produce illegal sequences (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap). Rather than penalize them in fitness and hope they evolve out, `FixMutation` walks the action list and rewrites each illegal move into a random spawn. Every evaluated individual is actually playable, and the GA stops wasting generations on no-ops.\n\n**Outer loop.** 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, applies 8-action-flip mutations to the best individuals, plays every new individual in-game, and carries the top 4 through unchanged via elitism. A good run is never lost to a bad mutation.",
+      "**Fitness.** Use time remaining on win (0 to 600, higher is better) instead of the 0/1/2/3 star bands. Losses map to a large negative. Every individual now gets a distinct score, and the gradient runs continuously from 'lost slowly' through 'barely won' to 'three-star finish'. Selection always has something to pick.\n\n{{code:fitness}}\n\n**I/O.** The game was mouse-driven. I remapped its inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. Keystrokes are faster and more reliable than screen-grabbing coordinates. Data comes back through `SharedData.json`: the engine writes gold/gamestate/timer continuously, the Python side polls. Shared memory would have meant rewriting too much of the engine's gameplay code. Windows file-locking turned the OS lock into a free sync primitive: if a read landed mid-write, the `IOError` was caught, the Python code slept a millisecond, and retried.\n\n{{code:sharedata-read}}\n\n**Repair pass.** Mutation and crossover regularly produce illegal sequences (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap). Rather than penalize them in fitness and hope they evolve out, `FixMutation` walks the action list and rewrites each illegal move into a random spawn. Every evaluated individual is actually playable, and the GA stops wasting generations on no-ops.\n\n{{code:fixmutation}}\n\n**Outer loop.** 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, applies 8-action-flip mutations to the best individuals, plays every new individual in-game, and carries the top 4 through unchanged via elitism. A good run is never lost to a bad mutation.\n\n{{code:crossover-mutation}}",
     stackRationale: [
       {
         tech: "Python + `keyboard` library",
@@ -751,10 +775,10 @@ private:
     ],
     figures: [
       {
-        src: "/projects/zeppelin-rush/generations.png",
-        alt: "Scatter plot of every game the genetic AI played across 17 generations. A red best-fitness trend line rises from around 280 at generation 0, hits around 380 by generation 5, and plateaus near 400 from generation 6 onward.",
+        diagram: "ga-scatter",
+        alt: "Interactive scatter plot of every game the genetic AI played. X axis: generation (0 to 16). Y axis: score in seconds remaining (−99 sentinel = loss). Hover any dot to see the exact score. A cyan trend line connects the best winning score of each generation, rising from 306 at gen 0 through the 400-point three-star threshold and topping out at 401.85 by gen 15.",
         caption:
-          "Fitness by generation. Every dot is one game; the red line is the best score of that generation. The plateau at ~400 is the three-star rating threshold. The GA didn't just improve, it converged to the game's near-theoretical ceiling.",
+          "Fitness by generation. Each dot is one game; hover for the exact score. Cyan line is the best win of each generation. The amber line at 400 is the three-star rating threshold. The GA didn't just improve, it converged to the game's near-theoretical ceiling.",
       },
       {
         src: "/projects/zeppelin-rush/data-layout.png",
@@ -765,6 +789,7 @@ private:
     ],
     codeSnippets: [
       {
+        id: "fitness",
         title: "Fitness: time remaining on win, negative on loss",
         description:
           "The single design choice that made evolution possible. 0/1/2/3 stars is too coarse (two losing games both sit at zero, so selection has nothing to pick). Continuous time-remaining gives every individual a distinct score and a gradient that runs from 'lost slowly' through 'barely won' to 'three-star finish'.",
@@ -783,6 +808,7 @@ private:
     return -600.0 + timer              # still a gradient between losses`,
       },
       {
+        id: "fixmutation",
         title: "FixMutation: constraint-aware repair of illegal sequences",
         description:
           "Mutation and crossover regularly produce sequences that violate the game's rules (selecting the same zeppelin twice in a row, upgrading a stat past the two-upgrade cap). Rather than penalize them in fitness and wait for them to evolve out, the repair pass rewrites each illegal move into a random legal spawn. Every evaluated individual is actually playable.",
@@ -817,6 +843,7 @@ def FixMutation(actions):
     return fixed`,
       },
       {
+        id: "crossover-mutation",
         title: "Crossover + mutation on action lists",
         description:
           "Each genome is just the action list the AI fed into the game. Single-point crossover splices two parents at a random index. Mutation flips 8 positions uniformly. Illegal tails from either op are repaired by FixMutation before evaluation.",
@@ -837,6 +864,7 @@ def mutate(genome, flips: int = 8):
     return FixMutation(g)`,
       },
       {
+        id: "sharedata-read",
         title: "SharedData.json read loop with Windows file-lock retry",
         description:
           "The engine writes gamestate/gold/timer to SharedData.json every frame. The Python side polls. If a read lands mid-write, Windows file-locking raises IOError, the catch block waits a millisecond, and retries. Shared memory would have required a significant engine-side refactor; this got IPC working in an afternoon.",
@@ -857,7 +885,7 @@ def mutate(genome, flips: int = 8):
     problem:
       "Two-semester capstone in Unreal Engine 5 with a 19-person team building a third-person action combat game. The engineering scope was the kind that sounds trivial until you ship it: a pause menu that suspends a live combat state machine cleanly, freeze-frame hits that feel punchy without desyncing the animation graph, and a helper library that both engineers and designers want to call from anywhere without each team reinventing it.",
     approach:
-      "**Pause menu.** Owned end-to-end across C++ and Blueprints. Primary pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so the combat state machine cleanly suspends action ticks while paused and resumes on the same frame it left.\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four heavily-used utilities via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n**Cross-team plumbing.** Touched many other Blueprints and systems across the two semesters. Beyond code: Jenkins for automated builds (so designers and artists always had a recent runnable build without waiting on a programmer), and ClickUp for bug tracking, which is the same shape as Asana (what most studios use).",
+      "**Pause menu.** Owned end-to-end across C++ and Blueprints. Primary pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so the combat state machine cleanly suspends action ticks while paused and resumes on the same frame it left.\n\n{{code:pause-handoff}}\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n{{code:hitstop}}\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four heavily-used utilities via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n{{code:uhelperfunctions}}\n\n**Cross-team plumbing.** Touched many other Blueprints and systems across the two semesters. Beyond code: Jenkins for automated builds (so designers and artists always had a recent runnable build without waiting on a programmer), and ClickUp for bug tracking, which is the same shape as Asana (what most studios use).",
     stackRationale: [
       {
         tech: "Unreal Engine 5.2",
@@ -891,6 +919,7 @@ def mutate(genome, flips: int = 8):
     ],
     codeSnippets: [
       {
+        id: "hitstop",
         title: "Hitstop: frame-counted freeze-on-hit in CombatActionManager",
         description:
           "Counting animation frames, not wall-clock seconds. Freeze duration stays deterministic across frame-rate spikes and matches how animators think about impact frames. Per-action ceilings live on the FCombatAction struct so designers tune feel per move without touching code.",
@@ -927,6 +956,7 @@ void UCombatActionManager::OnHitConfirmed(const FHitResult& hit)
 }`,
       },
       {
+        id: "pause-handoff",
         title: "Pause menu / combat state-machine handoff",
         description:
           "An FTimerHandle held by the pause subsystem is the suspend token. Pause pauses the handle, freezing combat ticks; resume unpauses and the combat manager picks up on the same frame it left. Widgets drive this via BlueprintCallable wrappers so designers wire it in Blueprint without calling into C++.",
@@ -967,6 +997,7 @@ void UGameUI_PauseSubsystem::Resume()
 }`,
       },
       {
+        id: "uhelperfunctions",
         title: "UHelperFunctions: one Blueprint library, four utilities",
         description:
           "Engineers and designers both needed the same utilities. A UBlueprintFunctionLibrary exposes the C++ surface to Blueprint event graphs with no glue, so one implementation serves both worlds. BlueprintPure where the function is side-effect-free so it can be called in-graph without an exec pin.",

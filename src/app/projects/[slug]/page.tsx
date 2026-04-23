@@ -1,12 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
 import { DATA, PROJECT_DETAILS } from "@/data/resume";
 import { cn } from "@/lib/utils";
+import { InterleavedProse, InlineCodeSnippet } from "@/components/interleaved-prose";
+import { LightboxFigure } from "@/components/lightbox-figure";
+import { StockaiDataflow } from "@/components/stockai-dataflow";
+import { GaRunChart } from "@/components/ga-run-chart";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -34,6 +38,52 @@ export async function generateMetadata({
   };
 }
 
+// Dispatch table for figures that render a custom interactive component
+// rather than a static image. Keeps the resume.tsx data side declarative.
+type Figure =
+  | { src: string; alt: string; caption?: string }
+  | {
+      diagram: "stockai-dataflow" | "ga-scatter";
+      alt: string;
+      caption?: string;
+    };
+
+function FigureRenderer({ figure }: { figure: Figure }) {
+  if ("diagram" in figure) {
+    const Diagram =
+      figure.diagram === "stockai-dataflow"
+        ? StockaiDataflow
+        : figure.diagram === "ga-scatter"
+        ? GaRunChart
+        : null;
+    if (!Diagram) return null;
+    return (
+      <figure
+        className={cn(
+          "flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-muted/20 p-3 sm:p-4",
+          SILVER_CARD
+        )}
+      >
+        <div className="w-full" aria-label={figure.alt} role="img">
+          <Diagram />
+        </div>
+        {figure.caption && (
+          <figcaption className="px-1 pb-1 pt-1 text-xs text-pretty leading-relaxed text-muted-foreground">
+            {figure.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+  return (
+    <LightboxFigure
+      src={figure.src}
+      alt={figure.alt}
+      caption={figure.caption}
+    />
+  );
+}
+
 export default async function ProjectDetailPage({
   params,
 }: {
@@ -43,6 +93,22 @@ export default async function ProjectDetailPage({
   const project = DATA.projects.find((p) => p.slug === slug);
   if (!project) notFound();
   const details = PROJECT_DETAILS[slug];
+
+  // Snippets that weren't referenced by a `{{code:id}}` placeholder in the
+  // approach/problem prose fall back to a "More code" section at the bottom
+  // so nothing gets silently dropped. Normally this is empty.
+  const allSnippetIds = new Set((details?.codeSnippets ?? []).map((s) => s.id));
+  const referenced = new Set<string>();
+  const placeholderRe = /\{\{code:([a-zA-Z0-9_-]+)\}\}/g;
+  for (const body of [details?.problem, details?.approach]) {
+    if (!body) continue;
+    let m: RegExpExecArray | null;
+    while ((m = placeholderRe.exec(body)) !== null) referenced.add(m[1]);
+  }
+  const orphanSnippets =
+    details?.codeSnippets?.filter(
+      (s) => allSnippetIds.has(s.id) && !referenced.has(s.id)
+    ) ?? [];
 
   return (
     <main className="min-h-dvh flex flex-col gap-10 relative">
@@ -197,9 +263,10 @@ export default async function ProjectDetailPage({
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Problem
             </h2>
-            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-              <Markdown>{details.problem}</Markdown>
-            </div>
+            <InterleavedProse
+              markdown={details.problem}
+              snippets={details.codeSnippets}
+            />
           </section>
         </BlurFade>
       )}
@@ -210,9 +277,10 @@ export default async function ProjectDetailPage({
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Approach
             </h2>
-            <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-              <Markdown>{details.approach}</Markdown>
-            </div>
+            <InterleavedProse
+              markdown={details.approach}
+              snippets={details.codeSnippets}
+            />
           </section>
         </BlurFade>
       )}
@@ -226,24 +294,7 @@ export default async function ProjectDetailPage({
             </h2>
             <div className="flex flex-col gap-6">
               {details.figures.map((figure, i) => (
-                <figure
-                  key={i}
-                  className={cn(
-                    "flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-muted/30",
-                    SILVER_CARD
-                  )}
-                >
-                  <img
-                    src={figure.src}
-                    alt={figure.alt}
-                    className="w-full h-auto bg-background"
-                  />
-                  {figure.caption && (
-                    <figcaption className="px-4 pb-3 text-xs text-pretty leading-relaxed text-muted-foreground">
-                      {figure.caption}
-                    </figcaption>
-                  )}
-                </figure>
+                <FigureRenderer key={i} figure={figure} />
               ))}
             </div>
           </section>
@@ -275,52 +326,17 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {/* Code snippets live behind expandables so the narrative stays clean
-          but recruiters who want the actual shape of the code can click in. */}
-      {details?.codeSnippets && details.codeSnippets.length > 0 && (
+      {/* Orphan snippets (not referenced inline). Normally empty — the
+          inline `{{code:id}}` placeholders pull everything into the prose. */}
+      {orphanSnippets.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 13}>
           <section className="flex flex-col gap-3">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-              Code
+              More code
             </h2>
-            <p className="text-xs text-muted-foreground">
-              Expand a snippet to see the relevant code. Real shapes from the
-              project, trimmed for readability.
-            </p>
             <div className="flex flex-col gap-2">
-              {details.codeSnippets.map((snippet, i) => (
-                <details
-                  key={i}
-                  className={cn(
-                    "group overflow-hidden rounded-xl border border-border bg-card/40",
-                    SILVER_CARD
-                  )}
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm select-none hover:bg-card/70 transition-colors [&::-webkit-details-marker]:hidden">
-                    <span className="flex items-center gap-2 min-w-0">
-                      <ChevronDown
-                        className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
-                        aria-hidden
-                      />
-                      <span className="font-medium truncate">
-                        {snippet.title}
-                      </span>
-                    </span>
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground shrink-0">
-                      {snippet.language}
-                    </span>
-                  </summary>
-                  {snippet.description && (
-                    <div className="border-t border-border/60 px-4 py-3 text-xs text-pretty leading-relaxed text-muted-foreground">
-                      {snippet.description}
-                    </div>
-                  )}
-                  <pre className="overflow-x-auto border-t border-border/60 bg-background/50 px-4 py-3 text-[12px] leading-relaxed">
-                    <code className="font-mono text-foreground/90">
-                      {snippet.code}
-                    </code>
-                  </pre>
-                </details>
+              {orphanSnippets.map((s) => (
+                <InlineCodeSnippet key={s.id} snippet={s} />
               ))}
             </div>
           </section>

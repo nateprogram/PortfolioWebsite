@@ -153,27 +153,12 @@ export function ProjectCard({
         ) : (
           <ProjectMedia title={title} image={image} video={video} />
         )}
-        {status && (
-          <div className="absolute top-2 left-2 z-10 pointer-events-none">
-            <Badge
-              variant="outline"
-              className="h-6 gap-1.5 bg-background/80 backdrop-blur font-mono text-[10px] uppercase tracking-widest"
-            >
-              <span
-                className={cn(
-                  "size-1.5 rounded-full",
-                  status === "Active"
-                    ? "bg-emerald-500"
-                    : status === "Coursework"
-                    ? "bg-sky-500"
-                    : "bg-muted-foreground"
-                )}
-                aria-hidden
-              />
-              {status}
-            </Badge>
-          </div>
-        )}
+        {/* Status badge intentionally not rendered. The data field is kept on
+            the project type for future filtering/logic, but surfacing labels
+            like "Coursework" or "Active" on every card creates an implicit
+            hierarchy between academic / personal / employed work. We'd rather
+            every entry in the grid stand on its own merits — dates alone
+            already communicate "currently shipping" vs "past". */}
         {links && links.length > 0 && (
           <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-2">
             {links.map((link, idx) => (

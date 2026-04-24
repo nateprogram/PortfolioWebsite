@@ -86,7 +86,10 @@ export const DATA = {
     },
   },
 
-  // TODO: populate any internships or part-time SWE work. Empty for now.
+  // Reserved slot for future work entries (full-time roles, etc.) if we ever
+  // want a standalone "Experience" section separate from the projects grid.
+  // Currently empty — internships live as first-class entries in `projects`
+  // so everything the reader sees sits on equal footing.
   work: [],
 
   education: [

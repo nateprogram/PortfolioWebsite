@@ -264,6 +264,66 @@ export const DATA = {
       image: "/games/treasure-party/hero.png",
       video: "",
     },
+    {
+      title: "Spur Group · Client Web & Reporting",
+      slug: "spur-2021",
+      href: "/projects/spur-2021",
+      dates: "2021",
+      active: false,
+      status: "Shipped",
+      categories: ["Full-Stack"],
+      summary:
+        "Software Development Intern. Returning internship at The Spur Group, a Redmond consulting firm. Built React/TypeScript client microsites inside a .NET + Azure DevOps pipeline, and owned Power BI reporting that fed the firm's executive dashboards.",
+      description:
+        "Returning internship at The Spur Group (Redmond consulting). Shipped React/TypeScript single-page applications for enterprise-client engagements, worked inside a .NET + Azure DevOps source pipeline with real PR review and real production deploys, and owned the Power BI reporting layer that fed weekly executive dashboards. Small team, which meant every piece of what I built went straight to the client.",
+      technologies: [
+        "React",
+        "TypeScript",
+        ".NET",
+        "Power BI",
+        "Azure DevOps",
+        "Git",
+      ],
+      links: [
+        {
+          type: "Website",
+          href: "https://thespurgroup.com/",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+      image: "",
+      video: "",
+    },
+    {
+      title: "Spur Group · Internal Comms Automation",
+      slug: "spur-2020",
+      href: "/projects/spur-2020",
+      dates: "2020",
+      active: false,
+      status: "Shipped",
+      categories: ["Full-Stack"],
+      summary:
+        "Software Development Intern. First production experience — built a Microsoft Flow newsletter system that distributed formatted internal comms to 1,000+ employees on a weekly cadence, plus an HTML/CSS email template library and a marketing-site refresh.",
+      description:
+        "First internship at The Spur Group (Redmond consulting). Built a Microsoft Flow newsletter pipeline that pulled structured content, rendered it through an HTML/CSS email template, and fanned out to 1,000+ employees weekly — replacing a manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows. This was my first time owning production code that other people's workflows depended on: first PR review, first production deploy, first time 'ship it Friday' had real stakes.",
+      technologies: [
+        "Microsoft Flow",
+        "HTML",
+        "CSS",
+        "Java",
+        "Visual Studio",
+        "Excel",
+      ],
+      links: [
+        {
+          type: "Website",
+          href: "https://thespurgroup.com/",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+      image: "",
+      video: "",
+    },
   ],
 } as const;
 
@@ -1034,6 +1094,66 @@ public:
                                            FVector LocalOffset);
 };`,
       },
+    ],
+  },
+  "spur-2021": {
+    problem:
+      "Spur is a Redmond consulting firm whose clients are large enterprise technology companies. Consulting work looks very different from a single long-lived product: every engagement is its own mini product with its own stakeholders, timeline, and deploy target. On a small dev team, the intern isn't an observer — whatever you ship goes to the client. The question was whether I could operate inside a real PR pipeline, on real deadlines, for real people paying real money.",
+    approach:
+      "Built React + TypeScript client-facing sites and supporting internal tooling inside the firm's .NET + Azure DevOps source pipeline: feature branches, PR review, build gates, production deploys. On the reporting side, owned Power BI dashboards that fed the firm's weekly executive reviews — modeling the underlying data, authoring the visuals, and refreshing the dataset feeds. Worked across multiple engagements in parallel, which meant context-switching between client codebases and style conventions on a weekly basis. Returning for a second summer meant picking up where I left off with real institutional context, not re-onboarding.",
+    stackRationale: [
+      {
+        tech: "React + TypeScript",
+        why: "The firm's standard stack for client-facing microsites. TypeScript made the handoff to whoever inherited the engagement cleaner — the component API was the contract.",
+      },
+      {
+        tech: ".NET + Azure DevOps",
+        why: "Where Spur's source of truth lived. Working inside it meant PR review, build pipelines, and production deploys were not simulated — they were the real thing.",
+      },
+      {
+        tech: "Power BI",
+        why: "Executive reporting surface at Spur and at most of its enterprise clients. Owning the dashboard meant owning data model, DAX measures, and refresh cadence, not just the visuals.",
+      },
+      {
+        tech: "Git",
+        why: "Every engagement used Git; returning for a second summer meant the muscle memory (branch hygiene, PR etiquette, rebasing vs merging) was already there from year one.",
+      },
+    ],
+    highlights: [
+      "Shipped React/TypeScript client microsites into production via Azure DevOps with real PR review and deploy cadence.",
+      "Owned Power BI dashboards feeding the firm's weekly executive reviews — data model, DAX, and dataset refresh.",
+      "Returning intern: second-summer context meant contributing on day one rather than re-onboarding.",
+      "Small team, consulting-scale cycles: every deliverable I touched went directly to the client.",
+    ],
+  },
+  "spur-2020": {
+    problem:
+      "Spur distributed a company-wide newsletter to 1,000+ employees every week. The process was fully manual: someone copied content from a structured source into an email template by hand, formatted it, and sent it — every week. It was slow, error-prone, and stealing hours from the people actually writing the comms. The goal wasn't fancy: replace the hand-work with a pipeline that did it correctly, on a schedule, forever.",
+    approach:
+      "Built the pipeline on Microsoft Flow (now Power Automate) — the firm's sanctioned automation substrate, which meant IT didn't have to approve a new service to run the thing. Flow pulled newsletter content from a structured source, passed it through an HTML/CSS email template I authored, and fanned out to the 1,000+ employee distribution list on a weekly cadence. The hand-work disappeared. On the side, shipped a refresh of one of the firm's web properties (my first production website) and a handful of smaller email-automation flows to clean up other manual comms processes. This was my first internship anywhere — first PR review, first code handed off to someone else, first deploy where 'it broke at 9am' had consequences.",
+    stackRationale: [
+      {
+        tech: "Microsoft Flow",
+        why: "Firm's approved automation substrate. Building on top of Flow meant zero procurement friction — IT already trusted it. Trades code flexibility for deployment velocity; for a weekly newsletter, that trade is correct.",
+      },
+      {
+        tech: "HTML + CSS (email templates)",
+        why: "Email rendering is famously ancient (Outlook, Gmail, mobile clients all differ). Hand-rolling the template with well-known patterns was more reliable than reaching for a framework that might render cleanly in the browser and break in a recipient's client.",
+      },
+      {
+        tech: "Visual Studio + Java",
+        why: "The firm's tooling. The smaller companion tools were written against whatever the engagement team was already using; the job was to contribute, not to pick a preferred stack.",
+      },
+      {
+        tech: "Excel",
+        why: "Where the source content and distribution lists lived. Flow talks to Excel natively over Graph, so the pipeline could be a single declarative chain without an intermediate store.",
+      },
+    ],
+    highlights: [
+      "Microsoft Flow pipeline delivered the weekly internal newsletter to 1,000+ employees — replaced an entirely manual process.",
+      "Authored the HTML/CSS email template that rendered newsletter content consistently across Outlook, web, and mobile clients.",
+      "Refreshed a firm web property (first production website I ever shipped).",
+      "First internship — first PR review, first production deploy, first time other people's workflow depended on code I wrote.",
     ],
   },
 };

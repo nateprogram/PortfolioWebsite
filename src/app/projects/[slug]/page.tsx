@@ -146,30 +146,18 @@ export default async function ProjectDetailPage({
       </BlurFade>
 
       <header className="flex flex-col gap-4">
-        <BlurFade delay={BLUR_FADE_DELAY * 2}>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <span
-                className={cn(
-                  "size-1.5 rounded-full",
-                  project.status === "Active"
-                    ? "bg-emerald-500"
-                    : project.status === "Coursework"
-                    ? "bg-sky-500"
-                    : "bg-muted-foreground"
-                )}
-                aria-hidden
-              />
-              {project.status}
-            </span>
-            {project.categories && project.categories.length > 0 && (
-              <>
-                <span aria-hidden>·</span>
-                <span>{project.categories.join(" / ")}</span>
-              </>
-            )}
-          </div>
-        </BlurFade>
+        {/* Intentionally no status pill here. Labels like "Coursework" or
+            "Active" create an implicit hierarchy between academic, personal,
+            and employed work — we want every entry to stand on its own. The
+            status field is still carried on the data model for future
+            filtering but is never rendered in the UI. */}
+        {project.categories && project.categories.length > 0 && (
+          <BlurFade delay={BLUR_FADE_DELAY * 2}>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+              <span>{project.categories.join(" / ")}</span>
+            </div>
+          </BlurFade>
+        )}
 
         <BlurFade delay={BLUR_FADE_DELAY * 3}>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tighter">

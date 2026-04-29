@@ -26,7 +26,7 @@ import { FlowNode, ScraperCard, VerticalArrow } from "./nodes";
 //
 // Structure:
 //   1. Header + caption
-//   2. Row 1: five ScraperCards (static — all sources visible)
+//   2. Row 1: five ScraperCards (static, all sources visible)
 //   3. Row 2+: left column (main pipeline) and right column (DB + retrain
 //      loop). The right column's promoted-checkpoint chip is tied to the
 //      LSTM predictor by a measured SVG curve (FeedbackArrow) so the
@@ -46,7 +46,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
       ref={containerRef}
       className={cn("relative flex flex-col", className)}
       role="region"
-      aria-label="V6 data flow — interactive architecture diagram. Click any stage to expand its details."
+      aria-label="V6 data flow: interactive architecture diagram. Click any stage to expand its details."
     >
       {/* Header */}
       <div className="mb-4 border-b border-border/60 pb-3">
@@ -63,7 +63,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
 
       {/* ========================= Row 1: Scraper categories ====================
           Five peer categories, each rendered as a static ScraperCard so the
-          sources are visible at a glance. There is no per-card expand — the
+          sources are visible at a glance. There is no per-card expand: the
           distinguishing info *is* the source list, so hiding it behind a
           click added friction without adding information. */}
       <div className="mb-1.5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground/70">
@@ -145,7 +145,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
               <FlowNode {...BACKTESTER} />
             </div>
 
-            {/* Promoted-checkpoint chip — this is the FeedbackArrow's
+            {/* Promoted-checkpoint chip: the FeedbackArrow's
                 source endpoint. The measured SVG curve leaves from the
                 top of this chip and sweeps over to the LSTM predictor. */}
             <div
@@ -157,7 +157,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
             </div>
           </div>
 
-          {/* Legend — restores the semantic color cues the original SVG
+          {/* Legend: restores the semantic color cues the original SVG
               communicated with dashed / solid / colored arrows. */}
           <div className="rounded-lg border border-border/60 bg-card/30 p-2.5">
             <div className="mb-1.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/80">

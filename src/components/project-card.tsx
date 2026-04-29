@@ -157,7 +157,7 @@ export function ProjectCard({
             the project type for future filtering/logic, but surfacing labels
             like "Coursework" or "Active" on every card creates an implicit
             hierarchy between academic / personal / employed work. We'd rather
-            every entry in the grid stand on its own merits — dates alone
+            every entry in the grid stand on its own merits; dates alone
             already communicate "currently shipping" vs "past". */}
         {links && links.length > 0 && (
           <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-2">

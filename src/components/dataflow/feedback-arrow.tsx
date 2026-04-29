@@ -14,11 +14,11 @@ import { FEEDBACK_ARROW_COLORS } from "./tokens";
 //   - `containerRef` wraps the entire diagram and establishes the
 //     coordinate system (position: relative on the container).
 //   - `fromRef` wraps the "promoted checkpoint" source on the right column
-//     (top of the arrow — the arrow starts from the *top* of this node).
+//     (top of the arrow: the arrow starts from the *top* of this node).
 //   - `toRef` wraps the LSTM predictor on the left column (end of the
-//     arrow — terminates at the *right* edge of this node).
+//     arrow: terminates at the *right* edge of this node).
 //
-// The arrow is hidden when the container is narrower than ~960 px — at
+// The arrow is hidden when the container is narrower than ~960 px. At
 // that breakpoint the layout collapses to a single column, the two
 // endpoints stack vertically, and a giant curved SVG would look broken.
 
@@ -173,7 +173,7 @@ export function FeedbackArrow({
         </marker>
       </defs>
 
-      {/* Soft outer glow — gives the arrow some presence over busy cards
+      {/* Soft outer glow: gives the arrow some presence over busy cards
           without requiring a filter chain. */}
       <path
         d={geometry.path}

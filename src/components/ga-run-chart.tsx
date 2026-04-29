@@ -44,7 +44,7 @@ const BEST_PER_GEN: ReadonlyArray<{ gen: number; best: number }> =
 const W = 820;
 const H = 480;
 // Generous top padding reserves room for a title + best-score badge above the
-// plot frame, and — just as importantly — gives hovered-tooltip space so
+// plot frame, and (just as importantly) gives hovered-tooltip space so
 // points high on the chart don't get clipped by the top edge.
 const PAD = { top: 84, right: 28, bottom: 60, left: 72 };
 
@@ -284,7 +284,7 @@ export function GaRunChart({ className }: { className?: string }) {
 
         {/* Per-game scatter points (hoverable). Invisible larger hit circle
             wraps each visible dot so mouseover isn't brittle. All dots for a
-            given generation are stacked on that generation's integer x —
+            given generation are stacked on that generation's integer x;
             user asked for points to sit directly on the generation line, not
             jittered across the gap. */}
         {POINTS.map((p, i) => {
@@ -431,7 +431,7 @@ export function GaRunChart({ className }: { className?: string }) {
         </g>
       </svg>
 
-      {/* Tooltip — positioned as % of wrapper so it tracks the scaled SVG.
+      {/* Tooltip, positioned as % of wrapper so it tracks the scaled SVG.
           When a point is near the top of the plot, the default "above the
           dot" placement would clip against the chart's top edge. We detect
           that and flip the tooltip below the dot instead. */}

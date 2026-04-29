@@ -2,19 +2,19 @@
 //
 // Every card, arrow and legend swatch reads from these tables, so a change
 // to an accent color here ripples everywhere that accent is used. The goal
-// is: "one change on tokens.ts changes all" — no color literals sprinkled
+// is: "one change on tokens.ts changes all", with no color literals sprinkled
 // across the component files.
 //
 // Each accent represents a *semantic* lane in the pipeline, not just a
 // color:
 //   - default   neutral pipeline stage
 //   - model     cyan lane (feature engine, LSTM predictor, model path)
-//   - feedback  amber lane (retrain / rollback loop — the yellow arrow)
+//   - feedback  amber lane (retrain / rollback loop: the yellow arrow)
 //   - db        slate lane (database / storage)
 //   - gate      emerald lane (validators / deploy gates)
 //
 // Opacities intentionally stay low (0.04 – 0.10) so the accent is a soft
-// wash rather than a filled button — the same low-contrast treatment reads
+// wash rather than a filled button. The same low-contrast treatment reads
 // correctly in both light and dark mode without a separate palette.
 
 export type Accent = "default" | "model" | "feedback" | "db" | "gate";

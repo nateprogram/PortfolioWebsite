@@ -17,7 +17,7 @@ import {
 // Click-to-expand pipeline card. Used for every stage that has further
 // detail to drill into (controller, feature engine, analyzers, LSTM, etc.).
 // If `details` is empty/absent the card renders as a non-interactive tile
-// and the chevron is suppressed — that's the case for purely informational
+// and the chevron is suppressed, which is the case for purely informational
 // stages like the correlation analyzer.
 export function FlowNode({
   title,
@@ -109,7 +109,7 @@ export function FlowNode({
   );
 }
 
-// Static scraper card. Does NOT expand — the listed items are always
+// Static scraper card. Does NOT expand; the listed items are always
 // visible. Each scraper category does the same job (fetch data); the
 // *distinguishing* information is the list of sources, so hiding that
 // behind a click added friction without adding information. Rendering
@@ -167,8 +167,8 @@ export function ScraperCard({
 }
 
 // Short vertical arrow connector that sits between stacked FlowNodes.
-// The optional label is shown as a tiny monospace caption under the arrow
-// — used for "raw streams" above the controller so the eye follows the
+// The optional label is shown as a tiny monospace caption under the arrow,
+// used for "raw streams" above the controller so the eye follows the
 // flow even though the stages are visually distinct cards.
 export function VerticalArrow({
   label,

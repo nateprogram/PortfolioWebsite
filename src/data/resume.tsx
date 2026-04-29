@@ -27,7 +27,15 @@ export const DATA = {
   description:
     "Redmond, WA · Open for new-grad SWE roles starting Summer 2026.",
   summary:
-    "BS Computer Science at [DigiPen Institute of Technology](/#education), graduating May 2026. I'm a C++ and systems programmer first. My team and I wrote a custom C++ engine from scratch, and I later wrote a Python genetic algorithm that learns to win a real-time strategy game running on it. That game shipped on Steam. I've also built in Unreal and Unity with teams of engineers, designers, and artists. On my own, I've built an ML-driven stock research system and a cross-platform team-coordination app. I like hard problems and good teammates.",
+    "I'm a C++ and systems programmer first. With two teammates, I wrote a custom C++ game engine from scratch. Every line of rendering, scene graph, particle system, input, and asset pipeline is ours; no commercial middleware. We shipped a tower-offense title on Steam as the engine's proof-of-work, and I later wrote a Python genetic algorithm that learned to beat it in 16 generations.\n\nOutside of game work, I've built a Microsoft Power Automate pipeline that replaced a fully manual newsletter going to 10,000+ recipients on a Microsoft engagement at Spur Reply, an ML trading research platform with live model serving and closed-loop feature attention, and SquadPact: a scheduling app I started after watching the volunteer managers on the adult-league soccer teams I play on lose hours every week to copy-paste admin (league site to group chat, rinse, repeat).\n\nCurrently a senior at [DigiPen](/#education), graduating May 2026 and open for new-grad SWE roles.",
+  // Operating principles. Lives between About and Education on the homepage.
+  // Each entry is a Markdown string: bold lead + sentence or two of body.
+  principles: [
+    "**Database invariants beat app-code checks.** A `@@unique([eventId, userId])` constraint stops two RSVP rows from existing. A `findFirst` followed by a `create` is two queries that race under load.",
+    "**Configs in JSON, not in code.** Particle parameters, stat curves, scraper cadences. If a designer or a future-me wants to retune it, no rebuild should be required.",
+    "**Build the layer yourself when you need to actually understand it.** A hand-written engine teaches you what rendering, memory, and the hot path are. A vendor engine teaches you to file support tickets.",
+    "**AI is a collaborator, not a delegate.** If the prompt feels like throwing work over a wall, don't send it. The good outputs come when you're actively shaping the work.",
+  ],
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
   skillGroups: [
@@ -88,7 +96,7 @@ export const DATA = {
 
   // Reserved slot for future work entries (full-time roles, etc.) if we ever
   // want a standalone "Experience" section separate from the projects grid.
-  // Currently empty — internships live as first-class entries in `projects`
+  // Currently empty. Internships live as first-class entries in `projects`
   // so everything the reader sees sits on equal footing.
   work: [],
 
@@ -201,7 +209,7 @@ export const DATA = {
       summary:
         "A Python genetic algorithm that teaches itself to win Zeppelin Rush, a Steam tower-offense game running on Mayhem, the C++ engine my team and I built from scratch. In 16 generations it hit a score of 401, crossing the game's three-star threshold. I've hit three stars playing it myself exactly once.",
       description:
-        "A Python genetic algorithm that teaches itself to win Zeppelin Rush, a Steam tower-offense game running on Mayhem, the C++ engine my team and I built from scratch. The AI drives the live game by injecting keyboard actions and reads game state back (gold, gamestate, timer) through a shared JSON file. Starting from 60 randomly-played games, it runs 16 generations of selection, single-point crossover, mutation, and elitism, with a constraint-aware repair pass that rewrites illegal action sequences into legal ones before evaluation. After a 24-hour run the best game scored 401, crossing the three-star threshold of 400. CS380 AI coursework at DigiPen.",
+        "A Python genetic algorithm that teaches itself to win Zeppelin Rush, a Steam tower-offense game running on Mayhem, the C++ engine my team and I built from scratch. The AI drives the live game by injecting keyboard actions and reads game state back (gold, gamestate, timer) through a shared JSON file. Starting from 60 randomly-played games, it runs 16 generations of selection, single-point crossover, mutation, and elitism, with a constraint-aware repair pass that rewrites illegal action sequences into legal ones before evaluation. After a 24-hour run the best game scored 401, crossing the three-star threshold of 400.",
       technologies: [
         "Python",
         "Genetic Algorithms",
@@ -223,9 +231,9 @@ export const DATA = {
       status: "Coursework",
       categories: ["Games"],
       summary:
-        "Third-person action combat game built over two semesters on Unreal Engine 5.2 with a 19-person DigiPen team. I own the pause menu (C++ and Blueprints), the combat hitstop system, and a Blueprint-callable C++ helper library used across the project.",
+        "Third-person action combat game built over ten months on Unreal Engine 5.2 with a 19-person team. I own the pause menu (C++ and Blueprints), the combat hitstop system, and a Blueprint-callable C++ helper library used across the project.",
       description:
-        "Third-person action combat game built over two semesters at DigiPen with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Unreal Engine 5.2, Wwise for audio, Enhanced Input, CommonUI. Jenkins for automated builds and ClickUp for bug tracking (Asana-style workflow). My share: the pause menu end-to-end (primary UI, quit/restart confirmations, settings panel, Wwise SFX, and the combat-state-machine integration), the combat hitstop freeze-frame system inside CombatActionManager, and a UBlueprintFunctionLibrary of C++ helpers used by both engineers and designers.",
+        "Third-person action combat game built over ten months with a 19-person multi-disciplinary team (5 engineers, 3 designers, 10 artists, 1 audio engineer). Unreal Engine 5.2, Wwise for audio, Enhanced Input, CommonUI. Jenkins for automated builds and ClickUp for bug tracking (Asana-style workflow). My share: the pause menu end-to-end (primary UI, quit/restart confirmations, settings panel, Wwise SFX, and the combat-state-machine integration), the combat hitstop freeze-frame system inside CombatActionManager, and a UBlueprintFunctionLibrary of C++ helpers used by both engineers and designers.",
       technologies: [
         "Unreal Engine 5.2",
         "C++",
@@ -256,9 +264,9 @@ export const DATA = {
       status: "Coursework",
       categories: ["Games"],
       summary:
-        "Local 4-player couch party game built at Saucecup Studios (DigiPen, team of 6) in Unity. I owned the Reflex Rush minigame, the game-wide AudioManager, and the Bad Luck board tile.",
+        "Local 4-player couch party game built at Saucecup Studios with a team of 6 in Unity. I owned the Reflex Rush minigame, the game-wide AudioManager, and the Bad Luck board tile.",
       description:
-        "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios (DigiPen). My share: the Reflex Rush minigame end-to-end (state machine, per-player scoring, difficulty ramp), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
+        "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios. My share: the Reflex Rush minigame end-to-end (state machine, per-player scoring, difficulty ramp), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
       technologies: ["Unity 2022.3 LTS", "C#", "URP", "Local 4-player", "Team of 6"],
       links: [],
       image: "/games/treasure-party/hero.png",
@@ -273,9 +281,9 @@ export const DATA = {
       status: "Shipped",
       categories: ["Full-Stack"],
       summary:
-        "Software Development Intern. Returning internship at The Spur Group, a Redmond consulting firm. Built React/TypeScript client microsites inside a .NET + Azure DevOps pipeline, and owned Power BI reporting that fed the firm's executive dashboards.",
+        "Software Development Intern (returning). Shipped React/TypeScript client microsites at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Worked inside a .NET + Azure DevOps pipeline and owned the Power BI reporting layer feeding the firm's weekly executive dashboards.",
       description:
-        "Returning internship at The Spur Group (Redmond consulting). Shipped React/TypeScript single-page applications for enterprise-client engagements, worked inside a .NET + Azure DevOps source pipeline with real PR review and real production deploys, and owned the Power BI reporting layer that fed weekly executive dashboards. Small team, which meant every piece of what I built went straight to the client.",
+        "Second-summer internship at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Shipped React/TypeScript single-page applications for client engagements through a .NET + Azure DevOps pipeline (feature branches, PR review, production deploy gates) and owned the Power BI reporting layer feeding weekly executive dashboards. Small dev team, consulting-scale cycles; every deliverable went directly to an external client.",
       technologies: [
         "React",
         "TypeScript",
@@ -303,9 +311,9 @@ export const DATA = {
       status: "Shipped",
       categories: ["Full-Stack"],
       summary:
-        "Software Development Intern. First production experience — built a Microsoft Flow newsletter system that distributed formatted internal comms to 1,000+ employees on a weekly cadence, plus an HTML/CSS email template library and a marketing-site refresh.",
+        "Software Development Intern. Built a Microsoft Flow newsletter pipeline distributing formatted internal comms to 1,000+ employees on a weekly cadence, an HTML/CSS email template library, and a marketing-site refresh for The Spur Group, a Redmond consulting firm.",
       description:
-        "First internship at The Spur Group (Redmond consulting). Built a Microsoft Flow newsletter pipeline that pulled structured content, rendered it through an HTML/CSS email template, and fanned out to 1,000+ employees weekly — replacing a manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows. This was my first time owning production code that other people's workflows depended on: first PR review, first production deploy, first time 'ship it Friday' had real stakes.",
+        "Internship at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Built a Microsoft Flow pipeline that pulled newsletter content from a structured source, rendered it through an HTML/CSS email template, and fanned out to the firm's 1,000+ employee distribution list on a weekly cadence, replacing a fully manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows covering adjacent manual comms processes.",
       technologies: [
         "Microsoft Flow",
         "HTML",
@@ -633,7 +641,7 @@ def live_rollback_check(live, window: int = 5):
     stackRationale: [
       {
         tech: "C++ with no commercial middleware",
-        why: "The course (and the goal) was to understand the engine layer end-to-end. Every rendering call, every memory pool, every hot path is ours. No black boxes blaming a crash on a vendor.",
+        why: "The goal was to understand the engine layer end-to-end. Every rendering call, every memory pool, every hot path is ours. No black boxes blaming a crash on a vendor.",
       },
       {
         tech: "JSON-serialized emitters (rapidjson)",
@@ -946,9 +954,9 @@ def mutate(genome, flips: int = 8):
   },
   isshin: {
     problem:
-      "Two-semester capstone in Unreal Engine 5 with a 19-person team building a third-person action combat game. The engineering scope was the kind that sounds trivial until you ship it: a pause menu that suspends a live combat state machine cleanly, freeze-frame hits that feel punchy without desyncing the animation graph, and a helper library that both engineers and designers want to call from anywhere without each team reinventing it.",
+      "Ten-month production in Unreal Engine 5 with a 19-person team building a third-person action combat game. The engineering scope was the kind that sounds trivial until you ship it: a pause menu that suspends a live combat state machine cleanly, freeze-frame hits that feel punchy without desyncing the animation graph, and a helper library that both engineers and designers want to call from anywhere without each team reinventing it.",
     approach:
-      "**Pause menu.** Owned end-to-end across C++ and Blueprints. Primary pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so the combat state machine cleanly suspends action ticks while paused and resumes on the same frame it left.\n\n{{code:pause-handoff}}\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n{{code:hitstop}}\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four heavily-used utilities via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n{{code:uhelperfunctions}}\n\n**Cross-team plumbing.** Touched many other Blueprints and systems across the two semesters. Beyond code: Jenkins for automated builds (so designers and artists always had a recent runnable build without waiting on a programmer), and ClickUp for bug tracking, which is the same shape as Asana (what most studios use).",
+      "**Pause menu.** Owned end-to-end across C++ and Blueprints. Primary pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so the combat state machine cleanly suspends action ticks while paused and resumes on the same frame it left.\n\n{{code:pause-handoff}}\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n{{code:hitstop}}\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four heavily-used utilities via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n{{code:uhelperfunctions}}\n\n**Cross-team plumbing.** Touched many other Blueprints and systems across the full production. Beyond code: Jenkins for automated builds (so designers and artists always had a recent runnable build without waiting on a programmer), and ClickUp for bug tracking, which is the same shape as Asana (what most studios use).",
     stackRationale: [
       {
         tech: "Unreal Engine 5.2",
@@ -972,7 +980,7 @@ def mutate(genome, flips: int = 8):
       },
     ],
     highlights: [
-      "Team of 19 (5 engineers, 3 designers, 10 artists, 1 audio engineer) across two semesters.",
+      "Team of 19 (5 engineers, 3 designers, 10 artists, 1 audio engineer) over ten months.",
       "62 C++ files across the Runtime and Editor modules. 107+ Blueprint assets.",
       "Pause menu owned end-to-end: primary UI, quit/restart confirmations, settings panel, Wwise SFX, and clean suspension of the combat state machine via `FTimerHandle activePause`.",
       "Hitstop implemented inside `CombatActionManager` with per-action tunable frame counts on `FCombatAction`. Designers retune combat feel without touching code.",
@@ -1098,51 +1106,47 @@ public:
   },
   "spur-2021": {
     problem:
-      "Spur is a Redmond consulting firm whose clients are large enterprise technology companies. Consulting work looks very different from a single long-lived product: every engagement is its own mini product with its own stakeholders, timeline, and deploy target. On a small dev team, the intern isn't an observer — whatever you ship goes to the client. The question was whether I could operate inside a real PR pipeline, on real deadlines, for real people paying real money.",
+      "Spur is a Redmond consulting firm whose clients are large enterprise technology companies. Consulting work is different in shape from single-product engineering: every engagement is its own miniature product with its own stakeholders, timeline, and deploy target, and every deliverable ships to an external client. The engineering challenge is staying fast and correct while rotating across unrelated codebases week over week.",
     approach:
-      "Built React + TypeScript client-facing sites and supporting internal tooling inside the firm's .NET + Azure DevOps source pipeline: feature branches, PR review, build gates, production deploys. On the reporting side, owned Power BI dashboards that fed the firm's weekly executive reviews — modeling the underlying data, authoring the visuals, and refreshing the dataset feeds. Worked across multiple engagements in parallel, which meant context-switching between client codebases and style conventions on a weekly basis. Returning for a second summer meant picking up where I left off with real institutional context, not re-onboarding.",
+      "Built React + TypeScript client-facing sites and supporting internal tooling inside the firm's .NET + Azure DevOps source pipeline: feature branches, PR review, build gates, production deploys. On the reporting side, owned Power BI dashboards feeding the firm's weekly executive reviews: underlying data model, DAX measures, visuals, and dataset refresh cadence. Rotated across multiple client engagements in parallel, which meant context-switching between client codebases and style conventions week over week. As a returning intern, contributed to production code on day one rather than re-onboarding.",
     stackRationale: [
       {
         tech: "React + TypeScript",
-        why: "The firm's standard stack for client-facing microsites. TypeScript made the handoff to whoever inherited the engagement cleaner — the component API was the contract.",
+        why: "The firm's standard stack for client-facing microsites. TypeScript made engagement handoffs cleaner by making the component API an enforced contract between whoever wrote a piece of UI and whoever inherited it.",
       },
       {
         tech: ".NET + Azure DevOps",
-        why: "Where Spur's source of truth lived. Working inside it meant PR review, build pipelines, and production deploys were not simulated — they were the real thing.",
+        why: "Where Spur's source of truth lived. PR review, build pipelines, and production deploys all ran through the same infrastructure the firm's permanent engineers used, so intern work and non-intern work went through identical gates.",
       },
       {
         tech: "Power BI",
-        why: "Executive reporting surface at Spur and at most of its enterprise clients. Owning the dashboard meant owning data model, DAX measures, and refresh cadence, not just the visuals.",
-      },
-      {
-        tech: "Git",
-        why: "Every engagement used Git; returning for a second summer meant the muscle memory (branch hygiene, PR etiquette, rebasing vs merging) was already there from year one.",
+        why: "Executive reporting surface at Spur and at most of its enterprise clients. Owning the dashboard meant owning the data model, DAX measures, and refresh cadence, not just the visuals.",
       },
     ],
     highlights: [
-      "Shipped React/TypeScript client microsites into production via Azure DevOps with real PR review and deploy cadence.",
-      "Owned Power BI dashboards feeding the firm's weekly executive reviews — data model, DAX, and dataset refresh.",
-      "Returning intern: second-summer context meant contributing on day one rather than re-onboarding.",
-      "Small team, consulting-scale cycles: every deliverable I touched went directly to the client.",
+      "Shipped React/TypeScript client microsites to production through Azure DevOps (feature branches, PR review, deploy gates).",
+      "Owned Power BI dashboards feeding the firm's weekly executive reviews: data model, DAX measures, and dataset refresh.",
+      "Rotated across multiple client engagements in parallel, context-switching between client codebases and style conventions week over week.",
+      "Small dev team; every deliverable shipped directly to an external client.",
     ],
   },
   "spur-2020": {
     problem:
-      "Spur distributed a company-wide newsletter to 1,000+ employees every week. The process was fully manual: someone copied content from a structured source into an email template by hand, formatted it, and sent it — every week. It was slow, error-prone, and stealing hours from the people actually writing the comms. The goal wasn't fancy: replace the hand-work with a pipeline that did it correctly, on a schedule, forever.",
+      "Spur distributed a company-wide newsletter to 1,000+ employees every week. The process was fully manual: someone copied content from a structured source into an email template by hand, formatted it, and sent it, every week. Slow, error-prone, and a recurring weekly tax on the comms team. The job was to replace the hand-work with a pipeline that did it correctly, on a schedule, without supervision.",
     approach:
-      "Built the pipeline on Microsoft Flow (now Power Automate) — the firm's sanctioned automation substrate, which meant IT didn't have to approve a new service to run the thing. Flow pulled newsletter content from a structured source, passed it through an HTML/CSS email template I authored, and fanned out to the 1,000+ employee distribution list on a weekly cadence. The hand-work disappeared. On the side, shipped a refresh of one of the firm's web properties (my first production website) and a handful of smaller email-automation flows to clean up other manual comms processes. This was my first internship anywhere — first PR review, first code handed off to someone else, first deploy where 'it broke at 9am' had consequences.",
+      "Built the pipeline on Microsoft Flow (now Power Automate), the firm's sanctioned automation substrate, which meant IT did not need to approve a new service to run it. Flow pulled newsletter content from a structured source, passed it through an HTML/CSS email template I authored, and fanned out to the 1,000+ employee distribution list on a weekly cadence. The hand-work disappeared. On the side, shipped a refresh of one of the firm's web properties and a handful of smaller email-automation flows covering adjacent manual comms processes.",
     stackRationale: [
       {
         tech: "Microsoft Flow",
-        why: "Firm's approved automation substrate. Building on top of Flow meant zero procurement friction — IT already trusted it. Trades code flexibility for deployment velocity; for a weekly newsletter, that trade is correct.",
+        why: "Firm's approved automation substrate. Building on top of Flow meant zero procurement friction, since IT already trusted it. Trades code flexibility for deployment velocity; for a weekly newsletter, that trade is the right one.",
       },
       {
         tech: "HTML + CSS (email templates)",
-        why: "Email rendering is famously ancient (Outlook, Gmail, mobile clients all differ). Hand-rolling the template with well-known patterns was more reliable than reaching for a framework that might render cleanly in the browser and break in a recipient's client.",
+        why: "Email rendering is famously ancient (Outlook, Gmail, and mobile clients all differ). Hand-rolling the template with well-known patterns was more reliable than reaching for a framework that might render cleanly in the browser and break in a recipient's mail client.",
       },
       {
         tech: "Visual Studio + Java",
-        why: "The firm's tooling. The smaller companion tools were written against whatever the engagement team was already using; the job was to contribute, not to pick a preferred stack.",
+        why: "The firm's existing tooling. Companion tools were written against the stack the engagement team was already using.",
       },
       {
         tech: "Excel",
@@ -1150,10 +1154,9 @@ public:
       },
     ],
     highlights: [
-      "Microsoft Flow pipeline delivered the weekly internal newsletter to 1,000+ employees — replaced an entirely manual process.",
+      "Microsoft Flow pipeline delivered the weekly internal newsletter to 1,000+ employees, replacing an entirely manual process.",
       "Authored the HTML/CSS email template that rendered newsletter content consistently across Outlook, web, and mobile clients.",
-      "Refreshed a firm web property (first production website I ever shipped).",
-      "First internship — first PR review, first production deploy, first time other people's workflow depended on code I wrote.",
+      "Shipped a refresh of one of the firm's web properties and several smaller email-automation flows for internal comms.",
     ],
   },
 };

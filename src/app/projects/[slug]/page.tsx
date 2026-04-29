@@ -68,7 +68,7 @@ function FigureRenderer({ figure }: { figure: Figure }) {
       // the tooltip gets clipped against the figure's rounded edge when a
       // point is near the border.
       //
-      // We don't add `role="img"` on the inner wrapper anymore — each
+      // We don't add `role="img"` on the inner wrapper anymore; each
       // diagram component provides its own landmark role (`img` for the
       // static SVG chart, `region` for the interactive dataflow). Adding
       // a generic `role="img"` here would swallow the buttons inside the
@@ -148,7 +148,7 @@ export default async function ProjectDetailPage({
       <header className="flex flex-col gap-4">
         {/* Intentionally no status pill here. Labels like "Coursework" or
             "Active" create an implicit hierarchy between academic, personal,
-            and employed work — we want every entry to stand on its own. The
+            and employed work; we want every entry to stand on its own. The
             status field is still carried on the data model for future
             filtering but is never rendered in the UI. */}
         {project.categories && project.categories.length > 0 && (
@@ -337,7 +337,7 @@ export default async function ProjectDetailPage({
         </BlurFade>
       )}
 
-      {/* Orphan snippets (not referenced inline). Normally empty — the
+      {/* Orphan snippets (not referenced inline). Normally empty; the
           inline `{{code:id}}` placeholders pull everything into the prose. */}
       {orphanSnippets.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 13}>

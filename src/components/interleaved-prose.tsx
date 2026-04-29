@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 // sky-tinted color + subtle highlighter underline so the bolded lead-ins
 // actually stand out (the previous "just make it bold" treatment was
 // invisible because `prose` already does that). Inline code becomes a chip,
-// blockquotes get a vertical accent, and — when `highlightedHtml` is
-// provided — code snippet bodies render with VS Code's Dark+ colors via
+// blockquotes get a vertical accent, and, when `highlightedHtml` is
+// provided, code snippet bodies render with VS Code's Dark+ colors via
 // shiki.
 
 export type CodeSnippet = {
@@ -25,7 +25,7 @@ export type CodeSnippet = {
   language: string;
   code: string;
   // Optional pre-rendered shiki HTML. Produced server-side in
-  // `src/lib/highlight.ts` and passed down — keeps the shiki bundle out of
+  // `src/lib/highlight.ts` and passed down, which keeps the shiki bundle out of
   // the client payload.
   highlightedHtml?: string | null;
 };
@@ -41,7 +41,7 @@ const SILVER_CHIP =
 // (defined at module scope) so react-markdown doesn't remount on each
 // render of the parent.
 const PROSE_COMPONENTS: Components = {
-  // Bold gets a *visible* treatment — sky accent color plus a faint
+  // Bold gets a *visible* treatment: sky accent color plus a faint
   // highlighter band underneath. This is the change that makes the prose
   // stop looking like "plain text with font-weight: 700" everywhere bold.
   strong: ({ children }) => (
@@ -184,7 +184,7 @@ export function InterleavedProse({
 }
 
 export function InlineCodeSnippet({ snippet }: { snippet: CodeSnippet }) {
-  // Quick affordance hint — "4 lines" etc. so people know what they're
+  // Quick affordance hint ("4 lines" etc.) so people know what they're
   // committing to before they open.
   const lineCount = snippet.code.split("\n").length;
 
@@ -196,7 +196,7 @@ export function InlineCodeSnippet({ snippet }: { snippet: CodeSnippet }) {
         SILVER_CARD
       )}
     >
-      {/* Left accent strip — echoes the silver-gradient dots used in the
+      {/* Left accent strip, echoing the silver-gradient dots used in the
           Highlights section so the snippets feel part of the same family. */}
       <span
         aria-hidden

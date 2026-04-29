@@ -2,14 +2,14 @@ import { codeToHtml, type BundledLanguage } from "shiki";
 
 // Server-side syntax highlighter used for the portfolio's inline code
 // snippets. Runs at build / render time in the (server) project page, so
-// the client bundle never sees shiki — we just ship the pre-generated HTML.
+// the client bundle never sees shiki; we just ship the pre-generated HTML.
 //
 // Uses shiki's *dual theme* mode: both "light-plus" (VS Code Light+) and
 // "dark-plus" (VS Code Dark+) colors are written into the HTML as CSS
 // custom properties (`--shiki-light`, `--shiki-dark`). The site's
 // `globals.css` then flips between them based on the `.dark` class on
 // `<html>`. That means the same rendered snippet looks correct in both
-// color modes — light mode readers get the familiar Light+ palette on a
+// color modes: light mode readers get the familiar Light+ palette on a
 // light background instead of a jarring black inline block.
 
 // Map the loose language labels we author in `resume.tsx` to shiki's bundled
@@ -69,7 +69,7 @@ export async function highlightCode(
       defaultColor: false,
     });
   } catch (err) {
-    // Grammar failed to load (rare — bundled list is small), or shiki died.
+    // Grammar failed to load (rare, bundled list is small), or shiki died.
     // Swallow so the page still renders; InlineCodeSnippet has a plain-text
     // fallback path.
     console.warn(

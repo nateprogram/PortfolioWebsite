@@ -22,10 +22,10 @@ import type { Accent } from "./tokens";
 // ---------------------------------------------------------------------------
 // Scraper categories (row 1)
 // ---------------------------------------------------------------------------
-// Rendered as a row of ScraperCards — each card is static (items always
+// Rendered as a row of ScraperCards, each card static (items always
 // visible) rather than individually expandable. The per-card expand in the
 // previous version was confusing because the grid forced every peer to
-// stretch when one expanded, and every card's job is identical (scrape) —
+// stretch when one expanded, and every card's job is identical (scrape);
 // only the listed sources differ.
 
 export type ScraperCategory = {
@@ -218,10 +218,10 @@ export const DATABASE: PipelineStage = {
   icon: <Database className="size-3.5" />,
   defaultOpen: true,
   details: [
-    "Historical data — bars / ticks / macro",
-    "Predictions — OOF + live forecasts",
-    "Training checkpoints — incumbent + candidates",
-    "Watchlist — user-managed symbols",
+    "Historical data: bars / ticks / macro",
+    "Predictions: OOF + live forecasts",
+    "Training checkpoints: incumbent + candidates",
+    "Watchlist: user-managed symbols",
   ],
 };
 
@@ -242,14 +242,14 @@ export const BACKTESTER: PipelineStage = {
   accent: "feedback",
   icon: <BarChart3 className="size-3.5" />,
   details: [
-    "Deploy gate — candidate must beat the incumbent on BOTH:",
+    "Deploy gate: candidate must beat the incumbent on BOTH:",
     "direction accuracy",
     "worst-regime Sharpe",
   ],
 };
 
 // ---------------------------------------------------------------------------
-// Legend — semantic color cues for the diagram
+// Legend: semantic color cues for the diagram
 // ---------------------------------------------------------------------------
 
 export type LegendItem = {

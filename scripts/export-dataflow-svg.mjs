@@ -1,7 +1,7 @@
 // Export the backup V6-dataflow diagram to a standalone SVG (and PNG).
 //
 // The React component at `src/components/stockai-dataflow.backup.tsx.bak`
-// renders a purely-static SVG — no state, no props beyond className, all
+// renders a purely-static SVG with no state, no props beyond className, all
 // geometry is driven by module-scope constants. This script mirrors those
 // constants and emits an equivalent standalone `.svg` file that can live
 // in `public/projects/stockai/` and be shared or embedded outside React.
@@ -153,7 +153,7 @@ function text({
 // ---------- Build the full SVG ----------
 const parts = [];
 
-// Scrapers (row 1) — 5 category boxes, each with an arrow down to the controller
+// Scrapers (row 1): 5 category boxes, each with an arrow down to the controller
 CATS.forEach((cat, i) => {
   const x = CAT_X(i);
   parts.push(box({ x, y: CAT_Y, w: CAT_W, h: CAT_H }));
@@ -914,7 +914,7 @@ parts.push(
   })
 );
 
-// THE FEEDBACK LOOP — amber curved arrow from Learner up to Predictor
+// THE FEEDBACK LOOP: amber curved arrow from Learner up to Predictor
 parts.push(
   `<path d="M ${DB_X + DB_W / 2} ${LEARNER.y} C ${DB_X + DB_W / 2} ${LEARNER.y - 80}, ${DB_X + DB_W + 60} ${FLOW.regimeAndModel.y + 40}, ${FLOW_X + FLOW_W - 8} ${FLOW.regimeAndModel.y + 30}" fill="none" stroke="${C.feedback}" stroke-width="2.25" marker-end="url(#arrowFeedback)"/>`
 );
@@ -1020,7 +1020,7 @@ parts.unshift(
 
 const SVG =
   `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="V6 data flow — 23 scrapers, 148 features, 10-head LSTM predictor with retrain and deploy-gate feedback loop.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="V6 data flow: 23 scrapers, 148 features, 10-head LSTM predictor with retrain and deploy-gate feedback loop.">
   <defs>
     <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="${C.strokeStrong}"/>

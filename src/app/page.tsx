@@ -106,6 +106,26 @@ export default function Page() {
         </div>
       </section>
 
+      <section id="principles">
+        <div className="flex min-h-0 flex-col gap-y-4">
+          <BlurFade delay={BLUR_FADE_DELAY * 5}>
+            <h2 className="text-xl font-bold">How I work</h2>
+          </BlurFade>
+          <div className="flex flex-col gap-3">
+            {DATA.principles.map((principle, i) => (
+              <BlurFade
+                key={i}
+                delay={BLUR_FADE_DELAY * 6 + i * 0.04}
+              >
+                <div className="prose prose-sm max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
+                  <Markdown>{principle}</Markdown>
+                </div>
+              </BlurFade>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="education">
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade delay={BLUR_FADE_DELAY * 7}>

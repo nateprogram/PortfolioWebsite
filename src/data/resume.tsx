@@ -27,15 +27,7 @@ export const DATA = {
   description:
     "Redmond, WA · Open for new-grad SWE roles starting Summer 2026.",
   summary:
-    "I'm a C++ and systems programmer first. With two teammates, I wrote a custom C++ game engine from scratch. Every line of rendering, scene graph, particle system, input, and asset pipeline is ours; no commercial middleware. We shipped a tower-offense title on Steam as the engine's proof-of-work, and I later wrote a Python genetic algorithm that learned to beat it in 16 generations.\n\nOutside of game work, I've built a Microsoft Power Automate pipeline that replaced a fully manual newsletter going to 10,000+ recipients on a Microsoft engagement at Spur Reply, an ML trading research platform with live model serving and closed-loop feature attention, and SquadPact: a scheduling app I started after watching the volunteer managers on the adult-league soccer teams I play on lose hours every week to copy-paste admin (league site to group chat, rinse, repeat).\n\nCurrently a senior at [DigiPen](/#education), graduating May 2026 and open for new-grad SWE roles.",
-  // Operating principles. Lives between About and Education on the homepage.
-  // Each entry is a Markdown string: bold lead + sentence or two of body.
-  principles: [
-    "**Database invariants beat app-code checks.** A `@@unique([eventId, userId])` constraint stops two RSVP rows from existing. A `findFirst` followed by a `create` is two queries that race under load.",
-    "**Configs in JSON, not in code.** Particle parameters, stat curves, scraper cadences. If a designer or a future-me wants to retune it, no rebuild should be required.",
-    "**Build the layer yourself when you need to actually understand it.** A hand-written engine teaches you what rendering, memory, and the hot path are. A vendor engine teaches you to file support tickets.",
-    "**AI is a collaborator, not a delegate.** If the prompt feels like throwing work over a wall, don't send it. The good outputs come when you're actively shaping the work.",
-  ],
+    "I'm a C++ and systems programmer first. With two teammates, I wrote a custom C++ game engine from scratch. Every line of rendering, scene graph, particle system, input, and asset pipeline is ours; no commercial middleware. We shipped a tower-offense title on Steam as the engine's proof-of-work, and I later wrote a Python genetic algorithm that learned to beat it in 16 generations.\n\nOutside of game work, I've built a Microsoft Power Automate pipeline that replaced a fully manual newsletter going to 10,000+ recipients on a Microsoft engagement at Spur Reply, an ML trading research platform with live model serving and closed-loop feature attention, and SquadPact: a scheduling app I started after watching the volunteer managers on the adult-league soccer teams I play on lose hours every week to copy-paste admin (league site to group chat, rinse, repeat).\n\nOn AI: it's a collaborator, not a delegate. If the prompt feels like throwing work over a wall, don't send it. The good outputs come when you're actively shaping the work.\n\nCurrently a senior at [DigiPen](/#education), graduating May 2026 and open for new-grad SWE roles.",
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
   skillGroups: [

@@ -125,8 +125,14 @@ export const DATA = {
         "PostgreSQL",
         "TailwindCSS",
       ],
-      links: [],
-      image: "/projects/squadpact/hero.png",
+      links: [
+        {
+          type: "Website",
+          href: "https://squadpact.com",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+      image: "/projects/squadpact/logo.png",
       video: "",
     },
     {
@@ -416,6 +422,20 @@ export const PROJECT_DETAILS: Record<
       "Composite-key upserts (`eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
       "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
       "Shipping under Veltarium Software LLC. Walkthrough and live-app demo available on request.",
+    ],
+    figures: [
+      {
+        src: "/projects/squadpact/home.png",
+        alt: "SquadPact home view: Next Game card showing One Touchables vs ECS Yesler at Ballard HS, Sun May 3 10:45 AM, with Going / Out / Maybe RSVP buttons. Below: an Upcoming list of two more games with the same RSVP affordances.",
+        caption:
+          "Home view. The next game lives at the top with one-tap RSVP, location, kit color, and an add-to-calendar shortcut. Upcoming games collapse below it so the screen stays focused on what's next, not what's after.",
+      },
+      {
+        src: "/projects/squadpact/team-stats.png",
+        alt: "SquadPact team stats view for One Touchables in SUN Open D2A: 0 wins, 4 losses, 2 ties, ranked #7. Division standings table with eight teams. Recent results list. Per-player attendance table.",
+        caption:
+          "Team stats view. Standings, results, and per-player attendance all hydrate from the same scraped league data, so the table is always in sync with what the league site shows that morning.",
+      },
     ],
     codeSnippets: [
       {

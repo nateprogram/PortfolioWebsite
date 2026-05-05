@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import BlurFade from "@/components/magicui/blur-fade";
 import { ProjectCard } from "@/components/project-card";
-import { DATA, PROJECT_FILTERS } from "@/data/resume";
+import { DATA, PROJECT_FILTERS } from "@/data";
 import { cn } from "@/lib/utils";
 
 const BLUR_FADE_DELAY = 0.04;

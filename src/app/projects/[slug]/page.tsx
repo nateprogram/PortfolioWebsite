@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
-import { DATA, PROJECT_DETAILS } from "@/data/resume";
+import { DATA, PROJECT_DETAILS } from "@/data";
 import { cn } from "@/lib/utils";
 import {
   InterleavedProse,

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DATA } from "@/data/resume";
+import { DATA } from "@/data";
 import { Github, Linkedin, Mail } from "lucide-react";
 
 export default function Footer() {

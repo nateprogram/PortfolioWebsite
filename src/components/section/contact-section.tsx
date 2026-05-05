@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
-import { DATA } from "@/data/resume";
+import { DATA } from "@/data";
 
 export default function ContactSection() {
   return (

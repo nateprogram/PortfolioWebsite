@@ -3,7 +3,7 @@
 // door in `projects-list.tsx` and `projects/<slug>.tsx`.
 
 import { Icons } from "@/components/icons";
-import { HomeIcon, Wand2 } from "lucide-react";
+import { HomeIcon } from "lucide-react";
 import { ReactLight } from "@/components/ui/svgs/reactLight";
 import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
@@ -63,10 +63,7 @@ export const PROFILE = {
     },
   ],
 
-  navbar: [
-    { href: "/", icon: HomeIcon, label: "Home" },
-    { href: "/tools/resume", icon: Wand2, label: "Resume builder" },
-  ],
+  navbar: [{ href: "/", icon: HomeIcon, label: "Home" }],
 
   contact: {
     email: "NateWhite.dev@gmail.com",

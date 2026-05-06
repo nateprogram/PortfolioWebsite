@@ -1,35 +1,21 @@
+// Sits at the very bottom of every page. The same GitHub / LinkedIn /
+// Email links are already in the navbar dock, so the footer's job is to
+// surface something the dock doesn't have. Currently: a quiet link to
+// the Resume Builder tool, which is otherwise unfindable.
+
 import Link from "next/link";
-import { DATA } from "@/data";
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Wand2 } from "lucide-react";
 
 export default function Footer() {
   return (
     <footer className="mt-24 border-t border-border/60 pt-8 pb-4">
-      <div className="flex items-center justify-center gap-4 text-muted-foreground">
+      <div className="flex items-center justify-center text-muted-foreground">
         <Link
-          href={DATA.contact.social.GitHub.url}
-          aria-label="GitHub"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-foreground transition-colors"
+          href="/tools/resume"
+          className="inline-flex items-center gap-2 hover:text-foreground transition-colors"
         >
-          <Github className="size-4" aria-hidden />
-        </Link>
-        <Link
-          href={DATA.contact.social.LinkedIn.url}
-          aria-label="LinkedIn"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-foreground transition-colors"
-        >
-          <Linkedin className="size-4" aria-hidden />
-        </Link>
-        <Link
-          href={`mailto:${DATA.contact.email}`}
-          aria-label="Email"
-          className="hover:text-foreground transition-colors"
-        >
-          <Mail className="size-4" aria-hidden />
+          <Wand2 className="size-4" aria-hidden />
+          <span className="text-sm">Resume Builder</span>
         </Link>
       </div>
     </footer>

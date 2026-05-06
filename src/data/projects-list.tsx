@@ -55,9 +55,9 @@ export const PROJECTS = [
     status: "Active",
     categories: ["AI/ML"],
     summary:
-      "Production-shaped ML trading research system. 23 scrapers feed 148 engineered features into a MultiHeadLSTM that predicts 10 timeframes at once. Closed-loop feature attention, HMM regime detection, and retrain-with-rollback all stream to a live FastAPI + WebSocket dashboard.",
+      "Live ML trading research platform. 23 scrapers feed 148 engineered features into a MultiHeadLSTM that predicts 10 timeframes at once. Closed-loop feature attention, HMM regime detection, and retrain-with-rollback all stream to a live FastAPI + WebSocket dashboard.",
     description:
-      "Production-shaped ML trading research system. 23 scrapers feed 148 engineered features into a MultiHeadLSTM that predicts 10 timeframes at once. Closed-loop feature attention, HMM regime detection, and retrain-with-rollback all stream to a live FastAPI + WebSocket dashboard. ~11,500 lines of Python across 42 modules.",
+      "Live ML trading research platform. 23 scrapers feed 148 engineered features into a MultiHeadLSTM that predicts 10 timeframes at once. Closed-loop feature attention, HMM regime detection, and retrain-with-rollback all stream to a live FastAPI + WebSocket dashboard. ~11,500 lines of Python across 42 modules.",
     technologies: [
       "Python",
       "PyTorch",

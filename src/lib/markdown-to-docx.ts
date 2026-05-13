@@ -20,7 +20,11 @@ import {
 } from "docx";
 
 const FONT = "Calibri";
-const COLOR_RULE = "2E75B6";
+// Section-heading underline color. Kept neutral (near-black) so the
+// document reads as a traditional ATS-style resume, not a designed one.
+// Colored accents are one of the cues Jobscan-style parsers and some
+// AI-detector heuristics use to flag "template / machine-styled output".
+const COLOR_RULE = "000000";
 const BULLET_REF = "bullets";
 
 /** Render a markdown resume to a Blob ready for download. */

@@ -4,9 +4,9 @@ import type { ProjectDetail } from "../types";
 
 export const spur2020: ProjectDetail = {
   problem:
-    "Spur distributed a company-wide newsletter to 1,000+ employees every week. The process was fully manual: someone copied content from a structured source into an email template by hand, formatted it, and sent it, every week. Slow, error-prone, and a recurring weekly tax on the comms team. The job was to replace the hand-work with a pipeline that did it correctly, on a schedule, without supervision.",
+    "Spur distributed a company-wide newsletter to 10,000+ employees every week. The process was fully manual: someone copied content from a structured source into an email template by hand, formatted it, and sent it, every week. Slow, error-prone, and a recurring weekly tax on the comms team. The job was to replace the hand-work with a pipeline that did it correctly, on a schedule, without supervision.",
   approach:
-    "Built the pipeline on Microsoft Flow (now Power Automate), the firm's sanctioned automation substrate, which meant IT did not need to approve a new service to run it. Flow pulled newsletter content from a structured source, passed it through an HTML/CSS email template I authored, and fanned out to the 1,000+ employee distribution list on a weekly cadence. The hand-work disappeared. On the side, shipped a refresh of one of the firm's web properties and a handful of smaller email-automation flows covering adjacent manual comms processes.",
+    "Built the pipeline on Microsoft Flow (now Power Automate), the firm's sanctioned automation substrate, which meant IT did not need to approve a new service to run it. Flow pulled newsletter content from a structured source, passed it through an HTML/CSS email template I authored, and fanned out to the 10,000+ employee distribution list on a weekly cadence. The hand-work disappeared. On the side, shipped a refresh of one of the firm's web properties and a handful of smaller email-automation flows covering adjacent manual comms processes.",
   stackRationale: [
     {
       tech: "Microsoft Flow",
@@ -26,7 +26,7 @@ export const spur2020: ProjectDetail = {
     },
   ],
   highlights: [
-    "Microsoft Flow pipeline delivered the weekly internal newsletter to 1,000+ employees, replacing an entirely manual process.",
+    "Microsoft Flow pipeline delivered the weekly internal newsletter to 10,000+ employees, replacing an entirely manual process.",
     "Authored the HTML/CSS email template that rendered newsletter content consistently across Outlook, web, and mobile clients.",
     "Shipped a refresh of one of the firm's web properties and several smaller email-automation flows for internal comms.",
   ],

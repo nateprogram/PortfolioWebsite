@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download, Loader2, Trash2, Wand2 } from "lucide-react";
+import { ArrowLeft, Download, Link2, Loader2, Trash2, Wand2 } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ const BLUR_FADE_DELAY = 0.04;
 const STORAGE_KEY = "tools/resume:last-jd";
 
 type Status = "idle" | "streaming" | "done" | "error";
+type FetchStatus = "idle" | "fetching" | "error";
 
 type HistoryItem = {
   id: string;
@@ -29,6 +30,8 @@ type HistoryItem = {
 
 export function Builder() {
   const [jd, setJd] = useState("");
+  const [jobUrl, setJobUrl] = useState("");
+  const [fetchStatus, setFetchStatus] = useState<FetchStatus>("idle");
   const [output, setOutput] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -130,6 +133,43 @@ export function Builder() {
     }
   }
 
+  async function fetchFromUrl() {
+    const url = jobUrl.trim();
+    if (!url) return;
+    setFetchStatus("fetching");
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/resume/fetch-jd", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (!res.ok) {
+        let message = `Could not fetch URL (${res.status})`;
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          // body wasn't JSON
+        }
+        setErrorMessage(message);
+        setFetchStatus("error");
+        return;
+      }
+      const data = (await res.json()) as { text?: string };
+      if (!data.text) {
+        setErrorMessage("Page returned no usable text. Paste the JD manually.");
+        setFetchStatus("error");
+        return;
+      }
+      setJd(data.text);
+      setFetchStatus("idle");
+    } catch (err) {
+      setErrorMessage(`Network error: ${(err as Error).message}`);
+      setFetchStatus("error");
+    }
+  }
+
   async function loadFromHistory(id: string) {
     setStatus("streaming");
     setErrorMessage(null);
@@ -165,7 +205,8 @@ export function Builder() {
   }
 
   async function copy(which: "resume" | "all") {
-    const text = which === "resume" ? extractResume(output) : output;
+    const text =
+      which === "resume" ? extractResume(output) : stripMetaForDisplay(output);
     try {
       await navigator.clipboard.writeText(text);
       setCopied(which);
@@ -186,7 +227,7 @@ export function Builder() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Nate_White_Resume_${new Date().toISOString().slice(0, 10)}.docx`;
+      a.download = buildDownloadFilename(output);
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -232,8 +273,58 @@ export function Builder() {
       <BlurFade delay={BLUR_FADE_DELAY * 3}>
         <div className="flex flex-col gap-3">
           <label
-            htmlFor="jd"
+            htmlFor="job-url"
             className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground"
+          >
+            Job posting URL (optional)
+          </label>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Link2
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground"
+                aria-hidden
+              />
+              <input
+                id="job-url"
+                type="url"
+                value={jobUrl}
+                onChange={(e) => setJobUrl(e.target.value)}
+                disabled={
+                  fetchStatus === "fetching" || status === "streaming"
+                }
+                placeholder="https://jobs.example.com/postings/12345"
+                className="w-full rounded-md border border-border bg-background pl-8 pr-3 py-2 text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={fetchFromUrl}
+              disabled={
+                fetchStatus === "fetching" ||
+                status === "streaming" ||
+                !jobUrl.trim()
+              }
+            >
+              {fetchStatus === "fetching" ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                  Fetching...
+                </>
+              ) : (
+                "Fetch JD"
+              )}
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground italic">
+            Works on most static postings (Greenhouse, Lever, company careers
+            pages). LinkedIn and Workday JD pages may need a manual paste.
+          </p>
+
+          <label
+            htmlFor="jd"
+            className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mt-1"
           >
             Job description
           </label>
@@ -242,7 +333,7 @@ export function Builder() {
             value={jd}
             onChange={(e) => setJd(e.target.value)}
             disabled={status === "streaming"}
-            placeholder="Paste the full posting here. The more concrete the JD, the better the tailoring."
+            placeholder="Paste the full posting here, or fetch one with the URL field above. The more concrete the JD, the better the tailoring."
             rows={12}
             className="w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm font-mono leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
           />
@@ -326,7 +417,8 @@ export function Builder() {
             <div className="rounded-md border border-border bg-card/40 p-5 sm:p-6">
               <div className="prose prose-sm max-w-full text-pretty font-sans leading-relaxed dark:prose-invert">
                 <Markdown>
-                  {output || "_Waiting for the first tokens..._"}
+                  {stripMetaForDisplay(output) ||
+                    "_Waiting for the first tokens..._"}
                 </Markdown>
               </div>
             </div>
@@ -393,7 +485,8 @@ export function Builder() {
 
 /**
  * Pull just the resume body out of the combined output. The model puts
- * ATS keywords first, then `---`, then the resume.
+ * an optional META block first, then ATS keywords, then `---`, then the
+ * resume itself.
  */
 function extractResume(combined: string): string {
   const lines = combined.split("\n");
@@ -403,6 +496,69 @@ function extractResume(combined: string): string {
     }
   }
   return combined;
+}
+
+/**
+ * Remove the `[META] ... [/META]` block from a string before showing it
+ * to the user. Tolerant of partial streams: if `[/META]` hasn't arrived
+ * yet, hides everything from `[META]` to the end of the buffer rather
+ * than leaking the half-formed block into the preview.
+ */
+function stripMetaForDisplay(s: string): string {
+  if (!s) return s;
+  const start = s.indexOf("[META]");
+  if (start === -1) return s;
+  const end = s.indexOf("[/META]", start);
+  if (end === -1) return s.slice(0, start).trimEnd();
+  const after = s.slice(end + "[/META]".length);
+  return (s.slice(0, start) + after).replace(/^\s+/, "");
+}
+
+/**
+ * Parse the META block emitted by the model. Returns `company` and
+ * `position` strings if found. Whitespace-tolerant. Both fields are
+ * optional — callers should fall back gracefully if either is missing.
+ */
+function parseMeta(s: string): { company?: string; position?: string } {
+  const m = /\[META\]([\s\S]*?)\[\/META\]/.exec(s);
+  if (!m) return {};
+  const block = m[1];
+  const company = /^\s*company\s*:\s*(.+?)\s*$/im.exec(block)?.[1];
+  const position = /^\s*position\s*:\s*(.+?)\s*$/im.exec(block)?.[1];
+  return {
+    company: company && company.toLowerCase() !== "unknown" ? company : undefined,
+    position: position || undefined,
+  };
+}
+
+/**
+ * Sanitize a string for use inside a filename. Drops path separators,
+ * Windows-reserved characters, and control chars; collapses runs of
+ * spaces to single underscores; trims to a reasonable length.
+ */
+function sanitizeFilenamePart(s: string): string {
+  return s
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^[._]+|[._]+$/g, "")
+    .slice(0, 60);
+}
+
+/**
+ * Build the .docx filename from the model's META block. Prefers
+ * position + company; falls back to a date stamp if META is missing.
+ */
+function buildDownloadFilename(output: string): string {
+  const { company, position } = parseMeta(output);
+  const parts = ["Nate_White"];
+  if (position) parts.push(sanitizeFilenamePart(position));
+  if (company) parts.push(sanitizeFilenamePart(company));
+  if (parts.length === 1) {
+    // No META — fall back to a dated name so files don't collide.
+    parts.push("Resume", new Date().toISOString().slice(0, 10));
+  }
+  return parts.filter(Boolean).join("_") + ".docx";
 }
 
 /** Compact date format for history rows. */

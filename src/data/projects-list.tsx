@@ -220,9 +220,9 @@ export const PROJECTS = [
     status: "Shipped",
     categories: ["Full-Stack"],
     summary:
-      "Software Development Intern. Built a Microsoft Flow newsletter pipeline distributing formatted internal comms to 1,000+ employees on a weekly cadence, an HTML/CSS email template library, and a marketing-site refresh for The Spur Group, a Redmond consulting firm.",
+      "Software Development Intern. Built a Microsoft Flow newsletter pipeline distributing formatted internal comms to 10,000+ employees on a weekly cadence, an HTML/CSS email template library, and a marketing-site refresh for The Spur Group, a Redmond consulting firm.",
     description:
-      "Internship at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Built a Microsoft Flow pipeline that pulled newsletter content from a structured source, rendered it through an HTML/CSS email template, and fanned out to the firm's 1,000+ employee distribution list on a weekly cadence, replacing a fully manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows covering adjacent manual comms processes.",
+      "Internship at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Built a Microsoft Flow pipeline that pulled newsletter content from a structured source, rendered it through an HTML/CSS email template, and fanned out to the firm's 10,000+ employee distribution list on a weekly cadence, replacing a fully manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows covering adjacent manual comms processes.",
     technologies: [
       "Microsoft Flow",
       "HTML",

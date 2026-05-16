@@ -1,0 +1,21 @@
+Software Engineer, Game Engine Tools
+
+About the role
+We're hiring a Software Engineer to work on internal tools for our proprietary game engine. You will own pieces of the asset pipeline, build tooling, and runtime debug systems used by hundreds of developers across multiple shipping titles. The team values craftsmanship, low-level performance work, and shipping reliable tools that don't get in the engineer's way.
+
+Responsibilities
+- Build and maintain C++ tools that plug into the engine: asset cookers, content validators, profilers, and debug overlays.
+- Profile and optimize hot paths in the runtime; measure improvements with concrete numbers.
+- Work with Python build scripts and Bash/PowerShell automation around the engine's CI.
+- Collaborate with gameplay, graphics, and audio engineers to surface the right diagnostics.
+- Maintain Windows and Linux build configurations.
+
+Qualifications
+- BS in Computer Science, Computer Engineering, or equivalent. New grads welcome.
+- Strong C++ (C++17 or later). Familiarity with templates, RAII, move semantics.
+- Comfortable in at least one scripting language (Python preferred).
+- Git, GitHub, and at least one CI system (GitHub Actions, Jenkins, TeamCity).
+- Bonus: OpenGL, Vulkan, DirectX, graphics math, profiling tools (Tracy, PIX, RenderDoc), Lua, ECS architectures.
+
+About us
+We're a 19-person engine team supporting four shipping titles and three in development.

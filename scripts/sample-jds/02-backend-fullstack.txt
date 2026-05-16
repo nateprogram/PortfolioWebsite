@@ -1,0 +1,24 @@
+New Grad Software Engineer, Platform
+
+Stripe-like fintech, Series C, 220 people. We are looking for new-grad engineers to join the Platform team. You'll work on the internal services that power our payment APIs, including idempotency infrastructure, webhook delivery, async job processing, and our developer-facing CLI.
+
+What you'll do
+- Ship code to production within your first two weeks. Most engineers ship their first PR on day three.
+- Design and implement backend services in TypeScript (Node.js, Next.js) backed by PostgreSQL and Redis.
+- Build and maintain REST APIs consumed by internal teams and external partners.
+- Write tests. Real ones. We don't merge code without them.
+- On-call rotation begins after month four; mentored shadowing for the first three months.
+
+What we want
+- Graduating with a BS in CS, CE, or equivalent by Summer 2026.
+- Comfortable with TypeScript and at least one other language (Python, Go, Rust, Java).
+- Strong fundamentals: data structures, algorithms, complexity analysis.
+- Experience with PostgreSQL (or any relational database in real depth).
+- Familiarity with Git, GitHub, code review.
+- Bonus: prior internship at a software company, contributions to open source, side projects you've shipped to real users.
+
+Tech stack
+TypeScript, Node.js, Next.js, PostgreSQL, Redis, Docker, AWS (Lambda, S3, RDS, SQS), Vercel for our marketing site, Datadog, Sentry, Stripe API obviously.
+
+Location
+San Francisco HQ, hybrid (3 days in office) or remote within the US (PST overlap required).

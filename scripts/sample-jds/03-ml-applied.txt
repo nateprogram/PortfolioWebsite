@@ -1,0 +1,25 @@
+Applied ML Engineer, New Grad
+
+We're hiring new-grad Applied ML engineers to ship production ML systems at a B2B AI company (Series B, 80 people, profitable). You'll work end-to-end on ML features: data pipelines, training, evaluation, deployment, monitoring. Less research, more shipping.
+
+The work
+- Build data pipelines that pull from PostgreSQL, S3, and partner APIs into our training pipeline.
+- Train and evaluate models (mostly classical ML + transformer fine-tuning). PyTorch is our default.
+- Productionize models behind FastAPI services. Onnx export, Triton serving where latency matters.
+- Build evaluation harnesses. Most of our model improvements come from better evals, not better architectures.
+- Work with product engineers in TypeScript/Next.js to ship ML features to real users.
+
+Required
+- BS in CS, Math, Statistics, or equivalent by Summer 2026.
+- Strong Python. Comfort with NumPy, pandas, scikit-learn, PyTorch.
+- Understanding of ML fundamentals: train/val/test splits, overfitting, calibration, common eval metrics.
+- A real project: a Kaggle medal, a published paper, a non-trivial ML side project shipped to users, or relevant research/internship work.
+- Comfort with SQL, Git, Linux.
+
+Nice to have
+- LLM/RAG experience (prompt engineering, embeddings, vector databases).
+- Production ML experience (serving, monitoring, A/B testing).
+- TypeScript / web stack so you can ship a full feature without a handoff.
+
+About
+SF or NYC. Hybrid. Equity-heavy comp at the new-grad level. Six interns from the last two cycles have converted to full-time at this level.

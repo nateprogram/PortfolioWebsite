@@ -29,8 +29,12 @@ export type SavedResume = {
   jobDescriptionSnippet: string;
   /** Full JD as submitted, for re-running or audit. */
   jobDescription: string;
-  /** The generated markdown (ATS keywords + resume body). */
+  /** The generated markdown (META + ATS keywords + resume body). */
   markdown: string;
+  /** Company name extracted from the generated [META] block. Undefined if the model omitted it or wrote "Unknown". */
+  company?: string;
+  /** Job title extracted from the generated [META] block. */
+  position?: string;
 };
 
 /**
@@ -51,6 +55,32 @@ function newId(now: number): string {
 }
 
 /**
+ * Pull `company` and `position` out of the model-emitted `[META]…[/META]`
+ * block at the top of the generated markdown. Returns undefined for
+ * either field when missing or set to the placeholder "Unknown".
+ *
+ * Mirror of the parser in builder.tsx; kept here so saves don't depend
+ * on the client having parsed anything first.
+ */
+function parseMetaBlock(markdown: string): {
+  company?: string;
+  position?: string;
+} {
+  const m = /\[META\]([\s\S]*?)\[\/META\]/.exec(markdown);
+  if (!m) return {};
+  const block = m[1];
+  const rawCompany = /^\s*company\s*:\s*(.+?)\s*$/im.exec(block)?.[1];
+  const rawPosition = /^\s*position\s*:\s*(.+?)\s*$/im.exec(block)?.[1];
+  return {
+    company:
+      rawCompany && rawCompany.toLowerCase() !== "unknown"
+        ? rawCompany
+        : undefined,
+    position: rawPosition || undefined,
+  };
+}
+
+/**
  * Save a resume. Returns the assigned ID, or null if KV isn't configured.
  * Never throws on KV failure: logs a warning so the user-facing flow
  * keeps working even if storage is temporarily down.
@@ -67,12 +97,15 @@ export async function saveResume(input: {
   }
   const now = Date.now();
   const id = newId(now);
+  const meta = parseMetaBlock(input.markdown);
   const record: SavedResume = {
     id,
     createdAt: now,
     jobDescriptionSnippet: input.jobDescription.replace(/\s+/g, " ").slice(0, 140),
     jobDescription: input.jobDescription,
     markdown: input.markdown,
+    company: meta.company,
+    position: meta.position,
   };
   try {
     await kv.set(`${ITEM_PREFIX}${id}`, record);

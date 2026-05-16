@@ -19,12 +19,15 @@ export async function GET() {
   }
 
   const all = await listResumes(50);
-  // Strip the full body to keep the list response small. The page only
-  // needs the snippet + timestamp to render the row.
+  // Strip the full body to keep the list response small. The page needs
+  // the snippet + timestamp + parsed META so it can show company /
+  // position chips on each history row without re-fetching the body.
   const items = all.map((r) => ({
     id: r.id,
     createdAt: r.createdAt,
     jobDescriptionSnippet: r.jobDescriptionSnippet,
+    company: r.company,
+    position: r.position,
   }));
 
   return new Response(JSON.stringify({ items }), {

@@ -36,13 +36,9 @@
 // the auto-retry loop settles. This keeps retry attempts out of history.
 
 import { cookies } from "next/headers";
-import {
-  GoogleGenerativeAI,
-  HarmBlockThreshold,
-  HarmCategory,
-} from "@google/generative-ai";
 import { SYSTEM_PROMPT, buildUserPrompt } from "@/lib/resume-prompt";
 import { isAuthorized } from "@/lib/resume-auth";
+import { startGeminiStream } from "@/lib/gemini-client";
 
 // Run on Node, not Edge. The Gemini SDK is fine on Edge but Node makes
 // debugging easier and avoids surprise compatibility regressions.
@@ -70,9 +66,10 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2. Env config
-  const apiKey = process.env.GOOGLE_AI_API_KEY;
-  if (!apiKey) {
+  // 2. Env config is checked by startGeminiStream — fail fast here
+  //    only if the primary key is absent so the user gets a useful
+  //    setup-time error rather than a deep stack trace.
+  if (!process.env.GOOGLE_AI_API_KEY) {
     return jsonError(
       500,
       "Server is missing GOOGLE_AI_API_KEY. Add it to .env.local locally and to the Vercel project's Environment Variables for production.",
@@ -121,67 +118,22 @@ export async function POST(req: Request) {
     }
   }
 
-  // 4. Dispatch to Gemini
+  // 4. Dispatch to Gemini via the shared client (handles the primary →
+  //    backup key fallback chain).
+  const userPrompt = retry
+    ? buildRetryPrompt(trimmed, retry)
+    : buildUserPrompt(trimmed);
+
   let stream: AsyncGenerator<{ text(): string }, void, unknown>;
-  // Keep the result handle so we can inspect candidates[0].finishReason
-  // after the stream closes — that's how we tell SAFETY / RECITATION /
-  // MAX_TOKENS apart from a real completion. Typed as `unknown` plus
-  // narrowing at use because the older SDK's stream-result shape is
-  // awkward to express precisely and this is diagnostic-only.
   let resultRef: unknown = null;
   try {
-    const genai = new GoogleGenerativeAI(apiKey);
-    const model = genai.getGenerativeModel({
-      // Google's auto-tracking alias for current stable Flash. Tends to
-      // have better availability than pinned versions. As of 2026 the
-      // pinned `gemini-2.0-flash` is zero-quota'd on the free tier, and
-      // pinned `gemini-2.5-flash` 503s during peak load.
-      model: "gemini-flash-latest",
-      systemInstruction: SYSTEM_PROMPT,
-      generationConfig: {
-        // Slightly higher temperature on retries to escape the local
-        // attractor that produced the failed output the first time.
-        // Still tight enough to keep framing stable.
-        temperature: retry ? 0.55 : 0.4,
-        topP: 0.9,
-        // Gemini 2.5 Flash counts internal "thinking" tokens against
-        // this budget. With the older 4096 cap it was burning the
-        // whole budget on reasoning, hitting MAX_TOKENS before emitting
-        // any usable output (finishReason=MAX_TOKENS, 0 visible chars).
-        // 32768 leaves plenty of headroom for thinking (~20K) plus a
-        // full ~6KB resume (~1500 tokens of visible output).
-        maxOutputTokens: 32768,
-      },
-      // Resume content embeds a real email + phone, which Gemini's default
-      // safety thresholds sometimes flag as "dangerous content" mid-stream
-      // and terminate the response. Loosen all four categories to BLOCK_NONE
-      // for this route — the input is a JD from the owner of the resume,
-      // so we accept the trust trade-off.
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-      ],
+    const result = await startGeminiStream({
+      systemPrompt: SYSTEM_PROMPT,
+      userPrompt,
+      isRetry: Boolean(retry),
     });
-    const userPrompt = retry
-      ? buildRetryPrompt(trimmed, retry)
-      : buildUserPrompt(trimmed);
-    const result = await model.generateContentStream(userPrompt);
-    stream = result.stream as AsyncGenerator<{ text(): string }, void, unknown>;
-    resultRef = result;
+    stream = result.stream;
+    resultRef = result.resultRef;
   } catch (err) {
     return jsonError(
       502,

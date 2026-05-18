@@ -36,6 +36,7 @@ Your job: find SPECIFIC, ACTIONABLE issues that would hurt this resume in either
 
 Categories of issues you must look for:
   - FABRICATION: claims, numbers, technologies, or scope assertions in the draft that are NOT supported by the corpus. Be precise — quote the offending bullet.
+  - CREDENTIAL OVERSTATEMENT: a SPECIAL kind of fabrication that is almost always a hard fail. The candidate is a 2026 new grad (BS Computer Science, DigiPen) with two summer internships and personal projects. He is NOT a "senior engineer", "lead", "staff", or "principal". Flag any occurrence of these words used to describe HIM (in Summary, Education, or anywhere outside the JD's literal role-title line under his name). "CS senior" is a particularly common slip: it sounds like academic year, but it reads as a senior-level engineer claim. Always hard. Quote the offending phrase verbatim.
   - WEAK BULLET: bullets missing action + method + measurable outcome (or honest concrete scope marker). Vague verbs like "worked on", "helped with", "contributed to" qualify. Bullets with no specific noun or no result qualify.
   - AI VOICE: filler adjectives ("robust", "scalable", "performant"), tricolons used heavily, uniform parallel construction across an experience block, or the canned phrases that make resumes read as machine-generated.
   - MISSING KEYWORD: a skill, technology, or framework that the JD emphasizes AND the candidate's corpus shows they honestly have, but the draft omits.
@@ -51,7 +52,7 @@ Output a single JSON object (and NOTHING ELSE):
   "issues": [
     {
       "severity": "hard" | "soft",
-      "category": "Fabrication" | "Weak bullet" | "AI voice" | "Missing keyword" | "Tone mismatch",
+      "category": "Fabrication" | "Credential overstatement" | "Weak bullet" | "AI voice" | "Missing keyword" | "Tone mismatch",
       "message": "<one-sentence summary>",
       "detail": "<exact quote from the draft, OR the specific keyword that should be added>"
     },
@@ -217,6 +218,7 @@ function safeParseJson(s: string): unknown {
 
 const ALLOWED_CATEGORIES = new Set([
   "Fabrication",
+  "Credential overstatement",
   "Weak bullet",
   "AI voice",
   "Missing keyword",

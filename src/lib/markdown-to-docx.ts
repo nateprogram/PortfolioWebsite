@@ -18,14 +18,26 @@ import {
   Paragraph,
   TextRun,
 } from "docx";
+import JSZip from "jszip";
 
-const FONT = "Calibri";
+// Times New Roman 11pt is on the research doc's list of standard
+// ATS-safe fonts (alongside Calibri, Arial, Helvetica). TNR's narrower
+// glyphs fit ~15% more text per page than Calibri at the same size,
+// which keeps a content-heavy resume on one page. Shipped on every
+// major OS so recipients don't see font substitution.
+const FONT = "Times New Roman";
 // Section-heading underline color. Kept neutral (near-black) so the
 // document reads as a traditional ATS-style resume, not a designed one.
 // Colored accents are one of the cues Jobscan-style parsers and some
 // AI-detector heuristics use to flag "template / machine-styled output".
 const COLOR_RULE = "000000";
 const BULLET_REF = "bullets";
+// Half-point sizes (docx uses half-points). 22 = 11pt body, 24 = 12pt
+// section heading, 40 = 20pt name. Larger than the previous Calibri
+// 10pt because TNR reads smaller at the same point size.
+const SIZE_BODY = 22;
+const SIZE_SECTION = 24;
+const SIZE_NAME = 40;
 
 /** Render a markdown resume to a Blob ready for download. */
 export async function renderResumeToDocxBlob(
@@ -53,10 +65,18 @@ export async function renderResumeToDocxBlob(
   }
 
   const doc = new Document({
+    // Core metadata that shows up in File → Properties on Windows /
+    // mdls on macOS. We set every field that has a "tell" default:
+    //   - title: the docx library leaves this blank if unset, which is
+    //     fine. Previously we set "Tailored Resume" which was a hard
+    //     giveaway anyone clicking Properties would see.
+    //   - creator + lastModifiedBy: both default to "Un-named" when not
+    //     specified. Real Word docs inherit the Windows username here.
     creator: "Nate White",
-    title: "Tailored Resume",
+    lastModifiedBy: "Nate White",
+    description: "",
     styles: {
-      default: { document: { run: { font: FONT, size: 20 } } }, // 10pt
+      default: { document: { run: { font: FONT, size: SIZE_BODY } } },
     },
     numbering: {
       config: [
@@ -93,7 +113,82 @@ export async function renderResumeToDocxBlob(
     ],
   });
 
-  return Packer.toBlob(doc);
+  const rawBlob = await Packer.toBlob(doc);
+  return injectWordAppMetadata(rawBlob, markdown);
+}
+
+/**
+ * The docx library leaves `docProps/app.xml` as an empty <Properties/>
+ * element. Real Word documents fill that file with `<Application>`,
+ * `<AppVersion>`, word/character/line/paragraph counts, and a handful of
+ * stock booleans. An empty Properties block is an easy "this wasn't
+ * authored in Word" signal for anyone unzipping the .docx to inspect it.
+ *
+ * We rebuild app.xml to match what Word 2016+ produces for a fresh
+ * one-page document. Word counts are computed from the actual resume
+ * body so the metadata stays internally consistent with the text.
+ */
+async function injectWordAppMetadata(
+  blob: Blob,
+  originalMarkdown: string,
+): Promise<Blob> {
+  try {
+    const buf = await blob.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+
+    const body = stripPreamble(originalMarkdown);
+    const words = (body.match(/\S+/g) ?? []).length;
+    const charactersWithSpaces = body.length;
+    const characters = body.replace(/\s/g, "").length;
+    // Word's "Lines" count is roughly chars-per-line at the page's
+    // text-box width. 75 is a fair approximation for Calibri 10pt at
+    // our 0.75" margins.
+    const lines = Math.max(1, Math.ceil(charactersWithSpaces / 75));
+    const paragraphs = Math.max(
+      1,
+      body.split(/\n\s*\n/).filter((p) => p.trim()).length,
+    );
+    // Single-page resume target. Even multi-page Word docs report Pages
+    // as a small integer here; we never expect a resume above 2.
+    const pages = body.length > 6500 ? 2 : 1;
+
+    const appXml =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n` +
+      `<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">` +
+      `<Template>Normal.dotm</Template>` +
+      `<TotalTime>1</TotalTime>` +
+      `<Pages>${pages}</Pages>` +
+      `<Words>${words}</Words>` +
+      `<Characters>${characters}</Characters>` +
+      `<Application>Microsoft Office Word</Application>` +
+      `<DocSecurity>0</DocSecurity>` +
+      `<Lines>${lines}</Lines>` +
+      `<Paragraphs>${paragraphs}</Paragraphs>` +
+      `<ScaleCrop>false</ScaleCrop>` +
+      `<Company></Company>` +
+      `<LinksUpToDate>false</LinksUpToDate>` +
+      `<CharactersWithSpaces>${charactersWithSpaces}</CharactersWithSpaces>` +
+      `<SharedDoc>false</SharedDoc>` +
+      `<HyperlinksChanged>false</HyperlinksChanged>` +
+      `<AppVersion>16.0000</AppVersion>` +
+      `</Properties>`;
+
+    zip.file("docProps/app.xml", appXml);
+    return await zip.generateAsync({
+      type: "blob",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      compression: "DEFLATE",
+    });
+  } catch (err) {
+    // Post-processing should never fail the download. If something goes
+    // wrong, fall back to the original blob (which has the rest of the
+    // clean metadata already, just an empty app.xml).
+    console.warn(
+      `[markdown-to-docx] failed to inject Word app.xml: ${(err as Error).message}`,
+    );
+    return blob;
+  }
 }
 
 // ----- markdown parsing -----------------------------------------------------
@@ -213,7 +308,7 @@ function buildHeaderParagraph(line: string): Paragraph {
     alignment: AlignmentType.CENTER,
     spacing: { after: isName ? 80 : 40 },
     children: parseInlineRuns(line, {
-      size: isName ? 36 : 20,
+      size: isName ? SIZE_NAME : SIZE_BODY,
       bold: isName,
     }),
   });
@@ -235,7 +330,7 @@ function buildSectionHeading(text: string): Paragraph {
         text: text.toUpperCase(),
         font: FONT,
         bold: true,
-        size: 22,
+        size: SIZE_SECTION,
         color: "1F1F1F",
       }),
     ],
@@ -246,7 +341,7 @@ function buildSectionHeading(text: string): Paragraph {
 function buildBodyParagraph(text: string): Paragraph {
   return new Paragraph({
     spacing: { after: 80 },
-    children: parseInlineRuns(text, { size: 20 }),
+    children: parseInlineRuns(text, { size: SIZE_BODY }),
   });
 }
 
@@ -254,7 +349,7 @@ function buildBulletParagraph(text: string): Paragraph {
   return new Paragraph({
     numbering: { reference: BULLET_REF, level: 0 },
     spacing: { after: 60 },
-    children: parseInlineRuns(text, { size: 20 }),
+    children: parseInlineRuns(text, { size: SIZE_BODY }),
   });
 }
 
@@ -282,7 +377,7 @@ function parseInlineRuns(line: string, base: RunOpts): TextRun[] {
   let buffer = "";
   let bold = base.bold ?? false;
   let italic = base.italic ?? false;
-  const size = base.size ?? 20;
+  const size = base.size ?? SIZE_BODY;
 
   const flush = () => {
     if (!buffer) return;

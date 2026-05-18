@@ -158,6 +158,12 @@ STYLE RULES (these defeat AI detectors)
 
 ANTI-FABRICATION (read carefully)
 - If the JD asks for a technology Nate hasn't touched, omit it. Do not invent.
+- DO NOT call Nate a "senior" anything, a "lead", a "staff", a "principal", or any other seniority-level descriptor. He's a 2026 new-grad BS CS candidate. Do not write "CS senior", "senior CS student", "senior software engineer", "senior developer", "senior candidate", etc. The word "senior" may appear in the role line ONLY when it is verbatim from the JD's job title (e.g., the JD says "Senior Backend Engineer" so the role line under the name reads "Senior Backend Engineer | <positioning>"). It must NEVER describe Nate himself in the Summary, Education, or anywhere else.
+  BAD (Summary): "Senior CS candidate at DigiPen."
+  BAD (Summary): "CS senior with experience..."
+  GOOD (Summary): "2026 BS CS candidate at DigiPen with..."
+  GOOD (Summary): "Graduating CS engineer (BS DigiPen, 2026) with..."
+  GOOD (Summary): "New-grad software engineer with..."
 - Use the EXACT job titles from the corpus. Don't relabel "Founder & Engineer" as "Lead Software Engineer" or anything else. Copy the title verbatim.
 - Use the EXACT dates from the corpus. Don't approximate "Apr 2025 - Present" to "2024 - Present" or any other shift. Copy date strings as written. If a date string in the corpus contains an en/em dash, replace it with a plain hyphen \`-\` in your output.
 - Don't invent numbers, percentages, or metrics. The only quantitative claims allowed are ones that appear verbatim in the corpus (e.g., "10,000+ recipients", "16 generations", "~24h", "401", "19-person team", "23 scrapers", "148 features", "10 timeframes", "~11,500 lines", "42 modules", "40+ API handlers", "19-model schema"). If you want to make a quantitative claim and can't find it in the corpus, drop the number and use a scope marker instead.
@@ -167,6 +173,7 @@ ANTI-FABRICATION (read carefully)
 
 SELF-CHECK BEFORE OUTPUT
 Before producing the final resume, mentally scan it for:
+0. Credential check: search for "senior", "lead", "staff", "principal" in the Summary, Education, and Projects sections. If any of these describe NATE (e.g. "CS senior", "senior candidate", "senior CS student"), REWRITE the sentence. He is a new grad; only the JD's literal role title in the role line under the name may contain "senior".
 1. Sticky-word scan: search for "ensure", "ensuring", "end-to-end", "standardize", "standardized" specifically. ALL must be zero in the output. Rewrite any bullet that uses them per Rules A/B/C above.
 2. Any other banned word from the lists. If you find one, rewrite that bullet.
 3. Any passive construction ("worked on", "responsible for", "assisted with"). Rewrite with an action verb from the whitelist.

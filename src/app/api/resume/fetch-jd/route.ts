@@ -17,6 +17,7 @@
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
+import { htmlToText } from "@/lib/html-to-text";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -188,58 +189,5 @@ function isPrivateHost(hostname: string): boolean {
   return false;
 }
 
-/**
- * Cheap HTML → plain text. Strips script/style/svg blocks, removes
- * comments and remaining tags, decodes the common entities, and
- * collapses whitespace. Adequate for static job-posting HTML.
- */
-function htmlToText(html: string): string {
-  let text = html
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, "")
-    .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gi, "");
-
-  // Comments.
-  text = text.replace(/<!--[\s\S]*?-->/g, "");
-
-  // Preserve line breaks where the HTML had block boundaries.
-  text = text
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/(p|div|li|tr|h[1-6]|article|section|ul|ol)>/gi, "\n");
-
-  // Strip remaining tags.
-  text = text.replace(/<[^>]+>/g, "");
-
-  // Decode the entities that show up in nearly every page.
-  text = text
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&#39;/g, "'")
-    .replace(/&#(\d+);/g, (_, n) => safeFromCodePoint(parseInt(n, 10)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) =>
-      safeFromCodePoint(parseInt(n, 16)),
-    );
-
-  // Collapse whitespace: many spaces/tabs to one, many blank lines to one.
-  text = text
-    .replace(/[ \t]+/g, " ")
-    .replace(/ *\n */g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-  return text;
-}
-
-function safeFromCodePoint(n: number): string {
-  if (!Number.isFinite(n) || n < 0 || n > 0x10ffff) return "";
-  try {
-    return String.fromCodePoint(n);
-  } catch {
-    return "";
-  }
-}
+// htmlToText + helpers live in @/lib/html-to-text. See that file for
+// the strip-and-narrow logic and why each chrome tag is dropped.

@@ -26,8 +26,10 @@ import {
   FileText,
   Link2,
   Loader2,
+  Printer,
   RotateCw,
   Sparkles,
+  Target,
   Trash2,
   Wand2,
 } from "lucide-react";
@@ -41,6 +43,11 @@ import {
   type CheckIssue,
   type CheckResult,
 } from "@/lib/resume-checks";
+import {
+  computeJdMatchScore,
+  type JdMatchScore,
+} from "@/lib/jd-match-score";
+import { checkCoverLetter } from "@/lib/cover-letter-checks";
 
 const BLUR_FADE_DELAY = 0.04;
 const STORAGE_KEY = "tools/resume:last-jd";
@@ -84,6 +91,16 @@ export function Builder() {
   // (false if disabled by env var, errored, or never reached because of
   // a generation failure). Drives the "Cross-referenced by Llama" badge.
   const [judgeRan, setJudgeRan] = useState(false);
+  // Cover letter state — parallel to the resume state. Initially empty;
+  // populated by `generateCoverLetter()` once the user clicks the
+  // button that appears after a resume settles.
+  const [clOutput, setClOutput] = useState("");
+  const [clStatus, setClStatus] = useState<Status>("idle");
+  const [clAttemptNumber, setClAttemptNumber] = useState(0);
+  const [clRetryReason, setClRetryReason] = useState<string | null>(null);
+  const [clChecks, setClChecks] = useState<CheckResult | null>(null);
+  const [clCopied, setClCopied] = useState(false);
+  const [clDownloading, setClDownloading] = useState(false);
 
   // Load history once on mount.
   useEffect(() => {
@@ -295,6 +312,185 @@ export function Builder() {
     }
   }
 
+  // ----- cover letter generation -----------------------------------------
+  // Same retry-loop shape as the resume `generate()` but uses the cover
+  // letter prompt and the cover-letter check library. No save endpoint
+  // and no judge pass — cover letters are short-form and downloaded
+  // straight away.
+  async function generateCoverLetter() {
+    const trimmed = jd.trim();
+    if (trimmed.length < 30) {
+      setErrorMessage(
+        "Paste a job description above first — the cover letter is tailored to it.",
+      );
+      return;
+    }
+    setErrorMessage(null);
+    setClOutput("");
+    setClChecks(null);
+    setClRetryReason(null);
+
+    let bestMarkdown = "";
+    let bestChecks: CheckResult | null = null;
+
+    for (let attempt = 1; attempt <= MAX_AUTO_ATTEMPTS; attempt++) {
+      setClAttemptNumber(attempt);
+      if (attempt === 1) {
+        setClStatus("streaming");
+        setClRetryReason(null);
+      } else {
+        setClStatus("retrying");
+        const top = (bestChecks?.hardFails ?? [])
+          .slice(0, 3)
+          .map((c) => c.category.toLowerCase())
+          .join(", ");
+        setClRetryReason(
+          `Retry ${attempt}/${MAX_AUTO_ATTEMPTS} · fixing ${top || "checks"}`,
+        );
+        setClOutput("");
+      }
+
+      let markdown: string;
+      try {
+        const retry =
+          attempt > 1 && bestMarkdown && bestChecks
+            ? {
+                previousAttempt: bestMarkdown,
+                failureNotes: bestChecks.retryNotes,
+              }
+            : undefined;
+        markdown = await streamCoverLetterAttempt(trimmed, retry);
+      } catch (err) {
+        setErrorMessage((err as Error).message);
+        setClStatus("error");
+        setClAttemptNumber(0);
+        return;
+      }
+
+      setClStatus("checking");
+      const result = checkCoverLetter(markdown);
+
+      if (
+        bestChecks === null ||
+        result.hardFails.length <= bestChecks.hardFails.length
+      ) {
+        bestMarkdown = markdown;
+        bestChecks = result;
+      }
+      if (result.hardFails.length === 0) break;
+    }
+
+    setClOutput(bestMarkdown);
+    setClChecks(bestChecks);
+    setClStatus(bestChecks?.passed ? "done" : "warning");
+    setClRetryReason(null);
+    setClAttemptNumber(0);
+  }
+
+  async function streamCoverLetterAttempt(
+    trimmed: string,
+    retry?: { previousAttempt: string; failureNotes: string },
+  ): Promise<string> {
+    let res: Response;
+    try {
+      res = await fetch("/api/cover-letter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobDescription: trimmed, retry }),
+      });
+    } catch (err) {
+      throw new Error(`Network error: ${(err as Error).message}`);
+    }
+    if (!res.ok || !res.body) {
+      let message = `Request failed (${res.status})`;
+      try {
+        const data = (await res.json()) as { error?: string };
+        if (data.error) message = data.error;
+      } catch {
+        // body wasn't JSON
+      }
+      throw new Error(message);
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let acc = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      acc += decoder.decode(value, { stream: true });
+      setClOutput(acc);
+    }
+    acc += decoder.decode();
+    setClOutput(acc);
+    return acc;
+  }
+
+  async function copyCoverLetter() {
+    try {
+      // Strip the META block from the clipboard text — the user wants
+      // the letter, not our internal metadata.
+      const text = clOutput.replace(/\[META\][\s\S]*?\[\/META\]\s*/, "");
+      await navigator.clipboard.writeText(text);
+      setClCopied(true);
+      setTimeout(() => setClCopied(false), 1500);
+    } catch {
+      setErrorMessage("Couldn't copy cover letter to clipboard.");
+    }
+  }
+
+  async function downloadCoverLetterDocx() {
+    setClDownloading(true);
+    setErrorMessage(null);
+    try {
+      const { renderResumeToDocxBlob } = await import(
+        "@/lib/markdown-to-docx"
+      );
+      // The DOCX renderer accepts any markdown that follows the same
+      // META + body shape. Cover letters don't have ATS Keywords or
+      // section headings, but the renderer's stripPreamble looks for
+      // the first `---` — cover letters don't have one, so the entire
+      // markdown is treated as body. We feed `---\n` + the letter so
+      // the preamble strip removes the META block but keeps the body.
+      const body = clOutput.replace(/\[META\][\s\S]*?\[\/META\]/, "").trimStart();
+      const wrapped = `---\n${body}`;
+      const blob = await renderResumeToDocxBlob(wrapped);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = buildCoverLetterFilename(clOutput);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setErrorMessage(
+        `Could not render cover letter .docx: ${(err as Error).message ?? "unknown"}`,
+      );
+    } finally {
+      setClDownloading(false);
+    }
+  }
+
+  async function downloadCoverLetterPdf() {
+    setErrorMessage(null);
+    try {
+      const { openResumePrintWindow } = await import("@/lib/markdown-to-pdf");
+      // Same trick as docx: prepend `---\n` so the print renderer's
+      // stripPreamble removes the META block.
+      const body = clOutput.replace(/\[META\][\s\S]*?\[\/META\]/, "").trimStart();
+      const opened = openResumePrintWindow(`---\n${body}`);
+      if (!opened) {
+        setErrorMessage(
+          "Browser blocked the print window. Allow popups and try again.",
+        );
+      }
+    } catch (err) {
+      setErrorMessage(
+        `Could not open print window: ${(err as Error).message ?? "unknown"}`,
+      );
+    }
+  }
+
   function loadLast() {
     try {
       const v = window.localStorage.getItem(STORAGE_KEY);
@@ -345,6 +541,9 @@ export function Builder() {
     setStatus("streaming");
     setErrorMessage(null);
     setOutput("");
+    setChecks(null);
+    setRetryReason(null);
+    setJudgeRan(false);
     try {
       const res = await fetch(`/api/resume/${id}`, { cache: "no-store" });
       if (!res.ok) {
@@ -358,7 +557,14 @@ export function Builder() {
       };
       setJd(data.jobDescription);
       setOutput(data.markdown);
-      setStatus("done");
+      // Re-run the heuristic checks on the saved markdown so the panel
+      // surfaces any issues this resume shipped with. We don't re-run
+      // the judge — it already ran when this row was first generated,
+      // and re-judging on every load would burn Groq quota for review
+      // sessions.
+      const result = checkResume(data.markdown);
+      setChecks(result);
+      setStatus(result.hardFails.length === 0 ? "done" : "warning");
     } catch (err) {
       setErrorMessage(`Network error: ${(err as Error).message}`);
       setStatus("error");
@@ -412,21 +618,60 @@ export function Builder() {
     }
   }
 
+  // Open a print-styled tab and trigger the browser's print dialog;
+  // the user picks "Save as PDF" to get an ATS-friendly text-based PDF.
+  async function downloadPdf() {
+    setErrorMessage(null);
+    try {
+      const { openResumePrintWindow } = await import("@/lib/markdown-to-pdf");
+      const opened = openResumePrintWindow(output);
+      if (!opened) {
+        setErrorMessage(
+          "Browser blocked the print window. Allow popups for this site and try again.",
+        );
+      }
+    } catch (err) {
+      setErrorMessage(
+        `Could not open print window: ${(err as Error).message ?? "unknown"}`,
+      );
+    }
+  }
+
   // Memoize the chunks the output card needs so each keystroke during
   // streaming doesn't re-run the regex parsers from scratch.
   const meta = useMemo(() => parseMeta(output), [output]);
   const atsKeywords = useMemo(() => parseAtsKeywords(output), [output]);
   const resumeBody = useMemo(() => extractResume(output), [output]);
+  // JD-match score: regex-based keyword count between the model's
+  // emitted ATS Keywords list and the rendered resume body. Re-runs
+  // on every output change but only paints once `isSettled` so the
+  // user doesn't see flicker mid-stream.
+  const matchScore = useMemo<JdMatchScore | null>(() => {
+    if (!output || atsKeywords.length === 0 || !resumeBody) return null;
+    return computeJdMatchScore(output);
+  }, [output, atsKeywords.length, resumeBody]);
   const previewHasContent = Boolean(
     meta.company || meta.position || atsKeywords.length > 0 || resumeBody,
   );
-  // True while the retry chain is in flight. Disables input controls so
-  // the user can't kick off a second generation mid-loop.
+  // True while the resume retry chain is in flight. Disables input
+  // controls so the user can't kick off a second generation mid-loop.
   const isBusy =
     status === "streaming" ||
     status === "retrying" ||
     status === "checking" ||
     status === "judging";
+  // Cover letter equivalent. Distinct so the resume controls don't lock
+  // up when a cover letter is mid-generation, and vice versa.
+  const isClBusy =
+    clStatus === "streaming" ||
+    clStatus === "retrying" ||
+    clStatus === "checking";
+  const isClSettled = clStatus === "done" || clStatus === "warning";
+  const clMeta = useMemo(() => parseMeta(clOutput), [clOutput]);
+  const clBody = useMemo(
+    () => clOutput.replace(/\[META\][\s\S]*?\[\/META\]\s*/, "").trimStart(),
+    [clOutput],
+  );
   // True once the chain has settled (passed or exhausted retries). Output
   // actions and resume preview gating use this.
   const isSettled = status === "done" || status === "warning";
@@ -434,12 +679,20 @@ export function Builder() {
   return (
     <main className="min-h-dvh flex flex-col gap-10">
       <BlurFade delay={BLUR_FADE_DELAY}>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-3 w-3" aria-hidden /> back home
-        </Link>
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" aria-hidden /> back home
+          </Link>
+          <Link
+            href="/tools/applications"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Target className="h-3 w-3" aria-hidden /> applications tracker
+          </Link>
+        </div>
       </BlurFade>
 
       <BlurFade delay={BLUR_FADE_DELAY * 2}>
@@ -635,6 +888,11 @@ export function Builder() {
                 />
               )}
 
+              {/* JD-match score */}
+              {isSettled && matchScore && matchScore.totalKeywords > 0 && (
+                <MatchScorePanel score={matchScore} />
+              )}
+
               {/* META badges */}
               {(meta.company || meta.position) && (
                 <div className="flex flex-wrap gap-2">
@@ -659,22 +917,42 @@ export function Builder() {
                 </div>
               )}
 
-              {/* ATS keywords as chips */}
+              {/* ATS keywords as chips. Missing-in-resume keywords are
+                  rendered as outline with strikethrough so it's obvious
+                  what the JD wants but the draft didn't include. */}
               {atsKeywords.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
                     ATS keywords ({atsKeywords.length})
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {atsKeywords.map((kw, i) => (
-                      <Badge
-                        key={`${kw}-${i}`}
-                        variant="secondary"
-                        className="font-normal text-xs"
-                      >
-                        {kw}
-                      </Badge>
-                    ))}
+                    {atsKeywords.map((kw, i) => {
+                      const hit = matchScore?.hits.find(
+                        (h) => h.keyword === kw,
+                      );
+                      const isMissing = hit && hit.count === 0;
+                      return (
+                        <Badge
+                          key={`${kw}-${i}`}
+                          variant={isMissing ? "outline" : "secondary"}
+                          className={
+                            isMissing
+                              ? "font-normal text-xs line-through text-muted-foreground/60 border-dashed"
+                              : "font-normal text-xs"
+                          }
+                          title={
+                            hit
+                              ? `appears ${hit.count}× in resume` +
+                                (hit.inProminentSection
+                                  ? " (in Summary/Skills)"
+                                  : "")
+                              : undefined
+                          }
+                        >
+                          {kw}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -755,6 +1033,151 @@ export function Builder() {
                           Download .docx
                         </>
                       )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadPdf}
+                    >
+                      <Printer className="size-3.5" aria-hidden />
+                      Download .pdf
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateCoverLetter}
+                      disabled={isClBusy}
+                      title="Generate a tailored cover letter for the same JD"
+                    >
+                      {isClBusy ? (
+                        <>
+                          <Loader2
+                            className="size-3.5 animate-spin"
+                            aria-hidden
+                          />
+                          Cover letter...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="size-3.5" aria-hidden />
+                          Cover letter
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </BlurFade>
+      )}
+
+      {/* 02b — COVER LETTER (visible after the user clicks the button) */}
+      {(isClBusy || clOutput) && (
+        <BlurFade delay={BLUR_FADE_DELAY * 4}>
+          <section className="flex flex-col gap-3">
+            <StepHeader
+              index="02b"
+              label="Cover letter"
+              right={
+                <StreamStatus
+                  status={clStatus}
+                  attempt={clAttemptNumber}
+                  max={MAX_AUTO_ATTEMPTS}
+                />
+              }
+            />
+            <div className="rounded-lg border border-border bg-card/40 p-5 sm:p-6 flex flex-col gap-5">
+              {clStatus === "retrying" && clRetryReason && (
+                <RetryBanner reason={clRetryReason} />
+              )}
+              {clChecks && isClSettled && (
+                <ChecksPanel
+                  result={clChecks}
+                  status={clStatus}
+                  judgeRan={false}
+                />
+              )}
+              {(clMeta.company || clMeta.position) && (
+                <div className="flex flex-wrap gap-2">
+                  {clMeta.position && (
+                    <Badge
+                      variant="outline"
+                      className="font-mono text-[11px] gap-1.5 py-1"
+                    >
+                      <Briefcase className="size-3" aria-hidden />
+                      {clMeta.position}
+                    </Badge>
+                  )}
+                  {clMeta.company && (
+                    <Badge
+                      variant="outline"
+                      className="font-mono text-[11px] gap-1.5 py-1"
+                    >
+                      <Building2 className="size-3" aria-hidden />
+                      {clMeta.company}
+                    </Badge>
+                  )}
+                </div>
+              )}
+              <div className="prose prose-sm max-w-full text-pretty font-sans leading-relaxed dark:prose-invert prose-p:my-2 whitespace-pre-line">
+                <Markdown>
+                  {clBody || "_Waiting for the first tokens..._"}
+                </Markdown>
+              </div>
+              {isClSettled && (
+                <>
+                  <Separator />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={copyCoverLetter}
+                    >
+                      {clCopied ? (
+                        <>
+                          <Check className="size-3.5" aria-hidden />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="size-3.5" aria-hidden />
+                          Copy cover letter
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={downloadCoverLetterDocx}
+                      disabled={clDownloading}
+                    >
+                      {clDownloading ? (
+                        <>
+                          <Loader2
+                            className="size-3.5 animate-spin"
+                            aria-hidden
+                          />
+                          Rendering...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="size-3.5" aria-hidden />
+                          Download .docx
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadCoverLetterPdf}
+                    >
+                      <Printer className="size-3.5" aria-hidden />
+                      Download .pdf
                     </Button>
                   </div>
                 </>
@@ -1053,6 +1476,66 @@ function isJudgeIssue(issue: CheckIssue): boolean {
   return issue.id.startsWith("judge:");
 }
 
+function MatchScorePanel({ score }: { score: JdMatchScore }) {
+  // Color-code by Jobscan's rough industry buckets: 80%+ is excellent,
+  // 60-79% is acceptable but improvable, <60% means we're missing
+  // multiple JD-emphasized keywords the candidate likely has.
+  const tone: "good" | "ok" | "low" =
+    score.percent >= 80 ? "good" : score.percent >= 60 ? "ok" : "low";
+  const toneClasses = {
+    good: {
+      ring: "border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-900/10",
+      number: "text-emerald-700 dark:text-emerald-400",
+      label: "text-emerald-900 dark:text-emerald-300",
+    },
+    ok: {
+      ring: "border-amber-500/30 bg-amber-50/40 dark:bg-amber-900/10",
+      number: "text-amber-700 dark:text-amber-400",
+      label: "text-amber-900 dark:text-amber-300",
+    },
+    low: {
+      ring: "border-destructive/30 bg-destructive/5",
+      number: "text-destructive",
+      label: "text-destructive",
+    },
+  }[tone];
+
+  return (
+    <div className={`rounded-md border ${toneClasses.ring} p-3 flex flex-col gap-2`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="flex items-baseline gap-2">
+          <span
+            className={`text-2xl font-semibold tabular-nums ${toneClasses.number}`}
+          >
+            {score.percent}%
+          </span>
+          <span className={`text-xs font-mono ${toneClasses.label}`}>
+            JD-keyword match · {score.presentKeywords}/{score.totalKeywords}
+          </span>
+        </div>
+        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+          weighted by section
+        </span>
+      </div>
+      {score.missing.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mr-1">
+            Missing:
+          </span>
+          {score.missing.map((kw) => (
+            <span
+              key={kw}
+              className="inline-flex items-center rounded-sm border border-border bg-muted/40 px-1.5 py-0 text-[10px] font-mono text-muted-foreground"
+            >
+              {kw}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function IssueRow({
   issue,
   tone,
@@ -1223,6 +1706,18 @@ function buildDownloadFilename(output: string): string {
   if (parts.length === 1) {
     // No META — fall back to a dated name so files don't collide.
     parts.push("Resume", new Date().toISOString().slice(0, 10));
+  }
+  return parts.filter(Boolean).join("_") + ".docx";
+}
+
+/** Same shape as buildDownloadFilename but tagged "Cover_Letter". */
+function buildCoverLetterFilename(output: string): string {
+  const { company, position } = parseMeta(output);
+  const parts = ["Nate_White", "Cover_Letter"];
+  if (position) parts.push(sanitizeFilenamePart(position));
+  if (company) parts.push(sanitizeFilenamePart(company));
+  if (parts.length === 2) {
+    parts.push(new Date().toISOString().slice(0, 10));
   }
   return parts.filter(Boolean).join("_") + ".docx";
 }

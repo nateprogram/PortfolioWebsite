@@ -12,7 +12,7 @@
 // about something the resume doesn't already cover. Hence the
 // emphasis on a specific corpus project as the opener.
 
-import { buildCorpus } from "./resume-prompt";
+import { buildCorpus } from "./resume/prompt";
 
 export const COVER_LETTER_SYSTEM_PROMPT = `You are helping Nate White write a tailored cover letter for a specific job description. Nate is a 2026 new-grad CS candidate at DigiPen with two summer internships (2020-2021) and a strong portfolio of personal projects since 2023.
 

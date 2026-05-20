@@ -43,7 +43,10 @@ export const PROJECTS = [
         icon: <Icons.globe className="size-3" />,
       },
     ],
-    image: "/projects/squadpact/logo.png",
+    // Card hero. Drop a UI screenshot at this path (not the logo — the
+    // logo doesn't sell the product; a real screen does). Matching
+    // convention with stockai/hero.png and mayhem-engine/hero.jpg.
+    image: "/projects/squadpact/hero.png",
     video: "",
   },
   {

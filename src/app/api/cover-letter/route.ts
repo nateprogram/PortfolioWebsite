@@ -13,7 +13,7 @@
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
-import { startGeminiStream } from "@/lib/gemini-client";
+import { tryRoleStreaming } from "@/lib/ai";
 import {
   COVER_LETTER_SYSTEM_PROMPT,
   buildCoverLetterUserPrompt,
@@ -84,25 +84,29 @@ export async function POST(req: Request) {
     ? buildCoverLetterRetryPrompt(trimmed, retry.failureNotes)
     : buildCoverLetterUserPrompt(trimmed);
 
-  let stream: AsyncGenerator<{ text(): string }, void, unknown>;
-  let resultRef: unknown = null;
+  // Dispatch via the `cover-letter-drafter` role chain. Default chain
+  // (see src/lib/ai/roles.ts) is gemini-primary → gemini-backup; override
+  // with AI_COVER_LETTER_DRAFTER_CHAIN env var if you want to try a
+  // different provider without a code change.
+  let streamResult;
   try {
-    const result = await startGeminiStream({
-      systemPrompt: COVER_LETTER_SYSTEM_PROMPT,
-      userPrompt,
-      isRetry: Boolean(retry),
-      // Cover letters are short; lower the token budget slightly so
-      // Gemini's thinking phase doesn't eat the whole budget for a
-      // 300-word output. 16384 is still well above the 1500-token
-      // visible-output target.
-      maxOutputTokens: 16384,
-    });
-    stream = result.stream;
-    resultRef = result.resultRef;
+    streamResult = await tryRoleStreaming(
+      "cover-letter-drafter",
+      (provider) =>
+        provider.streamGenerate({
+          systemPrompt: COVER_LETTER_SYSTEM_PROMPT,
+          userPrompt,
+          temperature: retry ? 0.55 : 0.4,
+          // Cover letters are short; lower the token budget so Gemini's
+          // thinking phase doesn't eat the whole budget for a 300-word
+          // output. 16384 is still well above the visible-output target.
+          maxOutputTokens: 16384,
+        }),
+    );
   } catch (err) {
     return jsonError(
       502,
-      `Failed to call Gemini API: ${(err as Error).message ?? "unknown error"}`,
+      `Drafter chain failed: ${(err as Error).message ?? "unknown error"}`,
     );
   }
 
@@ -111,8 +115,7 @@ export async function POST(req: Request) {
   const responseStream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const chunk of stream) {
-          const text = chunk.text();
+        for await (const text of streamResult.chunks) {
           if (text) {
             totalBytes += text.length;
             controller.enqueue(encoder.encode(text));
@@ -125,20 +128,16 @@ export async function POST(req: Request) {
       } finally {
         if (totalBytes < 500) {
           let finishReason = "unknown";
+          let providerName = "unknown";
           try {
-            type ResultLike = {
-              response: Promise<{
-                candidates?: Array<{ finishReason?: string }>;
-              }>;
-            };
-            const ref = resultRef as ResultLike | null;
-            const resp = await ref?.response;
-            finishReason = resp?.candidates?.[0]?.finishReason ?? "unknown";
+            const final = await streamResult.finalize();
+            finishReason = final.finishReason;
+            providerName = final.providerName;
           } catch {
-            // ignore
+            /* ignore */
           }
           console.warn(
-            `[/api/cover-letter] short response: ${totalBytes} bytes · finishReason=${finishReason}`,
+            `[/api/cover-letter] short response from ${providerName}: ${totalBytes} bytes · finishReason=${finishReason}`,
           );
         }
         controller.close();

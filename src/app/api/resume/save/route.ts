@@ -12,7 +12,7 @@
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
-import { saveResume } from "@/lib/resume-store";
+import { saveResume } from "@/lib/resume/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

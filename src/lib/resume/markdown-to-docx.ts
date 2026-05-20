@@ -5,7 +5,7 @@
 // (everything before the first `---`); only the resume body is exported.
 //
 // Lazy-loaded by the builder UI so the docx library (~200KB) isn't in
-// the main bundle. Import via `await import("@/lib/markdown-to-docx")`.
+// the main bundle. Import via `await import("@/lib/resume/markdown-to-docx")`.
 
 import {
   AlignmentType,

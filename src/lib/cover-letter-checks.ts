@@ -2,10 +2,10 @@
 // resume checks (META, banlist, dashes, separators, tricolons) plus
 // CL-specific rules (no cliche openers/closers, ~200-300 word target).
 //
-// Returns the same CheckResult shape as resume-checks so the auto-retry
+// Returns the same CheckResult shape as resume/checks so the auto-retry
 // loop in the builder can treat both flows uniformly.
 
-import type { CheckIssue, CheckResult } from "./resume-checks";
+import type { CheckIssue, CheckResult } from "./resume/checks";
 
 // Subset of the resume banlist plus cover-letter-specific cliches.
 const BANLIST = [

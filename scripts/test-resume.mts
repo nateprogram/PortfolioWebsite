@@ -27,8 +27,8 @@ import { fileURLToPath } from "node:url";
 // package.json says otherwise, which folds all named exports into a
 // single `default` export when consumed from ESM. Destructure the
 // default (or fall back to the namespace) to get the real function.
-import * as resumeChecks from "../src/lib/resume-checks.ts";
-import type { CheckResult, CheckIssue } from "../src/lib/resume-checks.ts";
+import * as resumeChecks from "../src/lib/resume/checks.ts";
+import type { CheckResult, CheckIssue } from "../src/lib/resume/checks.ts";
 type CheckModule = { checkResume: (md: string) => CheckResult };
 const checkResume: CheckModule["checkResume"] =
   (resumeChecks as unknown as { default?: CheckModule } & CheckModule).default
@@ -41,7 +41,7 @@ const ROOT = path.resolve(__dirname, "..");
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const ENV_FILE = path.resolve(ROOT, process.env.ENV_FILE ?? ".env.local");
-const MAX_AUTO_ATTEMPTS = 3;
+const MAX_AUTO_ATTEMPTS = 2;
 
 type RetryContext = { previousAttempt: string; failureNotes: string };
 

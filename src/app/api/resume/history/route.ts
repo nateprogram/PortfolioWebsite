@@ -5,7 +5,7 @@
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
-import { listResumes } from "@/lib/resume-store";
+import { listResumes } from "@/lib/resume/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

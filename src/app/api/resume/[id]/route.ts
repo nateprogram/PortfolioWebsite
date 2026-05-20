@@ -3,7 +3,7 @@
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
-import { deleteResume, getResume } from "@/lib/resume-store";
+import { deleteResume, getResume } from "@/lib/resume/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

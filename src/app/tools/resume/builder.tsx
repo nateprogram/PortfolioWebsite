@@ -1,16 +1,16 @@
 "use client";
 
-// The unlocked-state UI for /tools/resume.
+// Resume Builder — unlocked-state UI for /tools/resume.
 //
-// Form: paste a JD → POST /api/resume → stream Gemini's markdown back.
-// Output renders progressively. The client runs `checkResume` against
-// the streamed markdown; if hard fails are detected, it auto-retries
-// (up to MAX_AUTO_ATTEMPTS) by re-POSTing with retry context. The
-// model gets the previous attempt + the specific failures as fix
-// feedback. After the retry loop settles, the best attempt is POSTed
-// to /api/resume/save to persist it.
-// The .docx renderer is lazy-loaded so its ~200KB footprint isn't in
-// the main bundle.
+// Pipeline: paste JD → POST /api/resume → stream markdown → run
+// checkResume → if clean, run judge → if any hard fails, auto-retry
+// (up to MAX_AUTO_ATTEMPTS). Best attempt is POSTed to /api/resume/save.
+//
+// Companion files in this directory:
+//   subcomponents.tsx — UI primitives (StepHeader, ChecksPanel, etc.)
+//   parsers.ts        — pure parsing helpers (parseMeta, extractResume…)
+//   filename.ts       — DOCX filename builders
+// See `src/lib/resume/README.md` for the wider architecture map.
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -20,7 +20,6 @@ import {
   Briefcase,
   Building2,
   Check,
-  CheckCircle2,
   Copy,
   Download,
   FileText,
@@ -42,26 +41,48 @@ import {
   checkResume,
   type CheckIssue,
   type CheckResult,
-} from "@/lib/resume-checks";
+} from "@/lib/resume/checks";
 import {
   computeJdMatchScore,
   type JdMatchScore,
 } from "@/lib/jd-match-score";
 import { checkCoverLetter } from "@/lib/cover-letter-checks";
+import { scanJdRedFlags, type RedFlag } from "@/lib/jd-red-flags";
+import {
+  ChecksPanel,
+  IssueRow,
+  MatchScorePanel,
+  RetryBanner,
+  StepHeader,
+  StreamStatus,
+  type Status,
+} from "./subcomponents";
+import {
+  extractResume,
+  formatDate,
+  mergeJudgeIssues,
+  parseAtsKeywords,
+  parseMeta,
+  stripMetaForDisplay,
+} from "./parsers";
+import {
+  buildCoverLetterFilename,
+  buildDownloadFilename,
+} from "./filename";
 
 const BLUR_FADE_DELAY = 0.04;
 const STORAGE_KEY = "tools/resume:last-jd";
-const MAX_AUTO_ATTEMPTS = 3;
+// One initial attempt + one retry. Bumping past 2 has diminishing
+// returns: in testing, the first retry fixed ~25% of remaining hard
+// fails while the second only added ~10% and sometimes introduced new
+// issues while patching old ones. The residual fails after one retry
+// are usually 30-second manual fixes (banlist slips, an extra tricolon)
+// that aren't worth another full 60-90s Gemini call.
+const MAX_AUTO_ATTEMPTS = 2;
 
-type Status =
-  | "idle"
-  | "streaming" // first attempt streaming
-  | "checking" // brief gap while running heuristics
-  | "judging" // running the Groq / Llama cross-reference critic
-  | "retrying" // retry attempt streaming
-  | "done" // accepted (passed checks + judge cleanly)
-  | "warning" // finished retries but residual hard fails — manual review
-  | "error";
+// Status type lives in ./subcomponents (it's the shared enum the UI
+// pills + this state both speak). FetchStatus is local — only the URL
+// fetcher uses it.
 type FetchStatus = "idle" | "fetching" | "error";
 
 type HistoryItem = {
@@ -443,7 +464,7 @@ export function Builder() {
     setErrorMessage(null);
     try {
       const { renderResumeToDocxBlob } = await import(
-        "@/lib/markdown-to-docx"
+        "@/lib/resume/markdown-to-docx"
       );
       // The DOCX renderer accepts any markdown that follows the same
       // META + body shape. Cover letters don't have ATS Keywords or
@@ -598,7 +619,7 @@ export function Builder() {
     setErrorMessage(null);
     try {
       const { renderResumeToDocxBlob } = await import(
-        "@/lib/markdown-to-docx"
+        "@/lib/resume/markdown-to-docx"
       );
       const blob = await renderResumeToDocxBlob(output);
       const url = URL.createObjectURL(blob);
@@ -652,6 +673,14 @@ export function Builder() {
   }, [output, atsKeywords.length, resumeBody]);
   const previewHasContent = Boolean(
     meta.company || meta.position || atsKeywords.length > 0 || resumeBody,
+  );
+  // Scan the JD for known red-flag phrases (rockstar / ninja / 24/7 /
+  // no salary range / etc.). Pure regex pass, cheap to re-run on every
+  // keystroke. Surfaces advisory chips below the textarea — never
+  // blocks generation.
+  const jdRedFlags = useMemo<RedFlag[]>(
+    () => (jd.trim().length >= 30 ? scanJdRedFlags(jd) : []),
+    [jd],
   );
   // True while the resume retry chain is in flight. Disables input
   // controls so the user can't kick off a second generation mid-loop.
@@ -800,6 +829,32 @@ export function Builder() {
                 rows={12}
                 className="w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm font-mono leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
               />
+              {/* JD red flags — advisory only. Doesn't block generation. */}
+              {jdRedFlags.length > 0 && (
+                <div className="rounded-md border border-amber-200/70 bg-amber-50/40 px-3 py-2 flex flex-col gap-1.5 dark:border-amber-900/40 dark:bg-amber-900/10">
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-amber-800 dark:text-amber-300">
+                    <AlertTriangle className="size-3" aria-hidden />
+                    JD signals worth knowing ({jdRedFlags.length})
+                  </div>
+                  <ul className="flex flex-col gap-1 text-xs text-amber-900 dark:text-amber-200">
+                    {jdRedFlags.map((flag, i) => (
+                      <li key={i} className="flex flex-col gap-0">
+                        <span>
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-amber-700/80 dark:text-amber-400/80 mr-1.5">
+                            {flag.category}
+                          </span>
+                          {flag.message}
+                        </span>
+                        {flag.snippet && (
+                          <span className="font-mono text-[10px] text-amber-900/60 dark:text-amber-200/60 ml-1">
+                            {flag.snippet}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Action buttons */}
@@ -1283,459 +1338,3 @@ export function Builder() {
   );
 }
 
-// ----- internal sub-components ---------------------------------------------
-
-function StepHeader({
-  index,
-  label,
-  right,
-}: {
-  index: string;
-  label: string;
-  right?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 px-1">
-      <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-        <span className="text-foreground/40 tabular-nums">{index}</span>
-        <span className="size-1 rounded-full bg-border" aria-hidden />
-        <span>{label}</span>
-      </div>
-      {right}
-    </div>
-  );
-}
-
-function StreamStatus({
-  status,
-  attempt,
-  max,
-}: {
-  status: Status;
-  attempt: number;
-  max: number;
-}) {
-  if (status === "streaming") {
-    return (
-      <span className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground">
-        <span className="relative flex size-1.5">
-          <span className="animate-ping absolute inline-flex size-full rounded-full bg-primary opacity-75" />
-          <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-        </span>
-        Streaming · attempt {attempt}/{max}
-      </span>
-    );
-  }
-  if (status === "checking") {
-    return (
-      <span className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground">
-        <Loader2 className="size-3 animate-spin" aria-hidden />
-        Running quality checks
-      </span>
-    );
-  }
-  if (status === "judging") {
-    return (
-      <span className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground">
-        <Loader2 className="size-3 animate-spin" aria-hidden />
-        Cross-checking with Llama 3.3 70B
-      </span>
-    );
-  }
-  if (status === "retrying") {
-    return (
-      <span className="flex items-center gap-1.5 text-[11px] font-mono text-amber-700 dark:text-amber-400">
-        <RotateCw className="size-3 animate-spin" aria-hidden />
-        Retrying · attempt {attempt}/{max}
-      </span>
-    );
-  }
-  if (status === "done") {
-    return (
-      <span className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-700 dark:text-emerald-400">
-        <CheckCircle2 className="size-3" aria-hidden />
-        Passed all checks
-      </span>
-    );
-  }
-  if (status === "warning") {
-    return (
-      <span className="flex items-center gap-1.5 text-[11px] font-mono text-amber-700 dark:text-amber-400">
-        <AlertTriangle className="size-3" aria-hidden />
-        Needs manual review
-      </span>
-    );
-  }
-  return null;
-}
-
-function RetryBanner({ reason }: { reason: string }) {
-  return (
-    <div className="rounded-md border border-amber-200/70 bg-amber-50/60 px-3 py-2 flex items-center gap-2 text-sm dark:border-amber-900/40 dark:bg-amber-900/10">
-      <RotateCw
-        className="size-4 animate-spin text-amber-700 dark:text-amber-400"
-        aria-hidden
-      />
-      <span className="text-amber-900 dark:text-amber-200 font-mono text-xs">
-        {reason}
-      </span>
-    </div>
-  );
-}
-
-function ChecksPanel({
-  result,
-  status,
-  judgeRan,
-}: {
-  result: CheckResult;
-  status: Status;
-  judgeRan: boolean;
-}) {
-  const judgeBadge = judgeRan ? (
-    <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-muted/40 px-1.5 py-0 text-[9px] font-mono uppercase tracking-widest text-muted-foreground">
-      <Sparkles className="size-2.5" aria-hidden />
-      Llama 3.3 cross-checked
-    </span>
-  ) : null;
-
-  // After exhausted retries with residual hard fails — surface for manual fix.
-  if (status === "warning" && result.hardFails.length > 0) {
-    return (
-      <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-destructive">
-          <AlertTriangle className="size-4" aria-hidden />
-          <span>
-            {result.hardFails.length} issue
-            {result.hardFails.length === 1 ? "" : "s"} need manual review
-          </span>
-          {judgeBadge}
-        </div>
-        <p className="text-[11px] text-muted-foreground -mt-0.5">
-          Auto-retry hit its limit. Copy the resume, fix these, then re-paste
-          into your editor before sending.
-        </p>
-        <ul className="flex flex-col gap-1.5 text-xs">
-          {result.hardFails.map((issue, i) => (
-            <IssueRow key={`${issue.id}-${i}`} issue={issue} tone="hard" />
-          ))}
-        </ul>
-      </div>
-    );
-  }
-  // Cleanly passed but with soft warnings.
-  if (status === "done" && result.softFails.length > 0) {
-    return (
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <CheckCircle2
-          className="size-3.5 text-emerald-700 dark:text-emerald-400"
-          aria-hidden
-        />
-        <span>
-          Passed with {result.softFails.length} minor warning
-          {result.softFails.length === 1 ? "" : "s"}
-        </span>
-        {judgeBadge}
-        <details className="cursor-pointer">
-          <summary className="text-muted-foreground hover:text-foreground select-none">
-            show
-          </summary>
-          <ul className="mt-1 ml-2 list-disc pl-3 text-muted-foreground/80 space-y-0.5">
-            {result.softFails.map((issue, i) => (
-              <li key={`${issue.id}-${i}`}>
-                {isJudgeIssue(issue) && (
-                  <span className="font-mono text-[10px] text-muted-foreground/60 mr-1">
-                    [llama]
-                  </span>
-                )}
-                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70 mr-1">
-                  {issue.category}:
-                </span>
-                {issue.message}
-              </li>
-            ))}
-          </ul>
-        </details>
-      </div>
-    );
-  }
-  // Cleanly passed, no warnings — keep visual clutter minimal.
-  if (status === "done" && result.passed) {
-    return (
-      <div className="flex flex-wrap items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400">
-        <CheckCircle2 className="size-3.5" aria-hidden />
-        <span className="font-mono">All quality checks passed</span>
-        {judgeBadge}
-      </div>
-    );
-  }
-  return null;
-}
-
-function isJudgeIssue(issue: CheckIssue): boolean {
-  return issue.id.startsWith("judge:");
-}
-
-function MatchScorePanel({ score }: { score: JdMatchScore }) {
-  // Color-code by Jobscan's rough industry buckets: 80%+ is excellent,
-  // 60-79% is acceptable but improvable, <60% means we're missing
-  // multiple JD-emphasized keywords the candidate likely has.
-  const tone: "good" | "ok" | "low" =
-    score.percent >= 80 ? "good" : score.percent >= 60 ? "ok" : "low";
-  const toneClasses = {
-    good: {
-      ring: "border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-900/10",
-      number: "text-emerald-700 dark:text-emerald-400",
-      label: "text-emerald-900 dark:text-emerald-300",
-    },
-    ok: {
-      ring: "border-amber-500/30 bg-amber-50/40 dark:bg-amber-900/10",
-      number: "text-amber-700 dark:text-amber-400",
-      label: "text-amber-900 dark:text-amber-300",
-    },
-    low: {
-      ring: "border-destructive/30 bg-destructive/5",
-      number: "text-destructive",
-      label: "text-destructive",
-    },
-  }[tone];
-
-  return (
-    <div className={`rounded-md border ${toneClasses.ring} p-3 flex flex-col gap-2`}>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="flex items-baseline gap-2">
-          <span
-            className={`text-2xl font-semibold tabular-nums ${toneClasses.number}`}
-          >
-            {score.percent}%
-          </span>
-          <span className={`text-xs font-mono ${toneClasses.label}`}>
-            JD-keyword match · {score.presentKeywords}/{score.totalKeywords}
-          </span>
-        </div>
-        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-          weighted by section
-        </span>
-      </div>
-      {score.missing.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mr-1">
-            Missing:
-          </span>
-          {score.missing.map((kw) => (
-            <span
-              key={kw}
-              className="inline-flex items-center rounded-sm border border-border bg-muted/40 px-1.5 py-0 text-[10px] font-mono text-muted-foreground"
-            >
-              {kw}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function IssueRow({
-  issue,
-  tone,
-}: {
-  issue: CheckIssue;
-  tone: "hard" | "soft";
-}) {
-  const fromJudge = isJudgeIssue(issue);
-  return (
-    <li className="flex flex-col gap-0.5">
-      <span>
-        {fromJudge && (
-          <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground bg-muted/40 px-1 py-0 rounded-sm mr-1.5">
-            llama
-          </span>
-        )}
-        <span
-          className={`font-mono text-[10px] uppercase tracking-widest mr-1.5 ${
-            tone === "hard" ? "text-destructive/80" : "text-muted-foreground/80"
-          }`}
-        >
-          {issue.category}
-        </span>
-        <span className="text-foreground">{issue.message}</span>
-      </span>
-      {issue.detail && (
-        <span className="font-mono text-[10px] text-muted-foreground/70 ml-1">
-          {issue.detail}
-        </span>
-      )}
-    </li>
-  );
-}
-
-/**
- * Pull just the resume body out of the combined output. The model puts
- * an optional META block first, then ATS keywords, then `---`, then the
- * resume itself.
- */
-function extractResume(combined: string): string {
-  const lines = combined.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    if (/^---\s*$/.test(lines[i])) {
-      return lines.slice(i + 1).join("\n").trimStart();
-    }
-  }
-  return combined;
-}
-
-/**
- * Remove the `[META] ... [/META]` block from a string before showing it
- * to the user. Tolerant of partial streams: if `[/META]` hasn't arrived
- * yet, hides everything from `[META]` to the end of the buffer rather
- * than leaking the half-formed block into the preview.
- */
-function stripMetaForDisplay(s: string): string {
-  if (!s) return s;
-  const start = s.indexOf("[META]");
-  if (start === -1) return s;
-  const end = s.indexOf("[/META]", start);
-  if (end === -1) return s.slice(0, start).trimEnd();
-  const after = s.slice(end + "[/META]".length);
-  return (s.slice(0, start) + after).replace(/^\s+/, "");
-}
-
-/**
- * Pull the ATS-keyword bullet list out of the model's output. The model
- * emits a `## ATS Keywords` heading followed by `- foo`-style bullets,
- * then a horizontal rule `---`, then the resume body. We grab the bullet
- * text only (no leading dash, trimmed) so the UI can render them as
- * chips instead of a markdown list.
- *
- * Returns `[]` while the keywords section hasn't streamed yet, or when
- * the model omits it entirely.
- */
-function parseAtsKeywords(output: string): string[] {
-  if (!output) return [];
-  // Find the start of the ATS Keywords section.
-  const headingMatch = /^##\s+ATS\s+Keywords\s*$/im.exec(output);
-  if (!headingMatch) return [];
-  const start = headingMatch.index + headingMatch[0].length;
-  // The section ends at the first `---` rule (which separates Keywords
-  // from the resume body). If `---` hasn't arrived yet, scan to end.
-  const rest = output.slice(start);
-  const endMatch = /^---\s*$/m.exec(rest);
-  const block = endMatch ? rest.slice(0, endMatch.index) : rest;
-  const keywords: string[] = [];
-  for (const line of block.split("\n")) {
-    const m = /^\s*[-*]\s+(.+?)\s*$/.exec(line);
-    if (m && m[1]) keywords.push(m[1]);
-  }
-  return keywords;
-}
-
-/**
- * Parse the META block emitted by the model. Returns `company` and
- * `position` strings if found. Whitespace-tolerant. Both fields are
- * optional — callers should fall back gracefully if either is missing.
- */
-function parseMeta(s: string): { company?: string; position?: string } {
-  const m = /\[META\]([\s\S]*?)\[\/META\]/.exec(s);
-  if (!m) return {};
-  const block = m[1];
-  const company = /^\s*company\s*:\s*(.+?)\s*$/im.exec(block)?.[1];
-  const position = /^\s*position\s*:\s*(.+?)\s*$/im.exec(block)?.[1];
-  return {
-    company: company && company.toLowerCase() !== "unknown" ? company : undefined,
-    position: position || undefined,
-  };
-}
-
-/**
- * Sanitize a string for use inside a filename. Drops path separators,
- * Windows-reserved characters, and control chars; collapses runs of
- * spaces to single underscores; trims to a reasonable length.
- */
-function sanitizeFilenamePart(s: string): string {
-  return s
-    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "")
-    .replace(/\s+/g, "_")
-    .replace(/_+/g, "_")
-    .replace(/^[._]+|[._]+$/g, "")
-    .slice(0, 60);
-}
-
-/**
- * Fold judge issues into an existing CheckResult, regenerate retryNotes
- * so the retry prompt to Gemini includes both heuristic and judge
- * findings. The judge's `hardFails` are appended to the heuristic
- * hardFails; soft to soft. Pass/fail recomputes from the combined
- * hardFails count.
- */
-function mergeJudgeIssues(
-  base: CheckResult,
-  judgeIssues: CheckIssue[],
-): CheckResult {
-  const hardFails = [
-    ...base.hardFails,
-    ...judgeIssues.filter((i) => i.severity === "hard"),
-  ];
-  const softFails = [
-    ...base.softFails,
-    ...judgeIssues.filter((i) => i.severity === "soft"),
-  ];
-  const retryNotes = hardFails
-    .map((i, idx) => {
-      const head = `${idx + 1}. [${i.category}] ${i.message}`;
-      return i.detail ? `${head}\n   detail: ${i.detail}` : head;
-    })
-    .join("\n");
-  return {
-    passed: hardFails.length === 0,
-    hardFails,
-    softFails,
-    retryNotes,
-  };
-}
-
-/**
- * Build the .docx filename from the model's META block. Prefers
- * position + company; falls back to a date stamp if META is missing.
- */
-function buildDownloadFilename(output: string): string {
-  const { company, position } = parseMeta(output);
-  const parts = ["Nate_White"];
-  if (position) parts.push(sanitizeFilenamePart(position));
-  if (company) parts.push(sanitizeFilenamePart(company));
-  if (parts.length === 1) {
-    // No META — fall back to a dated name so files don't collide.
-    parts.push("Resume", new Date().toISOString().slice(0, 10));
-  }
-  return parts.filter(Boolean).join("_") + ".docx";
-}
-
-/** Same shape as buildDownloadFilename but tagged "Cover_Letter". */
-function buildCoverLetterFilename(output: string): string {
-  const { company, position } = parseMeta(output);
-  const parts = ["Nate_White", "Cover_Letter"];
-  if (position) parts.push(sanitizeFilenamePart(position));
-  if (company) parts.push(sanitizeFilenamePart(company));
-  if (parts.length === 2) {
-    parts.push(new Date().toISOString().slice(0, 10));
-  }
-  return parts.filter(Boolean).join("_") + ".docx";
-}
-
-/** Compact date format for history rows. */
-function formatDate(ms: number): string {
-  const d = new Date(ms);
-  const now = new Date();
-  const sameDay =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  if (sameDay) {
-    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  }
-  return d.toLocaleDateString([], {
-    year: "2-digit",
-    month: "short",
-    day: "numeric",
-  });
-}

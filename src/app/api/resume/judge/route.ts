@@ -18,7 +18,7 @@
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
-import { judgeResume } from "@/lib/resume-judge";
+import { judgeResume } from "@/lib/resume/judge";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

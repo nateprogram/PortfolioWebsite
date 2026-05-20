@@ -7,8 +7,8 @@
 //
 // Run with: npx tsx scripts/test-checks.mts
 
-import * as mod from "../src/lib/resume-checks.ts";
-type ChecksMod = typeof import("../src/lib/resume-checks");
+import * as mod from "../src/lib/resume/checks.ts";
+type ChecksMod = typeof import("../src/lib/resume/checks");
 const checkResume: ChecksMod["checkResume"] =
   (mod as unknown as { default?: ChecksMod } & ChecksMod).default?.checkResume ??
   (mod as unknown as ChecksMod).checkResume;

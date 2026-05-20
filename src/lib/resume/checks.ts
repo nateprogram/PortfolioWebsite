@@ -1,16 +1,7 @@
-// Heuristic quality checks for resume-builder output.
-//
-// Pure, isomorphic JS — runs unchanged in:
-//   - the Next.js server (e.g. /api/resume could call this if we ever
-//     want server-side gating, currently it does not)
-//   - the Next.js client (builder.tsx runs this after each stream)
-//   - the Node test runner (scripts/test-resume.mjs)
-//
-// One source of truth for "is this resume good enough to ship".
-//
-// Returns a structured CheckResult. Callers decide UX/retry policy.
-// The retryNotes string is pre-formatted so the API route can paste it
-// verbatim into a fix-feedback prompt to the model.
+// Heuristic quality checks for resume output. Pure JS — runs in the
+// Next.js client, in tests, and could run server-side if we ever want
+// pre-stream gating. Returns a structured CheckResult; `retryNotes` is
+// pre-formatted for pasting into the model's fix-feedback prompt.
 
 export type CheckSeverity = "hard" | "soft";
 
@@ -108,6 +99,7 @@ export function checkResume(markdown: string): CheckResult {
   checkBulletOpeners(markdown, issues);
   checkBulletLengthVariance(markdown, issues);
   checkBulletCount(markdown, issues);
+  checkRhythm(markdown, issues);
 
   return finalize(issues);
 }
@@ -335,6 +327,149 @@ function checkBulletCount(md: string, out: CheckIssue[]) {
       category: "Bullet count",
       message: `${bullets} bullets total. Aim for 15-25 to keep to one page.`,
     });
+  }
+}
+
+/**
+ * Structural rhythm check. Approximates what modern AI detectors
+ * (GPTZero, Originality.ai, the 2025 stylometric-Random-Forest paper)
+ * actually compute beyond vocabulary. Looks at four things:
+ *
+ *   1. Burstiness — Fano factor on sentence lengths. Humans cluster
+ *      around variance/mean ≥ 0.6; LLMs around 0.2-0.4. Threshold 0.3.
+ *   2. Em-dash density — em-dashes per 100 words. Resumes shouldn't
+ *      have any; > 2/100 reads as machine-styled prose.
+ *   3. Consecutive equal-length sentences — three or more sentences in
+ *      a row within ±2 tokens of each other. Rare in human writing.
+ *   4. AI-phrase density — over-represented LLM phrases beyond the
+ *      banlist that escape the per-word regex check.
+ *
+ * Thresholds and feature list from §2.4 and §2.8 of the May-2026
+ * research report. Most produce SOFT warnings since real human resumes
+ * also score in this range on detectors; only the worst patterns hard-fail.
+ */
+function checkRhythm(md: string, out: CheckIssue[]) {
+  const body = stripAtsKeywordsSection(md);
+
+  // 1. Em-dash density (already a hard fail via checkDashes; here we
+  //    additionally watch for any unicode-dash variants the dash check
+  //    misses — figure dash, horizontal bar, etc.).
+  const otherDashes = (body.match(/[‐‒–—―]/g) ?? [])
+    .length;
+  const wordCount = (body.match(/\S+/g) ?? []).length;
+  if (wordCount > 0) {
+    const density = otherDashes / (wordCount / 100);
+    if (density > 2) {
+      out.push({
+        id: "rhythm:dash-density",
+        severity: "soft",
+        category: "Rhythm",
+        message: `${otherDashes} unicode dashes across ${wordCount} words (≈ ${density.toFixed(1)} per 100). LLM tell.`,
+      });
+    }
+  }
+
+  // 2. Consecutive equal-length sentences. Pull sentences from prose
+  //    only (skip bullet content since bullets are intentionally tight).
+  const proseSentences = body
+    .split(/\n+/)
+    .filter((line) => !/^[-*]\s/.test(line.trim()) && line.trim().length > 0)
+    .flatMap((line) =>
+      line.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean),
+    );
+  const sentenceLengths = proseSentences.map(
+    (s) => (s.match(/\S+/g) ?? []).length,
+  );
+  let maxRun = 1;
+  let currentRun = 1;
+  for (let i = 1; i < sentenceLengths.length; i++) {
+    if (Math.abs(sentenceLengths[i] - sentenceLengths[i - 1]) <= 2) {
+      currentRun++;
+      maxRun = Math.max(maxRun, currentRun);
+    } else {
+      currentRun = 1;
+    }
+  }
+  if (maxRun >= 3 && sentenceLengths.length >= 5) {
+    out.push({
+      id: "rhythm:consecutive-equal-length",
+      severity: "soft",
+      category: "Rhythm",
+      message: `${maxRun} consecutive sentences within ±2 words of each other. Vary sentence shape.`,
+    });
+  }
+
+  // 3. AI-phrase density. Bigrams + trigrams over-represented in LLM
+  //    output that single-word banlist misses. Not exhaustive — extend
+  //    based on observed leaks.
+  const AI_PHRASES = [
+    "in the realm of",
+    "in the world of",
+    "in today's",
+    "delve into",
+    "navigate the landscape",
+    "in conclusion",
+    "to summarize",
+    "in summary",
+    "it is worth noting",
+    "it should be noted",
+    "play a pivotal role",
+    "a testament to",
+    "rich tapestry",
+    "ever-evolving",
+    "ever-changing",
+    "the intersection of",
+    "at the forefront",
+    "wealth of experience",
+    "passion for",
+    "deep understanding",
+  ];
+  const phraseHits: string[] = [];
+  const lower = body.toLowerCase();
+  for (const phrase of AI_PHRASES) {
+    if (lower.includes(phrase)) phraseHits.push(phrase);
+  }
+  if (phraseHits.length >= 2) {
+    out.push({
+      id: "rhythm:ai-phrases",
+      severity: "hard",
+      category: "AI phrases",
+      message: `${phraseHits.length} over-represented LLM phrases detected.`,
+      detail: phraseHits.join(" | "),
+    });
+  } else if (phraseHits.length === 1) {
+    out.push({
+      id: "rhythm:ai-phrase-one",
+      severity: "soft",
+      category: "AI phrases",
+      message: `One over-represented LLM phrase: "${phraseHits[0]}".`,
+    });
+  }
+
+  // 4. Fano factor on bullet word counts as a second-axis burstiness
+  //    signal (the existing checkBulletLengthVariance uses stddev; this
+  //    uses variance/mean and trips on different patterns). Only fires
+  //    on egregious clustering — < 0.5.
+  const bulletWordCounts = [...body.matchAll(/^[-*]\s+(.+)$/gm)]
+    .map((m) => (m[1].match(/\S+/g) ?? []).length)
+    .filter((n) => n >= 3);
+  if (bulletWordCounts.length >= 8) {
+    const mean =
+      bulletWordCounts.reduce((s, n) => s + n, 0) / bulletWordCounts.length;
+    if (mean > 0) {
+      const variance =
+        bulletWordCounts.reduce((s, n) => s + (n - mean) ** 2, 0) /
+        bulletWordCounts.length;
+      const fano = variance / mean;
+      if (fano < 0.5) {
+        out.push({
+          id: "rhythm:fano",
+          severity: "soft",
+          category: "Rhythm",
+          message: `Bullets cluster too tightly (Fano factor ${fano.toFixed(2)}; human writing trends 0.6+).`,
+        });
+      }
+    }
   }
 }
 

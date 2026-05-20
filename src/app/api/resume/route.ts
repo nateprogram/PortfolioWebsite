@@ -1,44 +1,20 @@
-// POST /api/resume
+// POST /api/resume — generates a tailored resume.
 //
-// Server-only route the /tools/resume page calls. Streams a tailored
-// resume from Gemini back to the client as plain markdown.
-//
-// Auth: requires the resume_session cookie (set by /api/resume/unlock).
-//       Without it the route returns 401 so anyone hitting the API
-//       directly without going through the magic-URL unlock is blocked.
-//
-// Request:
-//   {
-//     jobDescription: string,
-//     // Optional retry context — set on auto-retry attempts so the model
-//     // gets explicit feedback on what to fix relative to the previous
-//     // try. When present, the system prompt's rules still apply; the
-//     // retry feedback is appended to the user message as an addendum.
-//     retry?: {
-//       previousAttempt: string;
-//       failureNotes: string;  // pre-formatted, ready to paste
-//     }
-//   }
-//
-// Response: streamed text/plain markdown shaped like
-//             [META]
-//             company: ...
-//             position: ...
-//             [/META]
-//             ## ATS Keywords
-//             - ...
-//             ---
-//             # NATE WHITE
-//             ...resume...
-//
-// Persistence: this route does NOT auto-save anymore. The client is
-// responsible for POSTing the accepted output to /api/resume/save after
-// the auto-retry loop settles. This keeps retry attempts out of history.
+// Auth: requires the resume_session cookie (see /api/resume/unlock).
+// Request: { jobDescription, retry?: { previousAttempt, failureNotes } }
+//   The retry field is set on auto-retry attempts so the model gets
+//   explicit fix-feedback in the user message (system prompt rules
+//   still apply).
+// Response: streamed text/plain markdown — [META] block, then
+//   `## ATS Keywords`, then `---`, then the resume body.
+// Persistence: NOT auto-saved. Client POSTs accepted output to
+//   /api/resume/save once the retry loop settles, so retry attempts
+//   don't pollute history.
 
 import { cookies } from "next/headers";
-import { SYSTEM_PROMPT, buildUserPrompt } from "@/lib/resume-prompt";
+import { SYSTEM_PROMPT, buildUserPrompt } from "@/lib/resume/prompt";
 import { isAuthorized } from "@/lib/resume-auth";
-import { startGeminiStream } from "@/lib/gemini-client";
+import { tryRoleStreaming } from "@/lib/ai";
 
 // Run on Node, not Edge. The Gemini SDK is fine on Edge but Node makes
 // debugging easier and avoids surprise compatibility regressions.
@@ -66,9 +42,9 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2. Env config is checked by startGeminiStream — fail fast here
-  //    only if the primary key is absent so the user gets a useful
-  //    setup-time error rather than a deep stack trace.
+  // 2. Env config is checked by the AI role chain. We fail fast here
+  //    only if the primary drafter key is absent so the user gets a
+  //    useful setup-time error rather than a deep stack trace.
   if (!process.env.GOOGLE_AI_API_KEY) {
     return jsonError(
       500,
@@ -118,40 +94,42 @@ export async function POST(req: Request) {
     }
   }
 
-  // 4. Dispatch to Gemini via the shared client (handles the primary →
-  //    backup key fallback chain).
+  // 4. Dispatch via the `resume-drafter` role chain. Today this resolves
+  //    to gemini-primary → gemini-backup (see src/lib/ai/roles.ts), but
+  //    callers can swap providers via the AI_RESUME_DRAFTER_CHAIN env var
+  //    without any code change.
   const userPrompt = retry
     ? buildRetryPrompt(trimmed, retry)
     : buildUserPrompt(trimmed);
 
-  let stream: AsyncGenerator<{ text(): string }, void, unknown>;
-  let resultRef: unknown = null;
+  let streamResult;
   try {
-    const result = await startGeminiStream({
-      systemPrompt: SYSTEM_PROMPT,
-      userPrompt,
-      isRetry: Boolean(retry),
-    });
-    stream = result.stream;
-    resultRef = result.resultRef;
+    streamResult = await tryRoleStreaming("resume-drafter", (provider) =>
+      provider.streamGenerate({
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt,
+        // Slight temperature bump on retries to escape whatever local
+        // attractor produced the failed first attempt.
+        temperature: retry ? 0.55 : 0.4,
+      }),
+    );
   } catch (err) {
     return jsonError(
       502,
-      `Failed to call Gemini API: ${(err as Error).message ?? "unknown error"}`,
+      `Drafter chain failed: ${(err as Error).message ?? "unknown error"}`,
     );
   }
 
-  // 5. Pipe Gemini's stream straight into the response. We log when the
-  //    stream terminates with less than the expected resume size so we
-  //    can spot SDK / safety / 503 issues from the dev log.
+  // 5. Pipe the provider's stream straight into the response. After the
+  //    stream closes, finalize() gives us the provider's terminal
+  //    metadata (finishReason, totalChars) for diagnostic logging.
   const encoder = new TextEncoder();
   let totalChunks = 0;
   let totalBytes = 0;
   const responseStream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const chunk of stream) {
-          const text = chunk.text();
+        for await (const text of streamResult.chunks) {
           if (text) {
             totalChunks++;
             totalBytes += text.length;
@@ -168,23 +146,20 @@ export async function POST(req: Request) {
         controller.enqueue(encoder.encode(note));
       } finally {
         if (totalBytes < 2000) {
-          // Probe finishReason so we know whether this was SAFETY,
-          // RECITATION, MAX_TOKENS, or something else.
+          // Short response. Likely SAFETY / RECITATION / MAX_TOKENS or a
+          // provider-side cutoff. finalize() exposes the provider's
+          // terminal metadata for diagnosis.
           let finishReason = "unknown";
+          let providerName = "unknown";
           try {
-            type ResultLike = {
-              response: Promise<{
-                candidates?: Array<{ finishReason?: string }>;
-              }>;
-            };
-            const ref = resultRef as ResultLike | null;
-            const resp = await ref?.response;
-            finishReason = resp?.candidates?.[0]?.finishReason ?? "unknown";
+            const final = await streamResult.finalize();
+            finishReason = final.finishReason;
+            providerName = final.providerName;
           } catch {
-            // ignore
+            /* ignore */
           }
           console.warn(
-            `[/api/resume] short response: ${totalChunks} chunks / ${totalBytes} bytes · finishReason=${finishReason}`,
+            `[/api/resume] short response from ${providerName}: ${totalChunks} chunks / ${totalBytes} bytes · finishReason=${finishReason}`,
           );
         }
         controller.close();

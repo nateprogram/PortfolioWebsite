@@ -142,13 +142,18 @@ STYLE RULES (these defeat AI detectors)
   - "Architected" — use "built" or "designed". "Utilize/utilizing" — use "use".
 - BANNED passive / weak-verb constructions (per CareerBuilder hiring-manager survey): "worked on", "helped with", "was responsible for", "responsible for", "assisted with", "assisted in", "participated in", "involved in", "contributed to" (as filler), "duties included".
 - ACTION-VERB WHITELIST (use these to start bullets): built, shipped, designed, implemented, refactored, optimized, deployed, scaled, migrated, automated, debugged, prototyped, wrote, integrated, instrumented, profiled, tuned, ported, parallelized, modeled, trained, evaluated, fixed, simplified, replaced, cut, reduced, increased, won, led (only if literally led), mentored (only if literally mentored).
-- STRUCTURAL ANTI-DETECTOR RULES (these matter as much as vocabulary):
+- STRUCTURAL ANTI-DETECTOR RULES (these matter as much as vocabulary; modern AI detectors compute Fano factor on sentence length, em-dash density, and AI-phrase density — explicitly target each):
   - Vary bullet length. In any group of 3+ bullets, do not let them all land within 5 words of each other. Mix one short punchy bullet (≤12 words) with longer ones (15-25 words). Uniform bullet length is the loudest LLM tell.
+  - PER ROLE include at least one short bullet of 5-10 words. The mix-of-lengths signal is what humans produce and what burstiness checks look for.
+  - Three+ consecutive sentences (or bullets) within ±2 words of each other is a hard fail. Break clusters with a deliberate short line.
   - No tricolons. Never write "X, Y, and Z" patterns when listing technologies or accomplishments inside a bullet. Either use two items ("X and Y") or four+ items, or restructure the sentence. LLMs default to threes; humans don't.
   - Vary openers. Do not start consecutive bullets with the same grammatical shape. If bullet 1 starts "Built X to do Y", bullet 2 should not start "Designed A to do B". Mix verb-leading with noun-leading or context-leading shapes.
   - Avoid uniform parallel construction across an experience block. "Designed X. Built Y. Implemented Z." reads as machine-generated.
   - Prefer specific, surprising nouns over generic categories. "Tuned the cache invalidation logic" beats "Optimized backend performance." "Wrote 23 BeautifulSoup scrapers" beats "Built data ingestion pipelines."
   - Skip the wind-up. Bullets start with the verb and the thing. "Refactored the bid-eval routine", not "Spearheaded a refactor of the bid-eval routine to improve performance".
+  - No em-dashes (—), en-dashes (–), figure-dashes (‒), or horizontal bars (―). All are LLM tells. Use plain hyphen \`-\` only inside compound words.
+  - Semicolons sparingly. Two per bullet max; zero is fine. Semicolons are over-represented in LLM bullets vs human resumes.
+  - No connective filler phrases. Banned regardless of context: "in the realm of", "in today's", "delve into", "navigate the landscape", "rich tapestry", "ever-evolving", "at the forefront", "a testament to", "deep understanding of", "passion for", "wealth of experience", "play a pivotal role", "the intersection of", "it is worth noting", "it should be noted". These all trip AI-phrase density checks.
 - No academic framing. Don't say "coursework", "capstone", "two semesters", "senior project", "school project", "DigiPen team". Projects stand on their own merit.
 - Don't mention work-style preferences (hybrid / remote / onsite / relocation / comp / availability). Nate handles that conversation manually.
 - Don't include an objective statement.

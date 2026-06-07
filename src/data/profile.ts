@@ -27,7 +27,7 @@ export const PROFILE = {
   description:
     "Redmond, WA · Open for new-grad SWE roles starting Summer 2026.",
   summary:
-    "I'm a C++ and systems programmer first. With two teammates, I wrote a custom C++ game engine from scratch. Every line of rendering, scene graph, particle system, input, and asset pipeline is ours; no commercial middleware. We shipped a tower-offense title on Steam as the engine's proof-of-work, and I later wrote a Python genetic algorithm that learned to beat it in 16 generations.\n\nOutside of game work, I've built a Microsoft Power Automate pipeline that replaced a fully manual newsletter going to 10,000+ recipients on a Microsoft engagement at Spur Reply, an ML trading research platform with live model serving and closed-loop feature attention, and SquadPact: a scheduling app I started after watching the volunteer managers on the adult-league soccer teams I play on lose hours every week to copy-paste admin (league site to group chat, rinse, repeat).\n\nOn AI: it's a collaborator, not a delegate. If the prompt feels like throwing work over a wall, don't send it. The good outputs come when you're actively shaping the work.\n\nIn my final year at [DigiPen](/#education), graduating May 2026 and open for new-grad SWE roles.",
+    "I'm a C++ and systems programmer first. With two teammates, I wrote a custom C++ game engine from scratch. Every line of rendering, scene graph, particle system, input, and asset pipeline is ours; no commercial middleware. We shipped a tower-offense title on Steam as the engine's proof-of-work, and I later wrote a Python genetic algorithm that learned to beat it in 16 generations.\n\nOutside of game work, I've built a Microsoft Power Automate pipeline that replaced a fully manual newsletter going to 10,000+ recipients on a Microsoft engagement at Spur Reply, an ML trading research platform with live model serving and closed-loop feature attention, and SquadPact: a scheduling app I started after watching the volunteer managers on the adult-league soccer teams I play on lose hours every week to copy-paste admin (league site to group chat, rinse, repeat).\n\nOn AI: I use Claude Code to ship MVPs fast.\n\nBS Computer Science & Game Design from [DigiPen](/#education), 2026. Open for new-grad SWE roles.",
 
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
@@ -94,10 +94,10 @@ export const PROFILE = {
     {
       school: "DigiPen Institute of Technology",
       href: "https://www.digipen.edu",
-      degree: "BS Computer Science",
+      degree: "BS Computer Science & Game Design",
       // Expected at /public/education/digipen.png. If missing, a gradient "DP" badge renders instead.
       logoUrl: "/education/digipen.png",
-      start: "2022",
+      start: "2021",
       end: "2026",
     },
   ],

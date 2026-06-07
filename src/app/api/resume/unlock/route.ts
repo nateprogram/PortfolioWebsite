@@ -38,7 +38,7 @@ export async function GET(req: Request) {
   }
 
   // Redirect to the clean tool URL so the secret disappears from history.
-  const dest = new URL("/tools/resume", url.origin);
+  const dest = new URL("/tools/applications", url.origin);
   const res = NextResponse.redirect(dest, 302);
   res.cookies.set({
     name: RESUME_COOKIE_NAME,

@@ -176,9 +176,9 @@ export const PROJECTS = [
     status: "Coursework",
     categories: ["Games"],
     summary:
-      "Local 4-player couch party game built at Saucecup Studios with a team of 6 in Unity. I owned the Reflex Rush minigame, the game-wide AudioManager, and the Bad Luck board tile.",
+      "Local 4-player couch party game built at Saucecup Studios with a team of 6 in Unity. I owned several of the game's minigames, the game-wide AudioManager, and the Bad Luck board tile.",
     description:
-      "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios. My share: the Reflex Rush minigame end-to-end (state machine, per-player scoring, difficulty ramp), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
+      "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios. My share: several of the game's minigames (each with its own state machine, per-player scoring, and difficulty curve), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
     technologies: ["Unity 2022.3 LTS", "C#", "URP", "Local 4-player", "Team of 6"],
     links: [],
     image: "/games/treasure-party/hero.png",

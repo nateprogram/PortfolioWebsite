@@ -9,18 +9,16 @@
 import type { ProviderName } from "./registry";
 
 export type AIRole =
-  | "resume-drafter" // /api/resume streaming
-  | "cover-letter-drafter" // /api/cover-letter streaming
-  | "judge"; // /api/resume/judge — Groq + Llama 3.3 70B by default
+  | "ats-keywords"; // /api/applications/ats-keywords — structured JSON out
 
 /**
  * Default chains, used when no `AI_<ROLE>_CHAIN` env override is set.
  * Comma-separated list of ProviderName values.
  */
 const DEFAULT_CHAINS: Record<AIRole, ProviderName[]> = {
-  "resume-drafter": ["gemini-primary", "gemini-backup"],
-  "cover-letter-drafter": ["gemini-primary", "gemini-backup"],
-  judge: ["groq"],
+  // Keyword extraction is a cheap one-shot call with strict JSON output.
+  // Gemini primary first; Groq is a fast backup when Gemini rate-limits.
+  "ats-keywords": ["gemini-primary", "gemini-backup", "groq"],
 };
 
 /**

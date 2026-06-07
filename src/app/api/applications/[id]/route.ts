@@ -1,6 +1,8 @@
 // GET, PATCH, DELETE /api/applications/[id]
 //
-// Single-record endpoints for the application tracker.
+// Single-record endpoints for the application tracker. PATCH accepts
+// any subset of the editable fields. Unknown fields are ignored
+// silently so the client can be liberal.
 
 import { cookies } from "next/headers";
 import { isAuthorized } from "@/lib/resume-auth";
@@ -44,6 +46,8 @@ export async function PATCH(req: Request, { params }: Params) {
   }
   const input = body as Record<string, unknown>;
   const patch: ApplicationUpdate = {};
+
+  // Required-shape fields.
   if (typeof input.company === "string") patch.company = input.company.trim();
   if (typeof input.position === "string")
     patch.position = input.position.trim();
@@ -56,12 +60,38 @@ export async function PATCH(req: Request, { params }: Params) {
     }
     patch.status = input.status as ApplicationStatus;
   }
-  if (typeof input.appliedDate === "string")
-    patch.appliedDate = input.appliedDate || undefined;
-  if (typeof input.jdUrl === "string") patch.jdUrl = input.jdUrl || undefined;
-  if (typeof input.notes === "string") patch.notes = input.notes || undefined;
-  if (typeof input.resumeId === "string")
-    patch.resumeId = input.resumeId || undefined;
+
+  // Optional string fields. We treat empty-after-trim as "clear this
+  // field" by sending undefined, so the client can unset a value by
+  // PATCHing with "".
+  if ("appliedDate" in input)
+    patch.appliedDate = coerceOptionalString(input.appliedDate);
+  if ("deadline" in input)
+    patch.deadline = coerceOptionalString(input.deadline);
+  if ("jdUrl" in input) patch.jdUrl = coerceOptionalString(input.jdUrl);
+  if ("rawJdText" in input)
+    patch.rawJdText = coerceOptionalString(input.rawJdText);
+  if ("location" in input)
+    patch.location = coerceOptionalString(input.location);
+  if ("experienceYears" in input)
+    patch.experienceYears = coerceOptionalString(input.experienceYears);
+  if ("notes" in input) patch.notes = coerceOptionalString(input.notes);
+  if ("coverLetterMarkdown" in input)
+    patch.coverLetterMarkdown = coerceOptionalString(input.coverLetterMarkdown);
+  if ("resumeMarkdown" in input)
+    patch.resumeMarkdown = coerceOptionalString(input.resumeMarkdown);
+  if ("resumeId" in input)
+    patch.resumeId = coerceOptionalString(input.resumeId);
+
+  // Numeric fields.
+  if ("salaryMin" in input)
+    patch.salaryMin = coerceOptionalPositiveNumber(input.salaryMin);
+  if ("salaryMax" in input)
+    patch.salaryMax = coerceOptionalPositiveNumber(input.salaryMax);
+
+  // Array fields.
+  if ("requiredSkills" in input)
+    patch.requiredSkills = coerceOptionalStringArray(input.requiredSkills);
 
   const updated = await updateApplication(id, patch);
   if (!updated) return jsonError(404, "Application not found.");
@@ -89,4 +119,27 @@ function jsonError(status: number, message: string): Response {
     status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function coerceOptionalString(v: unknown): string | undefined {
+  if (typeof v !== "string") return undefined;
+  const trimmed = v.trim();
+  return trimmed || undefined;
+}
+
+function coerceOptionalPositiveNumber(v: unknown): number | undefined {
+  if (typeof v !== "number" || !Number.isFinite(v) || v < 0) return undefined;
+  return v;
+}
+
+function coerceOptionalStringArray(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out: string[] = [];
+  for (const item of v) {
+    if (typeof item === "string") {
+      const t = item.trim();
+      if (t) out.push(t);
+    }
+  }
+  return out.length > 0 ? out : undefined;
 }

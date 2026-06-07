@@ -122,9 +122,10 @@ export function SpreadsheetView({
         </button>
       </div>
 
-      {/* Table */}
+      {/* Table — min-width forces horizontal scroll instead of squishing the
+          right-hand columns off the display when the container is narrow. */}
       <div className="overflow-x-auto rounded-lg border border-border bg-card/20">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full min-w-[780px] text-sm border-collapse">
           <thead>
             <tr className="border-b border-border text-left">
               <Th label="Company" col="company" {...{ sortKey, sortDir, toggleSort }} />
@@ -186,7 +187,11 @@ export function SpreadsheetView({
                           status: e.target.value as ApplicationStatus,
                         })
                       }
-                      className={`text-xs font-mono rounded-md px-2 py-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${STATUS_CLASSES[app.status]}`}
+                      // The colored pill is fine closed, but the native option
+                      // popup inherits the pill's low-contrast text color and
+                      // becomes unreadable (esp. dark mode). Force the options
+                      // to solid theme colors so the open list is always legible.
+                      className={`text-xs font-mono rounded-md px-2 py-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&>option]:bg-background [&>option]:text-foreground [&>option]:font-sans ${STATUS_CLASSES[app.status]}`}
                     >
                       {STATUSES.map((s) => (
                         <option key={s} value={s}>

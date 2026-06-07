@@ -105,9 +105,12 @@ export function ApplicationsClient() {
         <AtsKeywordsView />
       </BlurFade>
 
-      {/* Spreadsheet */}
+      {/* Spreadsheet — breaks out of the page's max-w-2xl column to a wider,
+          viewport-centered block on desktop (capped at 100vw-3rem so it never
+          introduces horizontal page scroll). On mobile it equals the normal
+          column width. */}
       <BlurFade delay={BLUR_FADE_DELAY * 4}>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 relative left-1/2 -translate-x-1/2 w-[min(64rem,100vw-3rem)]">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
               Applications

@@ -60,6 +60,16 @@ export async function POST(req: Request) {
   // Accept either `role` (Apps Script) or `position` (our vocab).
   const position = str(input.role) || str(input.position);
 
+  // Don't create junk rows for emails the classifier flagged as job-related
+  // but couldn't attribute to a company. Return 200 so the Apps Script marks
+  // the thread done (no error, no retry) rather than spawning an "(unknown)" row.
+  if (!company || company.toLowerCase() === "(unknown)") {
+    return new Response(
+      JSON.stringify({ skipped: true, reason: "no company identified" }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
   const item = await upsertFromGmail({
     gmailThreadId,
     company,
@@ -67,6 +77,7 @@ export async function POST(req: Request) {
     status: mapGmailStatus(str(input.status)),
     sourceDetail: str(input.detail) || undefined,
     emailLink: str(input.emailLink) || undefined,
+    jobId: str(input.jobId) || undefined,
     appliedDate: isoDate(input.appliedDate),
   });
 

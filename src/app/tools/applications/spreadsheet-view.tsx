@@ -131,7 +131,6 @@ export function SpreadsheetView({
               <Th label="Company" col="company" {...{ sortKey, sortDir, toggleSort }} />
               <Th label="Role" col="position" {...{ sortKey, sortDir, toggleSort }} />
               <Th label="Status" col="status" {...{ sortKey, sortDir, toggleSort }} />
-              <Th label="Note" col="sourceDetail" {...{ sortKey, sortDir, toggleSort }} />
               <Th label="Applied" col="appliedDate" {...{ sortKey, sortDir, toggleSort }} />
               <Th label="Updated" col="updatedAt" {...{ sortKey, sortDir, toggleSort }} />
               <th className="px-3 py-2 w-px" />
@@ -141,7 +140,7 @@ export function SpreadsheetView({
             {rows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={6}
                   className="px-3 py-10 text-center text-sm text-muted-foreground"
                 >
                   {apps.length === 0
@@ -180,28 +179,37 @@ export function SpreadsheetView({
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">{app.position}</td>
                   <td className="px-3 py-2">
-                    <select
-                      value={app.status}
-                      onChange={(e) =>
-                        onPatch(app.id, {
-                          status: e.target.value as ApplicationStatus,
-                        })
-                      }
-                      // The colored pill is fine closed, but the native option
-                      // popup inherits the pill's low-contrast text color and
-                      // becomes unreadable (esp. dark mode). Force the options
-                      // to solid theme colors so the open list is always legible.
-                      className={`text-xs font-mono rounded-md px-2 py-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&>option]:bg-background [&>option]:text-foreground [&>option]:font-sans ${STATUS_CLASSES[app.status]}`}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {STATUS_LABEL[s]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2 text-xs text-muted-foreground max-w-[18ch] truncate">
-                    {app.sourceDetail ?? ""}
+                    <div className="flex flex-col items-start gap-1">
+                      <select
+                        value={app.status}
+                        onChange={(e) =>
+                          onPatch(app.id, {
+                            status: e.target.value as ApplicationStatus,
+                          })
+                        }
+                        // The colored pill is fine closed, but the native option
+                        // popup inherits the pill's low-contrast text color and
+                        // becomes unreadable (esp. dark mode). Force the options
+                        // to solid theme colors so the open list is always legible.
+                        className={`text-xs font-mono rounded-md px-2 py-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&>option]:bg-background [&>option]:text-foreground [&>option]:font-sans ${STATUS_CLASSES[app.status]}`}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {STATUS_LABEL[s]}
+                          </option>
+                        ))}
+                      </select>
+                      {/* Round / stage detail from the classifier, shown right
+                          under the status (e.g. "phone screen", "2nd round"). */}
+                      {app.sourceDetail && (
+                        <span
+                          className="text-[10px] font-mono text-muted-foreground pl-0.5 max-w-[22ch] truncate"
+                          title={app.sourceDetail}
+                        >
+                          {app.sourceDetail}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-2 text-xs font-mono text-muted-foreground tabular-nums whitespace-nowrap">
                     {fmtDate(app.appliedDate)}

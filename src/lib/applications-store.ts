@@ -26,6 +26,11 @@ const ITEM_PREFIX = "application:";
 // /ingest endpoint can upsert (update an existing row when a newer email
 // arrives) instead of creating duplicates. Key: application:gmail:<tid>.
 const GMAIL_INDEX_PREFIX = "application:gmail:";
+// Secondary index: maps a normalized "company::position" key to its
+// application id, so multiple Gmail threads about the SAME job collapse into
+// one row. Different positions at the same company get different keys and
+// stay separate. Key: application:cp:<company::position>.
+const CP_INDEX_PREFIX = "application:cp:";
 const MAX_RETAINED = 500;
 
 /**
@@ -96,6 +101,10 @@ export type Application = {
   source?: ApplicationSource;
   /** Gmail thread id, set only for source==="gmail". Dedup key. */
   gmailThreadId?: string;
+  /** Requisition / job id parsed from the email, when present. The most
+   *  reliable dedup signal: two different reqs at the same company stay
+   *  separate even when the classifier gives them the same title. */
+  jobId?: string;
   /** Deep link to the Gmail thread (source==="gmail"). */
   emailLink?: string;
   /** Short classifier note from the Gmail scan ("phone screen", "onsite",
@@ -279,11 +288,41 @@ export async function updateApplication(
   }
 }
 
+/**
+ * Delete ALL application rows + every secondary index. Destructive — used for
+ * a clean rebuild before re-running the Gmail scan from scratch. Returns the
+ * number of keys removed (0 if nothing), or -1 if KV isn't configured.
+ */
+export async function wipeAllApplications(): Promise<number> {
+  if (!kvAvailable()) return -1;
+  let removed = 0;
+  let cursor: string | number = 0;
+  try {
+    do {
+      // Every key this module writes is under the "application:" prefix
+      // (rows, the list, the gmail index, the company/position+job indexes).
+      const [next, keys] = (await kv.scan(cursor, {
+        match: `${ITEM_PREFIX}*`,
+        count: 200,
+      })) as [string | number, string[]];
+      cursor = next;
+      if (keys.length > 0) {
+        await kv.del(...keys);
+        removed += keys.length;
+      }
+    } while (String(cursor) !== "0");
+    return removed;
+  } catch (err) {
+    console.warn("[applications] wipe failed:", (err as Error).message);
+    return removed;
+  }
+}
+
 export async function deleteApplication(id: string): Promise<boolean> {
   if (!kvAvailable()) return false;
   try {
-    // Clean up the Gmail secondary index too, if this was a Gmail row.
-    // Otherwise a stale index entry would survive the delete.
+    // Clean up the secondary indexes too, so a delete doesn't leave a stale
+    // thread- or company+position-index entry pointing at a dead record.
     const existing = await kv.get<Application>(`${ITEM_PREFIX}${id}`);
     const ops: Promise<unknown>[] = [
       kv.del(`${ITEM_PREFIX}${id}`),
@@ -292,11 +331,66 @@ export async function deleteApplication(id: string): Promise<boolean> {
     if (existing?.gmailThreadId) {
       ops.push(kv.del(`${GMAIL_INDEX_PREFIX}${existing.gmailThreadId}`));
     }
+    if (existing) {
+      const jk = jobKeyOf(existing.company, existing.jobId);
+      if (jk) ops.push(kv.del(`${CP_INDEX_PREFIX}${jk}`));
+      // Only drop the shared position key if it actually points at this row,
+      // so we don't orphan a different row that shares the same title.
+      const pk = posKeyOf(existing.company, existing.position);
+      if (pk && (await kv.get<string>(`${CP_INDEX_PREFIX}${pk}`)) === id) {
+        ops.push(kv.del(`${CP_INDEX_PREFIX}${pk}`));
+      }
+    }
     await Promise.all(ops);
     return true;
   } catch (err) {
     console.warn("[applications] delete failed:", (err as Error).message);
     return false;
+  }
+}
+
+function normKey(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Precise dedup key: company + requisition id. Null when either is missing
+ * or unknown. This is the strongest signal — two different reqs at the same
+ * company get different keys even if the classifier gave them the same title.
+ */
+function jobKeyOf(company: string, jobId?: string): string | null {
+  const c = normKey(company);
+  const j = normKey(jobId ?? "");
+  if (!c || c === "(unknown)" || !j) return null;
+  return `${c}::job:${j}`;
+}
+
+/**
+ * Fallback dedup key: company + position. Null when either is missing or
+ * unknown. Used when an email has no req id, so two threads about the same
+ * titled role still collapse into one row.
+ */
+function posKeyOf(company: string, position: string): string | null {
+  const c = normKey(company);
+  const p = normKey(position);
+  if (!c || c === "(unknown)" || !p || p === "(unknown)") return null;
+  return `${c}::${p}`;
+}
+
+/**
+ * Point the dedup indexes at a row. The job-id key is unique to the row so it
+ * always points here. The position key is a SHARED fallback — only claim it
+ * if it's currently unset, so the first row for a given title stays the merge
+ * target for future req-id-less emails (and a second, distinct req with the
+ * same title doesn't steal it).
+ */
+async function indexKeys_(app: Application, id: string): Promise<void> {
+  const jk = jobKeyOf(app.company, app.jobId);
+  if (jk) await kv.set(`${CP_INDEX_PREFIX}${jk}`, id);
+  const pk = posKeyOf(app.company, app.position);
+  if (pk) {
+    const existing = await kv.get<string>(`${CP_INDEX_PREFIX}${pk}`);
+    if (!existing) await kv.set(`${CP_INDEX_PREFIX}${pk}`, id);
   }
 }
 
@@ -312,21 +406,29 @@ export type GmailIngest = {
   status: ApplicationStatus;
   sourceDetail?: string;
   emailLink?: string;
+  /** Requisition / job id from the email, if the classifier found one. */
+  jobId?: string;
   /** ISO date YYYY-MM-DD — first message in the thread (= date applied). */
   appliedDate?: string;
 };
 
 /**
- * Create-or-update an application from a Gmail scan, deduped by thread id.
+ * Create-or-update an application from a Gmail scan. Dedup is layered so the
+ * tracker holds one row per real application:
  *
- * - First time we see a thread: create a new row, index it by thread id.
- * - Thread seen before: update the mutable fields (status, role/company if
- *   they sharpened, the classifier detail, the email link) but PRESERVE
- *   the user's own edits — notes, materials, salary, location, deadline,
- *   and the original appliedDate all survive a re-scan untouched.
+ *   1. SAME THREAD seen before → update that exact row. Robust to the LLM
+ *      naming the company/position slightly differently across scans.
+ *   2. Else, an existing row with the SAME company+position (a different
+ *      email thread about the same job) → merge into it. Skipped when either
+ *      field is "(unknown)", so vague emails never collapse together.
+ *   3. Else → create a new row. Different positions at the same company hit
+ *      this path (different company+position key) and stay separate.
  *
- * Returns the saved record, or null if KV is unavailable / the write
- * fails. Never throws on KV errors (mirrors the rest of this module).
+ * User edits (notes, materials, salary, etc.) and the original appliedDate
+ * always survive a re-scan untouched.
+ *
+ * Returns the saved record, or null if KV is unavailable / the write fails.
+ * Never throws on KV errors (mirrors the rest of this module).
  */
 export async function upsertFromGmail(
   input: GmailIngest,
@@ -340,11 +442,35 @@ export async function upsertFromGmail(
 
   const company = input.company.trim() || "(unknown)";
   const position = input.position.trim() || "(unknown)";
+  const jobId = input.jobId?.trim() || undefined;
+  const jobKey = jobKeyOf(company, jobId);
+  const posKey = posKeyOf(company, position);
 
   try {
-    const existingId = await kv.get<string>(`${GMAIL_INDEX_PREFIX}${tid}`);
-    if (existingId) {
-      const existing = await kv.get<Application>(`${ITEM_PREFIX}${existingId}`);
+    // Find the row this email belongs to, strongest signal first:
+    //   1. same Gmail thread
+    //   2. same company + requisition id
+    //   3. same company + position (title)
+    let targetId = await kv.get<string>(`${GMAIL_INDEX_PREFIX}${tid}`);
+    if (!targetId && jobKey) {
+      targetId = await kv.get<string>(`${CP_INDEX_PREFIX}${jobKey}`);
+    }
+    if (!targetId && posKey) {
+      const pid = await kv.get<string>(`${CP_INDEX_PREFIX}${posKey}`);
+      if (pid) {
+        // Matched on title alone. If THIS email has a req id and the matched
+        // row has a DIFFERENT one, they're different jobs that happen to
+        // share a title (e.g. two Amazon SDE reqs) — don't merge.
+        const cand = await kv.get<Application>(`${ITEM_PREFIX}${pid}`);
+        const candJob = (cand?.jobId ?? "").trim();
+        if (!(jobId && candJob && jobId !== candJob)) {
+          targetId = pid;
+        }
+      }
+    }
+
+    if (targetId) {
+      const existing = await kv.get<Application>(`${ITEM_PREFIX}${targetId}`);
       if (existing) {
         const updated: Application = {
           ...existing,
@@ -352,6 +478,7 @@ export async function upsertFromGmail(
           status: input.status,
           company: input.company.trim() || existing.company,
           position: input.position.trim() || existing.position,
+          jobId: jobId ?? existing.jobId,
           sourceDetail: input.sourceDetail ?? existing.sourceDetail,
           emailLink: input.emailLink ?? existing.emailLink,
           // Keep the earliest appliedDate we ever saw.
@@ -360,13 +487,16 @@ export async function upsertFromGmail(
           gmailThreadId: tid,
           updatedAt: Date.now(),
         };
-        await kv.set(`${ITEM_PREFIX}${existingId}`, updated);
+        await kv.set(`${ITEM_PREFIX}${targetId}`, updated);
+        await kv.set(`${GMAIL_INDEX_PREFIX}${tid}`, targetId);
+        await indexKeys_(updated, targetId);
         return normalize(updated);
       }
       // Index pointed at a record that no longer exists (e.g. user deleted
       // it). Fall through and recreate.
     }
 
+    // New application.
     const now = Date.now();
     const id = newId(now);
     const record: Application = {
@@ -378,6 +508,7 @@ export async function upsertFromGmail(
       status: input.status,
       source: "gmail",
       gmailThreadId: tid,
+      jobId,
       emailLink: input.emailLink,
       sourceDetail: input.sourceDetail,
       appliedDate: input.appliedDate,
@@ -386,6 +517,7 @@ export async function upsertFromGmail(
     await kv.lpush(LIST_KEY, id);
     await kv.ltrim(LIST_KEY, 0, MAX_RETAINED - 1);
     await kv.set(`${GMAIL_INDEX_PREFIX}${tid}`, id);
+    await indexKeys_(record, id);
     return record;
   } catch (err) {
     console.warn("[applications] gmail upsert failed:", (err as Error).message);

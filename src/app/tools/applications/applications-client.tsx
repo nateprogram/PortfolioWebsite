@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, RefreshCw, Target } from "lucide-react";
+import { ArrowLeft, Loader2, RefreshCw, Target, Trash2 } from "lucide-react";
 import BlurFade from "@/components/magicui/blur-fade";
 import type { Application } from "@/lib/applications-store";
 import { AtsKeywordsView } from "./ats-keywords-view";
@@ -73,6 +73,25 @@ export function ApplicationsClient() {
     }
   }
 
+  async function wipeAll() {
+    if (
+      !confirm(
+        `Delete ALL ${apps.length} tracked applications and their indexes?\n\nUse this for a clean rebuild: after wiping, run resetBackfill + scanInbox in the Apps Script and the tracker rebuilds from scratch with current dedup. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/applications/wipe", { method: "POST" });
+      if (res.ok) {
+        setApps([]);
+        await refresh();
+      }
+    } catch {
+      // leave as-is; user can retry
+    }
+  }
+
   return (
     <main className="min-h-dvh flex flex-col gap-8">
       <BlurFade delay={BLUR_FADE_DELAY}>
@@ -100,32 +119,40 @@ export function ApplicationsClient() {
         </div>
       </BlurFade>
 
-      {/* ATS keyword box */}
+      {/* Spreadsheet — the PRIMARY view, so it comes first. Breaks out of the
+          page's max-w-2xl column to a wider, viewport-centered block on desktop
+          (capped at 100vw-3rem so it never introduces horizontal page scroll).
+          On mobile it equals the normal column width. */}
       <BlurFade delay={BLUR_FADE_DELAY * 3}>
-        <AtsKeywordsView />
-      </BlurFade>
-
-      {/* Spreadsheet — breaks out of the page's max-w-2xl column to a wider,
-          viewport-centered block on desktop (capped at 100vw-3rem so it never
-          introduces horizontal page scroll). On mobile it equals the normal
-          column width. */}
-      <BlurFade delay={BLUR_FADE_DELAY * 4}>
         <div className="flex flex-col gap-3 relative left-1/2 -translate-x-1/2 w-[min(64rem,100vw-3rem)]">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
               Applications
             </h2>
-            <button
-              type="button"
-              onClick={refresh}
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <RefreshCw
-                className={`size-3 ${loading ? "animate-spin" : ""}`}
-                aria-hidden
-              />
-              Refresh
-            </button>
+            <div className="flex items-center gap-3">
+              {apps.length > 0 && (
+                <button
+                  type="button"
+                  onClick={wipeAll}
+                  className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground/70 hover:text-destructive transition-colors"
+                  title="Delete all rows for a clean rebuild"
+                >
+                  <Trash2 className="size-3" aria-hidden />
+                  Wipe all
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={refresh}
+                className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <RefreshCw
+                  className={`size-3 ${loading ? "animate-spin" : ""}`}
+                  aria-hidden
+                />
+                Refresh
+              </button>
+            </div>
           </div>
           {loading && apps.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border bg-card/20 px-5 py-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -136,6 +163,11 @@ export function ApplicationsClient() {
             <SpreadsheetView apps={apps} onPatch={patch} onDelete={remove} />
           )}
         </div>
+      </BlurFade>
+
+      {/* ATS keyword box — secondary utility, sits below the tracker. */}
+      <BlurFade delay={BLUR_FADE_DELAY * 4}>
+        <AtsKeywordsView />
       </BlurFade>
     </main>
   );

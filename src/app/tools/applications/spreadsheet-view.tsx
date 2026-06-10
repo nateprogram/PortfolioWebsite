@@ -7,6 +7,7 @@
 
 import { useMemo, useState } from "react";
 import {
+  AlertCircle,
   ArrowDown,
   ArrowUp,
   ChevronsUpDown,
@@ -199,11 +200,27 @@ export function SpreadsheetView({
                           </option>
                         ))}
                       </select>
-                      {/* Round / stage detail from the classifier, shown right
-                          under the status (e.g. "phone screen", "2nd round"). */}
+                      {/* Action cue + status note from the classifier. Shown
+                          only while the application is still active (not
+                          rejected/offer) so closed rows never nag. */}
+                      {isActiveStatus(app.status) && app.waitingOn === "you" && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-amber-700 dark:text-amber-400">
+                          <AlertCircle className="size-2.5" aria-hidden />
+                          Action needed
+                        </span>
+                      )}
+                      {isActiveStatus(app.status) && app.waitingOn === "them" && (
+                        <span className="text-[10px] font-mono text-muted-foreground/70">
+                          waiting on them
+                        </span>
+                      )}
                       {app.sourceDetail && (
                         <span
-                          className="text-[10px] font-mono text-muted-foreground pl-0.5 max-w-[22ch] truncate"
+                          className={`text-[10px] font-mono pl-0.5 max-w-[26ch] truncate ${
+                            isActiveStatus(app.status) && app.waitingOn === "you"
+                              ? "text-amber-700/90 dark:text-amber-400/90"
+                              : "text-muted-foreground"
+                          }`}
                           title={app.sourceDetail}
                         >
                           {app.sourceDetail}
@@ -280,6 +297,14 @@ function Th({
 }
 
 // ----- helpers -------------------------------------------------------------
+
+/** Active = still in the pipeline (not a closed outcome). The action cue is
+ *  only shown for these, so rejected/offer rows never nag for action. */
+function isActiveStatus(status: ApplicationStatus): boolean {
+  return (
+    status === "interested" || status === "applied" || status === "interview"
+  );
+}
 
 function cmp(a: Application, b: Application, key: SortKey): number {
   switch (key) {

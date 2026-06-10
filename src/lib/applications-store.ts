@@ -107,10 +107,14 @@ export type Application = {
   jobId?: string;
   /** Deep link to the Gmail thread (source==="gmail"). */
   emailLink?: string;
-  /** Short classifier note from the Gmail scan ("phone screen", "onsite",
-   *  "take-home"). Kept separate from `notes` so a re-scan never clobbers
-   *  the user's own notes. */
+  /** Action-oriented status note from the Gmail scan, describing where the
+   *  application stands and the next step ("2nd round done; 3rd round needs
+   *  scheduling", "take-home not yet submitted", "applied, awaiting reply"). */
   sourceDetail?: string;
+  /** Who the ball is with, derived from the latest email: "you" = you need to
+   *  do something next, "them" = waiting on the employer. Undefined when N/A.
+   *  Drives the "Action needed" cue in the UI. */
+  waitingOn?: "you" | "them";
 
   // ----- Dates -----
   /** ISO date (YYYY-MM-DD) when the application was submitted. */
@@ -405,6 +409,7 @@ export type GmailIngest = {
   position: string;
   status: ApplicationStatus;
   sourceDetail?: string;
+  waitingOn?: "you" | "them";
   emailLink?: string;
   /** Requisition / job id from the email, if the classifier found one. */
   jobId?: string;
@@ -480,6 +485,8 @@ export async function upsertFromGmail(
           position: input.position.trim() || existing.position,
           jobId: jobId ?? existing.jobId,
           sourceDetail: input.sourceDetail ?? existing.sourceDetail,
+          // Latest email wins for the action state (it reflects current state).
+          waitingOn: input.waitingOn ?? existing.waitingOn,
           emailLink: input.emailLink ?? existing.emailLink,
           // Keep the earliest appliedDate we ever saw.
           appliedDate: existing.appliedDate ?? input.appliedDate,
@@ -511,6 +518,7 @@ export async function upsertFromGmail(
       jobId,
       emailLink: input.emailLink,
       sourceDetail: input.sourceDetail,
+      waitingOn: input.waitingOn,
       appliedDate: input.appliedDate,
     };
     await kv.set(`${ITEM_PREFIX}${id}`, record);

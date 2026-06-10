@@ -70,12 +70,17 @@ export async function POST(req: Request) {
     );
   }
 
+  const waitingRaw = str(input.waitingOn).toLowerCase();
+  const waitingOn =
+    waitingRaw === "you" || waitingRaw === "them" ? waitingRaw : undefined;
+
   const item = await upsertFromGmail({
     gmailThreadId,
     company,
     position,
     status: mapGmailStatus(str(input.status)),
     sourceDetail: str(input.detail) || undefined,
+    waitingOn,
     emailLink: str(input.emailLink) || undefined,
     jobId: str(input.jobId) || undefined,
     appliedDate: isoDate(input.appliedDate),

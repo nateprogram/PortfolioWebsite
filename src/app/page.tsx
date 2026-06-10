@@ -12,7 +12,7 @@ import ProjectsSection from "@/components/section/projects-section";
 import { EducationLogo } from "@/components/education-logo";
 import { HashLink } from "@/components/hash-link";
 import { ScrollCue } from "@/components/scroll-cue";
-import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
+import { ArrowUpRight, FileText, Github, Linkedin, Mail } from "lucide-react";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -54,6 +54,12 @@ export default function Page() {
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild size="sm" className="gap-1.5">
                 <HashLink targetId="projects">See my projects</HashLink>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="gap-1.5">
+                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+                  <FileText className="size-3.5" aria-hidden />
+                  Resume
+                </a>
               </Button>
               <Button asChild variant="outline" size="sm" className="gap-1.5">
                 <a

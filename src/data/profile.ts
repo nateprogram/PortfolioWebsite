@@ -23,11 +23,11 @@ export const PROFILE = {
   url: "https://natewhite.dev",
   location: "Redmond, WA",
   locationLink: "https://www.google.com/maps/place/redmond+wa",
-  role: "Software Engineer · New Grad · May 2026",
+  role: "Software Engineer · New Grad · April 2026",
   description:
-    "Redmond, WA · Open for new-grad SWE roles starting Summer 2026.",
+    "Redmond, WA · Open to new-grad SWE roles. Available now.",
   summary:
-    "I'm a C++ and systems programmer first. With two teammates, I wrote a custom C++ game engine from scratch. Every line of rendering, scene graph, particle system, input, and asset pipeline is ours; no commercial middleware. We shipped a tower-offense title on Steam as the engine's proof-of-work, and I later wrote a Python genetic algorithm that learned to beat it in 16 generations.\n\nOutside of game work, I've built a Microsoft Power Automate pipeline that replaced a fully manual newsletter going to 10,000+ recipients on a Microsoft engagement at Spur Reply, an ML trading research platform with live model serving and closed-loop feature attention, and SquadPact: a scheduling app I started after watching the volunteer managers on the adult-league soccer teams I play on lose hours every week to copy-paste admin (league site to group chat, rinse, repeat).\n\nOn AI: I use Claude Code to ship MVPs fast.\n\nBS Computer Science & Game Design from [DigiPen](/#education), 2026. Open for new-grad SWE roles.",
+    "C++, C#, Python, and TypeScript engineer. I ship SquadPact under my own LLC: a scheduling app for adult soccer leagues. It exists because the volunteer managers on my own teams burn hours every week copy-pasting schedules from league sites into group chats.\n\nStockAI is my ML trading research platform. The model retrains itself on fresh data, but a new checkpoint only goes live if it beats the prior one on both direction and regime-stratified accuracy. A silently failing model is worse than no model.\n\nWith two teammates I wrote a custom C++ engine from scratch, no commercial middleware anywhere in the stack, and we shipped a tower-offense title to Steam on it. I later wrote a Python genetic algorithm that played the game and beat it in 16 generations. At Spur Reply, I automated a fully manual newsletter pipeline reaching 10,000+ Microsoft employees.\n\nI use Claude Code to ship MVPs fast.\n\nBS Computer Science & Game Design from [DigiPen](/#education), graduated April 2026. Shipped with multi-disciplinary teams of 6 and 19 there. Open to new-grad SWE roles.",
 
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
@@ -69,6 +69,12 @@ export const PROFILE = {
     email: "NateWhite.dev@gmail.com",
     tel: "",
     social: {
+      Resume: {
+        name: "Resume",
+        url: "/resume.pdf",
+        icon: Icons.resume,
+        navbar: true,
+      },
       GitHub: {
         name: "GitHub",
         url: "https://github.com/nateprogram",

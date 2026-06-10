@@ -10,7 +10,7 @@ export const mayhemEngine: ProjectDetail = {
   stackRationale: [
     {
       tech: "C++ with no commercial middleware",
-      why: "The goal was to understand the engine layer end-to-end. Every rendering call, every memory pool, every hot path is ours. No black boxes blaming a crash on a vendor.",
+      why: "The goal was to understand the whole engine layer. Every rendering call, every memory pool, every hot path is ours. No black boxes blaming a crash on a vendor.",
     },
     {
       tech: "JSON-serialized emitters (rapidjson)",

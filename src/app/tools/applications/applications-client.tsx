@@ -11,7 +11,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, RefreshCw, Target, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  FileCode2,
+  Loader2,
+  RefreshCw,
+  Target,
+  Trash2,
+} from "lucide-react";
 import BlurFade from "@/components/magicui/blur-fade";
 import type { Application } from "@/lib/applications-store";
 import { AtsKeywordsView } from "./ats-keywords-view";
@@ -95,12 +103,28 @@ export function ApplicationsClient() {
   return (
     <main className="min-h-dvh flex flex-col gap-8">
       <BlurFade delay={BLUR_FADE_DELAY}>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-3 w-3" aria-hidden /> back home
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" aria-hidden /> back home
+          </Link>
+          {/* Quiet link to the Gmail-scanner Apps Script that feeds this
+              tracker. Rarely needed, but when it is (resetBackfill, prompt
+              tweaks, quota errors) hunting for the URL is annoying. */}
+          <a
+            href="https://script.google.com/u/2/home/projects/1tBJKkaDQPPqLM1nTdYwRa7TsZsSzUxjNNI_huaFIbnjxrEoqaIGF6RRA/edit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground/60 hover:text-foreground transition-colors"
+            title="Open the Gmail scanner script in Apps Script"
+          >
+            <FileCode2 className="h-3 w-3" aria-hidden />
+            email script
+            <ExternalLink className="h-3 w-3" aria-hidden />
+          </a>
+        </div>
       </BlurFade>
 
       <BlurFade delay={BLUR_FADE_DELAY * 2}>

@@ -8,6 +8,7 @@ import { ReactLight } from "@/components/ui/svgs/reactLight";
 import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
 import { Python } from "@/components/ui/svgs/python";
+import { Cpp } from "@/components/ui/svgs/cpp";
 import { Csharp } from "@/components/ui/svgs/csharp";
 import { Java } from "@/components/ui/svgs/java";
 import { Unity } from "@/components/ui/svgs/unity";
@@ -36,7 +37,7 @@ export const PROFILE = {
     {
       label: "Languages",
       items: [
-        { name: "C++", icon: undefined },
+        { name: "C++", icon: Cpp },
         { name: "C#", icon: Csharp },
         { name: "Python", icon: Python },
         { name: "TypeScript", icon: Typescript },

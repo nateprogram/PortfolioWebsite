@@ -354,7 +354,19 @@ export async function deleteApplication(id: string): Promise<boolean> {
 }
 
 function normKey(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, " ");
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/gi, " ") // punctuation-insensitive ("Sr." == "Sr")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** True when a field carries no real signal: empty or the "(unknown)"
+ *  placeholder the Apps Script sends when the classifier came up dry. */
+function isUnknown(s: string | undefined): boolean {
+  const n = normKey(s ?? "");
+  return !n || n === "unknown";
 }
 
 /**
@@ -363,10 +375,9 @@ function normKey(s: string): string {
  * company get different keys even if the classifier gave them the same title.
  */
 function jobKeyOf(company: string, jobId?: string): string | null {
-  const c = normKey(company);
   const j = normKey(jobId ?? "");
-  if (!c || c === "(unknown)" || !j) return null;
-  return `${c}::job:${j}`;
+  if (isUnknown(company) || !j) return null;
+  return `${normKey(company)}::job:${j}`;
 }
 
 /**
@@ -375,10 +386,62 @@ function jobKeyOf(company: string, jobId?: string): string | null {
  * titled role still collapse into one row.
  */
 function posKeyOf(company: string, position: string): string | null {
-  const c = normKey(company);
-  const p = normKey(position);
-  if (!c || c === "(unknown)" || !p || p === "(unknown)") return null;
-  return `${c}::${p}`;
+  if (isUnknown(company) || isUnknown(position)) return null;
+  return `${normKey(company)}::${normKey(position)}`;
+}
+
+/**
+ * Loose company equality for the company-level fallback: exact normalized
+ * match or containment ("Cyclotron" matches "Cyclotron Inc").
+ */
+function companiesCompatible(a: string, b: string): boolean {
+  const na = normKey(a);
+  const nb = normKey(b);
+  if (!na || !nb) return false;
+  return na === nb || na.includes(nb) || nb.includes(na);
+}
+
+/**
+ * Are two role titles plausibly the same job? Used only by the company-level
+ * fallback. A vague/missing title is compatible with anything (follow-up
+ * emails often drop the title: "schedule your 3rd round interview"). Known
+ * titles match on equality, containment ("AI Developer" vs "AI Application
+ * Developer"), or sharing at least half the shorter title's words.
+ */
+function titlesCompatible(a: string, b: string): boolean {
+  if (isUnknown(a) || isUnknown(b)) return true;
+  const na = normKey(a);
+  const nb = normKey(b);
+  if (na === nb || na.includes(nb) || nb.includes(na)) return true;
+  const ta = new Set(na.split(" "));
+  const tb = new Set(nb.split(" "));
+  let shared = 0;
+  for (const t of ta) if (tb.has(t)) shared++;
+  return shared >= Math.ceil(Math.min(ta.size, tb.size) / 2);
+}
+
+/**
+ * Pipeline rank for merge decisions. An incoming email only moves a row's
+ * status forward (or sideways: a 3rd-round email updates an interview row's
+ * detail). It never drags a row backwards — re-scans process threads in
+ * arbitrary order, and an old "application received" email must not regress
+ * a row that's already at interview. Rejected outranks everything: it's the
+ * terminal state an offer can still collapse into (rescinded/declined), and
+ * recovering from a wrong rejection is a manual edit.
+ */
+const STAGE_RANK: Record<ApplicationStatus, number> = {
+  interested: 0,
+  applied: 1,
+  interview: 2,
+  offer: 3,
+  rejected: 4,
+};
+
+/** Incoming value unless it's unknown; otherwise keep what the row has.
+ *  Stops "(unknown)" follow-up emails from blanking a good title. */
+function pickKnown(incoming: string, current: string): string {
+  const t = incoming.trim();
+  return !isUnknown(t) ? t : current;
 }
 
 /**
@@ -455,7 +518,10 @@ export async function upsertFromGmail(
     // Find the row this email belongs to, strongest signal first:
     //   1. same Gmail thread
     //   2. same company + requisition id
-    //   3. same company + position (title)
+    //   3. same company + position (exact title)
+    //   4. company-level fallback: the company has exactly ONE active row
+    //      and the titles don't conflict (handles follow-ups that drop or
+    //      rephrase the title: "schedule your 3rd round interview")
     let targetId = await kv.get<string>(`${GMAIL_INDEX_PREFIX}${tid}`);
     if (!targetId && jobKey) {
       targetId = await kv.get<string>(`${CP_INDEX_PREFIX}${jobKey}`);
@@ -473,21 +539,46 @@ export async function upsertFromGmail(
         }
       }
     }
+    if (!targetId && !isUnknown(company)) {
+      // Company fallback. Only fires when the match is unambiguous: exactly
+      // one still-active row at this company whose title doesn't contradict
+      // the email's. Two active applications at the same company = two
+      // candidates = no merge, so distinct roles stay distinct.
+      const all = await listApplications(MAX_RETAINED);
+      const candidates = all.filter(
+        (a) =>
+          companiesCompatible(a.company, company) &&
+          a.status !== "rejected" &&
+          a.status !== "offer" &&
+          !(jobId && a.jobId && a.jobId.trim() !== jobId) &&
+          titlesCompatible(position, a.position),
+      );
+      if (candidates.length === 1) targetId = candidates[0].id;
+    }
 
     if (targetId) {
       const existing = await kv.get<Application>(`${ITEM_PREFIX}${targetId}`);
       if (existing) {
+        // Stage-aware merge: equal-or-later stages refresh the row (a 3rd-
+        // round email updates an interview row's detail); earlier-stage
+        // emails processed out of order leave status and action state alone.
+        const advances =
+          STAGE_RANK[input.status] >= STAGE_RANK[existing.status];
         const updated: Application = {
           ...existing,
-          // Mutable fields refreshed from the latest email.
-          status: input.status,
-          company: input.company.trim() || existing.company,
-          position: input.position.trim() || existing.position,
+          status: advances ? input.status : existing.status,
+          company: pickKnown(input.company, existing.company),
+          position: pickKnown(input.position, existing.position),
           jobId: jobId ?? existing.jobId,
-          sourceDetail: input.sourceDetail ?? existing.sourceDetail,
-          // Latest email wins for the action state (it reflects current state).
-          waitingOn: input.waitingOn ?? existing.waitingOn,
-          emailLink: input.emailLink ?? existing.emailLink,
+          sourceDetail: advances
+            ? (input.sourceDetail ?? existing.sourceDetail)
+            : existing.sourceDetail,
+          waitingOn: advances
+            ? (input.waitingOn ?? existing.waitingOn)
+            : existing.waitingOn,
+          emailLink: advances
+            ? (input.emailLink ?? existing.emailLink)
+            : existing.emailLink,
           // Keep the earliest appliedDate we ever saw.
           appliedDate: existing.appliedDate ?? input.appliedDate,
           source: "gmail",

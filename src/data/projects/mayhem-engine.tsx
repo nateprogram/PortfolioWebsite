@@ -36,6 +36,14 @@ export const mayhemEngine: ProjectDetail = {
     "rapidjson pipeline: every emitter parameter and every upgrade curve lives in text files and hot-reloads without a rebuild.",
     "Shipped Zeppelin Rush to Steam running entirely on the custom stack.",
   ],
+  figures: [
+    {
+      diagram: "particle-playground",
+      alt: "Interactive particle emitter driven by an editable Emitter.json",
+      caption:
+        "Try it: the same emitter model, ported to TypeScript. Edit the JSON and the emitter hot-reloads on every keystroke; a broken edit keeps the last good config running, the same way the engine's rapidjson reload behaves. PatternType, SpawnRate, SprayAngle, Min/MaxSpeed, Fade, and ScaleSetting use the engine's field names and curves. Direction, Gravity, Drag, Size, and Colors are web-only additions standing in for sprite sheets.",
+    },
+  ],
   codeSnippets: [
     {
       id: "emitter-json",

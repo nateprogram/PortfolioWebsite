@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import { TopBackdrop } from "@/components/top-backdrop";
+import { MotionProvider } from "@/components/motion-provider";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -51,10 +52,6 @@ export const metadata: Metadata = {
     title: `${DATA.name}`,
     card: "summary_large_image",
   },
-  verification: {
-    google: "",
-    yandex: "",
-  },
 };
 
 export default function RootLayout({
@@ -72,25 +69,16 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <TooltipProvider delayDuration={0}>
-            <div className="absolute inset-0 top-0 left-0 right-0 h-[100px] overflow-hidden z-0 pointer-events-none">
-              <FlickeringGrid
-                className="h-full w-full"
-                squareSize={2}
-                gridGap={2}
-                style={{
-                  maskImage: "linear-gradient(to bottom, black, transparent)",
-                  WebkitMaskImage:
-                    "linear-gradient(to bottom, black, transparent)",
-                }}
-              />
-            </div>
-            <div className="relative z-10 max-w-2xl mx-auto py-12 pb-24 sm:py-24 px-6">
-              {children}
-              <Footer />
-            </div>
-            <Navbar />
-          </TooltipProvider>
+          <MotionProvider>
+            <TooltipProvider delayDuration={0}>
+              <TopBackdrop />
+              <div className="relative z-10 max-w-2xl mx-auto py-12 pb-24 sm:py-24 px-6 print:max-w-none print:p-0">
+                {children}
+                <Footer />
+              </div>
+              <Navbar />
+            </TooltipProvider>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

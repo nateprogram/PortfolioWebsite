@@ -24,14 +24,15 @@ export default function ContactSection() {
           Get in Touch
         </h2>
         <p className="mx-auto max-w-lg text-muted-foreground text-balance">
-          Graduated April 2026, available now. Email{" "}
+          Email{" "}
           <Link
             href={`mailto:${DATA.contact.email}`}
-            className="text-blue-500 hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+            className="text-brand hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
           >
             {DATA.contact.email}
           </Link>{" "}
-          to talk about a role or walk through any of the projects above.
+          to talk shop, compare notes on a project, or get a walkthrough of
+          anything above.
         </p>
       </div>
     </div>

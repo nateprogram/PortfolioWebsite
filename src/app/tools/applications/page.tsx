@@ -19,6 +19,12 @@ import { ApplicationsClient } from "./applications-client";
 
 export const dynamic = "force-dynamic";
 
+// Private tool: keep it out of search results.
+export const metadata = {
+  title: "Job Tracker",
+  robots: { index: false, follow: false },
+};
+
 type SearchParams = Promise<{ key?: string | string[] }>;
 
 export default async function ApplicationsPage({

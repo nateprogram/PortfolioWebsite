@@ -8,6 +8,8 @@ import { squadpact } from "./projects/squadpact";
 import { stockai } from "./projects/stockai";
 import { mayhemEngine } from "./projects/mayhem-engine";
 import { zeppelinRush } from "./projects/zeppelin-rush";
+import { budgetBuddy } from "./projects/budget-buddy";
+import { adaptiveStrength } from "./projects/adaptive-strength";
 import { isshin } from "./projects/isshin";
 import { spur2021 } from "./projects/spur-2021";
 import { spur2020 } from "./projects/spur-2020";
@@ -17,6 +19,8 @@ export const PROJECT_DETAILS: Record<string, ProjectDetail> = {
   stockai,
   "mayhem-engine": mayhemEngine,
   "zeppelin-rush": zeppelinRush,
+  "budget-buddy": budgetBuddy,
+  "adaptive-strength": adaptiveStrength,
   isshin,
   "spur-2021": spur2021,
   "spur-2020": spur2020,

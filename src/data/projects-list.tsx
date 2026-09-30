@@ -10,12 +10,36 @@
 //                 surface "Coursework" / "Active" labels that imply a
 //                 hierarchy between academic, personal, and employed work)
 //   categories    drives the filter chips (see project-filters.ts)
-//   image / video first hit wins: video > image > generated initials badge
+//   image / video first hit wins: video > shots > image > generated badge
+//   shots         phone screenshots, fanned out on the card (mobile apps)
+//   poster        still frame for `video` (shown until it scrolls into view)
+//   hideFromGrid  keep the /projects/<slug> page but leave it off the grid
+//                 (the internships live on the Experience timeline instead)
 
+import type { ReactNode } from "react";
 import { Icons } from "@/components/icons";
 import { Youtube } from "lucide-react";
 
-export const PROJECTS = [
+export type Project = {
+  title: string;
+  slug: string;
+  href: string;
+  dates: string;
+  active: boolean;
+  status: string;
+  categories: ReadonlyArray<string>;
+  summary: string;
+  description: string;
+  technologies: ReadonlyArray<string>;
+  links: ReadonlyArray<{ type: string; href: string; icon: ReactNode }>;
+  image: string;
+  video: string;
+  poster?: string;
+  shots?: ReadonlyArray<string>;
+  hideFromGrid?: boolean;
+};
+
+export const PROJECTS: ReadonlyArray<Project> = [
   {
     title: "SquadPact",
     slug: "squadpact",
@@ -25,16 +49,18 @@ export const PROJECTS = [
     status: "Active",
     categories: ["Full-Stack"],
     summary:
-      "Scheduling and RSVP app for adult soccer team managers. Pulls schedule and roster data straight from the GSSL and Rats league sites so the weekly copy-paste work disappears. Shipping under Veltarium Software LLC.",
+      "Scheduling, RSVP, chat, and payments app for adult soccer teams. Pulls schedules, rosters, and results straight from the GSSL and Rats league sites so the weekly copy-paste work disappears. 30 Prisma models, 114 API handlers, one codebase for web, iOS, and Android.",
     description:
-      "Scheduling and RSVP app for volunteer managers of adult soccer teams. Running a GSSL or Rats team means hours of unpaid weekly admin: copying game times off the league website and chasing RSVPs in a group chat. SquadPact pulls from the league sites directly, auto-fills the team's schedule and roster, and gives the whole squad one place to confirm attendance. Built as a single TypeScript codebase that ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, with a Prisma + PostgreSQL backend (Neon in production, Docker locally). Shipping under Veltarium Software LLC. Walkthrough available on request.",
+      "Scheduling and RSVP app for volunteer managers of adult soccer teams. Running a GSSL or Rats team means hours of unpaid weekly admin: copying game times off the league website and chasing RSVPs in a group chat. SquadPact pulls from the league sites directly, auto-fills the team's schedule and roster, and gives the whole squad one place to confirm attendance. Since launch it has grown team and direct messaging, push notifications with RSVP action buttons, a season lifecycle that walks each team through commitment, recruiting, and payment, and dues tracking with Venmo, Cash App, Zelle, and PayPal payment links. Built as a single TypeScript codebase that ships to web (Next.js on Vercel), iOS, and Android by wrapping the same Next build in Capacitor, with a Prisma + PostgreSQL backend (Neon in production, Docker locally). Shipping under Veltarium Software LLC.",
     technologies: [
       "Next.js",
       "TypeScript",
       "Capacitor",
       "Prisma",
       "PostgreSQL",
-      "TailwindCSS",
+      "Clerk",
+      "Stripe",
+      "Firebase",
     ],
     links: [
       {
@@ -43,11 +69,13 @@ export const PROJECTS = [
         icon: <Icons.globe className="size-3" />,
       },
     ],
-    // Card hero. Drop a UI screenshot at this path (not the logo — the
-    // logo doesn't sell the product; a real screen does). Matching
-    // convention with stockai/hero.png and mayhem-engine/hero.jpg.
-    image: "/projects/squadpact/hero.png",
+    image: "/projects/squadpact/home.jpg",
     video: "",
+    shots: [
+      "/projects/squadpact/team.jpg",
+      "/projects/squadpact/home.jpg",
+      "/projects/squadpact/chat.jpg",
+    ],
   },
   {
     title: "StockAI",
@@ -109,6 +137,7 @@ export const PROJECTS = [
     ],
     image: "/projects/mayhem-engine/hero.jpg",
     video: "/projects/mayhem-engine/particle-demo.mp4",
+    poster: "/projects/mayhem-engine/hero.jpg",
   },
   {
     title: "Zeppelin Rush · Genetic AI",
@@ -133,6 +162,51 @@ export const PROJECTS = [
     links: [],
     image: "/projects/zeppelin-rush/hero.png",
     video: "",
+  },
+  {
+    title: "Budget Buddy",
+    slug: "budget-buddy",
+    href: "/projects/budget-buddy",
+    dates: "2026",
+    active: true,
+    status: "Active",
+    categories: ["Full-Stack"],
+    summary:
+      "Personal finance web app that plans every paycheck to the cent. Estimates real take-home pay from gross income, then allocates all of it across custom budget rules. Built under Veltarium Software LLC.",
+    description:
+      "A personal finance app that plans every paycheck to the cent. It estimates real take-home pay from gross income (federal, state, and FICA taxes, all adjustable), then allocates the full amount across custom budget categories: fixed monthly amounts, percentages of take-home, yearly caps like a Roth IRA limit, and a remainder bucket. The allocation engine works in exact cents so every plan sums to the paycheck. Budgets sync across devices with an offline fallback, and releases ship through a containerized build and deploy pipeline.",
+    technologies: ["React 19", "TypeScript", "Vite", "Node.js", "Docker", "PWA"],
+    links: [],
+    image: "/projects/budget-buddy/dashboard.png",
+    video: "",
+  },
+  {
+    title: "Adaptive Strength Trainer",
+    slug: "adaptive-strength",
+    href: "/projects/adaptive-strength",
+    dates: "2026",
+    active: true,
+    status: "Active",
+    categories: ["AI/ML", "Full-Stack"],
+    summary:
+      "Android training app with an AI planning engine that builds five-week strength programs, then adapts every workout to logged performance, recovery, injuries, and available equipment. Built under Veltarium Software LLC.",
+    description:
+      "An AI training app that generates personalized five-week strength programs. The planning engine builds periodized programs around each user's goals, schedule, and equipment profile, then adapts every workout to logged performance, recovery, injuries, and physical limitations by swapping exercises and scaling load. Missed sessions feed back into the plan instead of breaking it. Physique tracking covers weight and body-composition trends, with Health Connect sync. Offline-first React Native app built with Expo.",
+    technologies: [
+      "React Native",
+      "Expo",
+      "TypeScript",
+      "Health Connect",
+      "Offline-first",
+    ],
+    links: [],
+    image: "/projects/adaptive-strength/today.jpg",
+    video: "",
+    shots: [
+      "/projects/adaptive-strength/calendar.jpg",
+      "/projects/adaptive-strength/today.jpg",
+      "/projects/adaptive-strength/physique.jpg",
+    ],
   },
   {
     title: "Isshin",
@@ -181,11 +255,13 @@ export const PROJECTS = [
       "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios. My share: several of the game's minigames (each with its own state machine, per-player scoring, and difficulty curve), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
     technologies: ["Unity 2022.3 LTS", "C#", "URP", "Local 4-player", "Team of 6"],
     links: [],
-    image: "/games/treasure-party/hero.png",
+    // No screenshot yet; drop one at /public/games/treasure-party/hero.png
+    // and point this at it. Until then the card renders a generated cover.
+    image: "",
     video: "",
   },
   {
-    title: "Spur Group · Client Web & Reporting",
+    title: "Spur Reply · Client Web & Reporting",
     slug: "spur-2021",
     href: "/projects/spur-2021",
     dates: "2021",
@@ -193,9 +269,9 @@ export const PROJECTS = [
     status: "Shipped",
     categories: ["Full-Stack"],
     summary:
-      "Software Development Intern (returning). Shipped React/TypeScript client microsites at The Spur Group, a Redmond consulting firm serving enterprise technology clients, through the firm's .NET + Azure DevOps pipeline. Owned the Power BI reporting layer feeding weekly executive dashboards.",
+      "Software Development Intern (returning). Shipped React/TypeScript client microsites at Spur Reply (formerly The Spur Group), a Redmond consulting firm serving enterprise technology clients, through the firm's .NET + Azure DevOps pipeline. Owned the Power BI reporting layer feeding weekly executive dashboards.",
     description:
-      "Second-summer internship at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Shipped React/TypeScript single-page applications for client engagements through a .NET + Azure DevOps pipeline (feature branches, PR review, production deploy gates) and owned the Power BI reporting layer feeding weekly executive dashboards. Small dev team, consulting-scale cycles; every deliverable went directly to an external client.",
+      "Second-summer internship at Spur Reply (formerly The Spur Group), a Redmond consulting firm serving enterprise technology clients. Shipped React/TypeScript single-page applications for client engagements through a .NET + Azure DevOps pipeline (feature branches, PR review, production deploy gates) and owned the Power BI reporting layer feeding weekly executive dashboards. Small dev team, consulting-scale cycles; every deliverable went directly to an external client.",
     technologies: [
       "React",
       "TypeScript",
@@ -213,9 +289,10 @@ export const PROJECTS = [
     ],
     image: "",
     video: "",
+    hideFromGrid: true,
   },
   {
-    title: "Spur Group · Internal Comms Automation",
+    title: "Spur Reply · Internal Comms Automation",
     slug: "spur-2020",
     href: "/projects/spur-2020",
     dates: "2020",
@@ -223,9 +300,9 @@ export const PROJECTS = [
     status: "Shipped",
     categories: ["Full-Stack"],
     summary:
-      "Software Development Intern at The Spur Group, a Redmond consulting firm. Built a Microsoft Flow newsletter pipeline sending formatted internal comms to 10,000+ employees weekly, plus an HTML/CSS email template library and a marketing-site refresh.",
+      "Software Development Intern at Spur Reply (formerly The Spur Group), a Redmond consulting firm. Built a Microsoft Flow newsletter pipeline sending formatted internal comms to 10,000+ employees weekly, plus an HTML/CSS email template library and a marketing-site refresh.",
     description:
-      "Internship at The Spur Group, a Redmond consulting firm serving enterprise technology clients. Built a Microsoft Flow pipeline that pulled newsletter content from a structured source, rendered it through an HTML/CSS email template, and fanned out to the firm's 10,000+ employee distribution list on a weekly cadence, replacing a fully manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows covering adjacent manual comms processes.",
+      "Internship at Spur Reply (formerly The Spur Group), a Redmond consulting firm serving enterprise technology clients. Built a Microsoft Flow pipeline that pulled newsletter content from a structured source, rendered it through an HTML/CSS email template, and fanned out to the firm's 10,000+ employee distribution list on a weekly cadence, replacing a fully manual copy-paste process. Also shipped a company marketing-site refresh and several smaller email-automation flows covering adjacent manual comms processes.",
     technologies: [
       "Microsoft Flow",
       "HTML",
@@ -243,5 +320,6 @@ export const PROJECTS = [
     ],
     image: "",
     video: "",
+    hideFromGrid: true,
   },
-] as const;
+];

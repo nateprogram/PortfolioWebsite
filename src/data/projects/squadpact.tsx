@@ -29,30 +29,45 @@ export const squadpact: ProjectDetail = {
       why: "Same auth flow across the web app and the Capacitor wrappers; webhook-driven user sync into Prisma on first sign-in.",
     },
     {
+      tech: "Firebase Cloud Messaging",
+      why: "One push pipeline for iOS, Android, and web. Action buttons carry signed tokens, so an RSVP from a notification works without a session.",
+    },
+    {
+      tech: "Stripe + payment deep links",
+      why: "Two money flows, kept apart. Players pay their league-fee share to the manager through generated Venmo, Cash App, Zelle, or PayPal links, so SquadPact never holds league money. Only the manager's per-player platform fee runs through Stripe.",
+    },
+    {
       tech: "Neon (prod) / Docker Postgres (dev)",
       why: "Same Postgres engine in both environments (no sqlite-vs-postgres drift), with a zero-config cloud tier for production.",
     },
   ],
   highlights: [
-    "Scrapes GSSL and Rats league sites to auto-fill schedules, opponents, and roster data. Managers review a diff instead of copying data by hand.",
-    "19-model Prisma schema covering leagues, seasons, teams, roster memberships, events, RSVPs, chat, payments, and a player marketplace.",
-    "40+ API route handlers across leagues, teams, events, RSVPs, rosters, invites, chat, marketplace, and a Clerk webhook.",
+    "Scrapes GSSL and Rats league sites to auto-fill schedules, opponents, rosters, and results. Managers review a diff instead of copying data by hand.",
+    "30-model Prisma schema covering leagues, seasons, teams, roster memberships, events, RSVPs, team and direct chat, payments, and a player marketplace.",
+    "114 API route handlers across 81 route files. Business logic lives in a service layer, so routes and pages stay thin.",
+    "Cron-driven season lifecycle: each team moves through commitment, recruiting, payment collection, and active phases as deadlines pass.",
+    "Push notifications carry HMAC-signed action tokens, so a player can RSVP straight from the notification without opening the app.",
     "Composite-key upserts (`eventId_userId`) enforce one-RSVP-per-user-per-event in the database, not in app code.",
-    "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor.",
-    "Shipping under Veltarium Software LLC. Walkthrough and live-app demo available on request.",
+    "One TypeScript codebase ships to web (Next.js on Vercel), iOS, and Android via Capacitor. Shipping under Veltarium Software LLC.",
   ],
   figures: [
     {
-      src: "/projects/squadpact/home.png",
-      alt: "SquadPact home view: Next Game card showing One Touchables vs ECS Yesler at Ballard HS, Sun May 3 10:45 AM, with Going / Out / Maybe RSVP buttons. Below: an Upcoming list of two more games with the same RSVP affordances.",
+      phones: [
+        {
+          src: "/projects/squadpact/home.jpg",
+          alt: "SquadPact home screen: Next Games cards with opponent, kickoff time, field, and Going / Out / Maybe RSVP buttons, plus an Upcoming list.",
+        },
+        {
+          src: "/projects/squadpact/team.jpg",
+          alt: "SquadPact team screen for Release The Kraken! in Seattle RATS Mon Coed D-1: chat, roster, stats, invite, and settings shortcuts above a Commit, Recruit, Pay, Active season timeline and upcoming games.",
+        },
+        {
+          src: "/projects/squadpact/chat.jpg",
+          alt: "SquadPact team chat thread with messages from teammates, a composer with photo and file attachments, and a notifications menu.",
+        },
+      ],
       caption:
-        "Home view. The next game lives at the top with one-tap RSVP, location, kit color, and an add-to-calendar shortcut. Upcoming games collapse below it so the screen stays focused on what's next, not what's after.",
-    },
-    {
-      src: "/projects/squadpact/team-stats.png",
-      alt: "SquadPact team stats view for One Touchables in SUN Open D2A: 0 wins, 4 losses, 2 ties, ranked #7. Division standings table with eight teams. Recent results list. Per-player attendance table.",
-      caption:
-        "Team stats view. Standings, results, and per-player attendance all hydrate from the same scraped league data, so the table is always in sync with what the league site shows that morning.",
+        "Home, team, and chat. The next game sits at the top of home with one-tap RSVP and an add-to-calendar shortcut. The team view shows where the season is in its Commit, Recruit, Pay, Active lifecycle. Chat covers the team thread and direct messages, so the group chat the managers used to live in isn't needed.",
     },
   ],
   codeSnippets: [

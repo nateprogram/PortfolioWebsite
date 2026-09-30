@@ -21,10 +21,12 @@ the site never shows a broken image icon.
 ## Projects (home page, 3 tentpoles)
 
 Each project folder takes one hero plus an optional autoplay video. The
-card prefers video over image over the gradient fallback.
+card prefers video over phone shots over image over a generated cover.
+Mobile apps (SquadPact, Adaptive Strength) use `shots` in projects-list.tsx:
+three 1080 × 2125 phone captures, fanned out on the card.
 
 ```
-/projects/squadpact/hero.png           (~ 1200 × 800, 16:10 or 4:3)
+/projects/squadpact/{home,team,chat}.jpg   phone shots (720px wide is plenty)
 /projects/squadpact/demo.mp4           optional, muted autoplay loop
 /projects/stockai/hero.png
 /projects/stockai/demo.mp4

@@ -1,110 +1,182 @@
-/* eslint-disable @next/next/no-img-element */
-import { Suspense } from "react";
 import BlurFade from "@/components/magicui/blur-fade";
-import BlurFadeText from "@/components/magicui/blur-fade-text";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { DATA } from "@/data";
+import { CURRENT_ROLE, DATA } from "@/data";
 import Link from "next/link";
 import Markdown from "react-markdown";
 import ContactSection from "@/components/section/contact-section";
 import ProjectsSection from "@/components/section/projects-section";
+import ExperienceSection from "@/components/section/experience-section";
 import { EducationLogo } from "@/components/education-logo";
 import { HashLink } from "@/components/hash-link";
 import { ScrollCue } from "@/components/scroll-cue";
-import { ArrowUpRight, FileText, Github, Linkedin, Mail } from "lucide-react";
+import { HeroStats } from "@/components/hero-stats";
+import { cn } from "@/lib/utils";
+import { ArrowRight, ArrowUpRight, FileText, Github, Linkedin, Mail, Sparkles } from "lucide-react";
 
 const BLUR_FADE_DELAY = 0.04;
+
+// Hero text animates with CSS (tw-animate-css) rather than motion, so it
+// paints from the server HTML without waiting on hydration. Reduced-motion
+// users get it static.
+const enter = (delay: string) =>
+  cn(
+    "motion-safe:animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both",
+    delay
+  );
+
+const PERSON_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: DATA.name,
+  url: DATA.url,
+  image: new URL(DATA.avatarUrl, DATA.url).toString(),
+  jobTitle: CURRENT_ROLE?.title,
+  worksFor: CURRENT_ROLE
+    ? { "@type": "Organization", name: CURRENT_ROLE.company, url: CURRENT_ROLE.companyUrl }
+    : undefined,
+  alumniOf: DATA.education.map((e) => ({
+    "@type": "CollegeOrUniversity",
+    name: e.school,
+    url: e.href,
+  })),
+  sameAs: [DATA.contact.social.GitHub.url, DATA.contact.social.LinkedIn.url],
+};
 
 export default function Page() {
   return (
     <main className="min-h-dvh flex flex-col gap-16 relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_JSON_LD) }}
+      />
+
       <section id="hero">
         <div className="mx-auto w-full max-w-2xl space-y-8">
           <div className="gap-2 gap-y-6 flex flex-col md:flex-row justify-between">
             <div className="flex flex-col gap-3 order-2 md:order-1">
-              <BlurFadeText
-                delay={BLUR_FADE_DELAY}
-                className="text-3xl font-semibold tracking-tighter sm:text-4xl lg:text-5xl"
-                yOffset={8}
-                text={DATA.name}
-              />
-              <BlurFadeText
-                delay={BLUR_FADE_DELAY * 1.5}
-                className="text-xs sm:text-sm font-mono text-muted-foreground"
-                text={DATA.role}
-              />
-              <BlurFadeText
-                className="text-muted-foreground max-w-[600px] md:text-lg"
-                delay={BLUR_FADE_DELAY * 2}
-                text={DATA.description}
-              />
+              {CURRENT_ROLE && (
+                <HashLink
+                  targetId="experience"
+                  className={cn(
+                    "group inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur transition-colors hover:border-brand/50 hover:text-foreground",
+                    enter("delay-0")
+                  )}
+                >
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex size-full rounded-full bg-brand opacity-70 motion-safe:animate-ping" />
+                    <span className="relative inline-flex size-2 rounded-full bg-brand" />
+                  </span>
+                  Now: {CURRENT_ROLE.title} at {CURRENT_ROLE.company}
+                  <ArrowRight className="size-3 opacity-60 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                </HashLink>
+              )}
+              <h1
+                className={cn(
+                  "text-4xl font-semibold tracking-tighter sm:text-5xl lg:text-6xl",
+                  enter("delay-75")
+                )}
+              >
+                <span className="text-sheen">{DATA.name}</span>
+              </h1>
+              <p
+                className={cn(
+                  "text-muted-foreground max-w-[520px] md:text-lg text-pretty",
+                  enter("delay-150")
+                )}
+              >
+                {DATA.description}
+              </p>
             </div>
-            <BlurFade delay={BLUR_FADE_DELAY} className="order-1 md:order-2">
-              <Avatar className="size-24 md:size-32 border rounded-full shadow-lg ring-4 ring-muted">
-                <AvatarImage alt={DATA.name} src={DATA.avatarUrl} />
-                <AvatarFallback className="font-mono text-2xl md:text-3xl">
-                  {DATA.initials}
-                </AvatarFallback>
-              </Avatar>
-            </BlurFade>
+            <div className={cn("order-1 md:order-2 shrink-0", enter("delay-100"))}>
+              <div className="relative size-24 md:size-32">
+                <div className="avatar-ring absolute -inset-[3px] rounded-full opacity-90 blur-[1px]" aria-hidden />
+                <Avatar className="relative size-24 md:size-32 border-2 border-background rounded-full shadow-lg">
+                  <AvatarImage alt={DATA.name} src={DATA.avatarUrl} />
+                  <AvatarFallback className="font-mono text-2xl md:text-3xl">
+                    {DATA.initials}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
           </div>
 
-          <BlurFade delay={BLUR_FADE_DELAY * 3}>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button asChild size="sm" className="gap-1.5">
-                <HashLink targetId="projects">See my projects</HashLink>
-              </Button>
-              <Button asChild variant="outline" size="sm" className="gap-1.5">
-                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-                  <FileText className="size-3.5" aria-hidden />
-                  Resume
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <BlurFade delay={BLUR_FADE_DELAY * 4}>
+            <HeroStats />
+          </BlurFade>
+
+          <div className={cn("flex flex-wrap items-center gap-2", enter("delay-300"))}>
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href="/resume">
+                <FileText className="size-3.5" aria-hidden />
+                Resume
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <HashLink targetId="projects">See my projects</HashLink>
+            </Button>
+            <div className="flex items-center gap-1">
+              <Button asChild variant="ghost" size="icon" className="size-8">
                 <a
                   href={DATA.contact.social.GitHub.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="GitHub"
                 >
-                  <Github className="size-3.5" aria-hidden />
-                  GitHub
+                  <Github className="size-4" aria-hidden />
                 </a>
               </Button>
-              <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Button asChild variant="ghost" size="icon" className="size-8">
                 <a
                   href={DATA.contact.social.LinkedIn.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="LinkedIn"
                 >
-                  <Linkedin className="size-3.5" aria-hidden />
-                  LinkedIn
+                  <Linkedin className="size-4" aria-hidden />
                 </a>
               </Button>
-              <Button asChild variant="outline" size="sm" className="gap-1.5">
-                <a href={`mailto:${DATA.contact.email}`}>
-                  <Mail className="size-3.5" aria-hidden />
-                  Email
+              <Button asChild variant="ghost" size="icon" className="size-8">
+                <a href={`mailto:${DATA.contact.email}`} aria-label="Email">
+                  <Mail className="size-4" aria-hidden />
                 </a>
               </Button>
             </div>
-          </BlurFade>
+          </div>
 
-          <BlurFade delay={BLUR_FADE_DELAY * 5}>
-            <ScrollCue
-              targetId="projects"
-              className="mx-auto mt-2 hidden sm:flex w-fit flex-col items-center gap-1 text-muted-foreground/50 motion-safe:animate-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-            />
-          </BlurFade>
+          <p
+            className={cn(
+              "hidden sm:block font-mono text-[11px] leading-relaxed text-muted-foreground/70",
+              enter("delay-500")
+            )}
+          >
+            <Sparkles className="mr-1.5 inline size-3 -translate-y-px text-brand" aria-hidden />
+            The particles up top run a TypeScript port of my C++ engine&apos;s
+            emitter. Click empty space to burst it, or{" "}
+            <Link
+              href="/projects/mayhem-engine#playground"
+              className="underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-brand"
+            >
+              edit its JSON
+            </Link>
+            .
+          </p>
+
+          <ScrollCue
+            targetId="experience"
+            className={cn(
+              "mx-auto mt-2 hidden sm:flex w-fit flex-col items-center gap-1 text-muted-foreground/50 motion-safe:animate-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+            )}
+          />
         </div>
       </section>
 
       <section id="about">
         <div className="flex min-h-0 flex-col gap-y-4">
-          <BlurFade delay={BLUR_FADE_DELAY * 3}>
+          <BlurFade>
             <h2 className="text-xl font-bold">About</h2>
           </BlurFade>
-          <BlurFade delay={BLUR_FADE_DELAY * 4}>
+          <BlurFade delay={BLUR_FADE_DELAY}>
             <div className="prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
               <Markdown>{DATA.summary}</Markdown>
             </div>
@@ -112,17 +184,56 @@ export default function Page() {
         </div>
       </section>
 
+      <section id="experience">
+        <ExperienceSection />
+      </section>
+
+      <section id="projects">
+        <ProjectsSection />
+      </section>
+
+      <section id="skills">
+        <div className="flex min-h-0 flex-col gap-y-6">
+          <BlurFade>
+            <h2 className="text-xl font-bold">Skills</h2>
+          </BlurFade>
+          <div className="flex flex-col gap-5">
+            {DATA.skillGroups.map((group, gIdx) => (
+              <BlurFade key={group.label} delay={gIdx * 0.06}>
+                <div className="flex flex-col gap-2">
+                  <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+                    {group.label}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((skill) => (
+                      <div
+                        key={skill.name}
+                        className="group border bg-background border-border ring-2 ring-border/20 rounded-xl h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-[0_6px_20px_-10px_var(--brand)]"
+                      >
+                        {skill.icon && (
+                          <skill.icon className="size-4 rounded overflow-hidden object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
+                        )}
+                        <span className="text-foreground text-sm font-medium">
+                          {skill.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </BlurFade>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="education">
         <div className="flex min-h-0 flex-col gap-y-6">
-          <BlurFade delay={BLUR_FADE_DELAY * 7}>
+          <BlurFade>
             <h2 className="text-xl font-bold">Education</h2>
           </BlurFade>
           <div className="flex flex-col gap-8">
             {DATA.education.map((education, index) => (
-              <BlurFade
-                key={education.school}
-                delay={BLUR_FADE_DELAY * 8 + index * 0.05}
-              >
+              <BlurFade key={education.school} delay={index * 0.05}>
                 <Link
                   href={education.href}
                   target="_blank"
@@ -160,56 +271,8 @@ export default function Page() {
         </div>
       </section>
 
-      <section id="skills">
-        <div className="flex min-h-0 flex-col gap-y-6">
-          <BlurFade delay={BLUR_FADE_DELAY * 9}>
-            <h2 className="text-xl font-bold">Skills</h2>
-          </BlurFade>
-          <div className="flex flex-col gap-5">
-            {DATA.skillGroups.map((group, gIdx) => (
-              <div key={group.label} className="flex flex-col gap-2">
-                <BlurFade delay={BLUR_FADE_DELAY * 10 + gIdx * 0.05}>
-                  <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-                    {group.label}
-                  </div>
-                </BlurFade>
-                <div className="flex flex-wrap gap-2">
-                  {group.items.map((skill, id) => (
-                    <BlurFade
-                      key={skill.name}
-                      delay={BLUR_FADE_DELAY * 10 + gIdx * 0.05 + id * 0.03}
-                    >
-                      <div className="border bg-background border-border ring-2 ring-border/20 rounded-xl h-8 w-fit px-3 flex items-center gap-2">
-                        {skill.icon && (
-                          <skill.icon className="size-4 rounded overflow-hidden object-contain" />
-                        )}
-                        <span className="text-foreground text-sm font-medium">
-                          {skill.name}
-                        </span>
-                      </div>
-                    </BlurFade>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="projects">
-        <BlurFade delay={BLUR_FADE_DELAY * 11}>
-          <Suspense
-            fallback={
-              <div className="h-[480px] rounded-xl border border-dashed border-border/60" />
-            }
-          >
-            <ProjectsSection />
-          </Suspense>
-        </BlurFade>
-      </section>
-
       <section id="contact">
-        <BlurFade delay={BLUR_FADE_DELAY * 16}>
+        <BlurFade>
           <ContactSection />
         </BlurFade>
       </section>

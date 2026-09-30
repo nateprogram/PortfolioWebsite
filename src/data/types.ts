@@ -15,9 +15,11 @@ export type StackRationaleItem = {
 /**
  * A figure rendered inline with the project's Approach prose.
  *
- * Two flavors:
+ * Three flavors:
  *   - `src` form points at a static asset under `/public` (rendered via
  *     LightboxFigure with click-to-zoom).
+ *   - `phones` form lays 2-3 mobile screenshots side by side in device
+ *     frames (PhoneGallery), each click-to-zoom.
  *   - `diagram` form swaps in a hand-built React component, keyed by id.
  *     The page renderer maps the id to the actual component, so each new
  *     diagram needs both a string literal here and a case in the renderer.
@@ -25,7 +27,11 @@ export type StackRationaleItem = {
 export type Figure =
   | { src: string; alt: string; caption?: string }
   | {
-      diagram: "stockai-dataflow" | "ga-scatter";
+      phones: ReadonlyArray<{ src: string; alt: string }>;
+      caption?: string;
+    }
+  | {
+      diagram: "stockai-dataflow" | "ga-scatter" | "particle-playground";
       alt: string;
       caption?: string;
     };

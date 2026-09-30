@@ -6,6 +6,8 @@
 // underneath.
 //
 //   profile.ts             bio, contact, education, skill chips, navbar
+//   experience.ts          work history (timeline, /resume, PDF)
+//   resume.ts              the resume as data (/resume + /resume.pdf)
 //   projects-list.tsx      the projects[] array (cards on the homepage)
 //   project-filters.ts     the filter chips above the projects grid
 //   projects/<slug>.tsx    deep-dive content per project
@@ -26,6 +28,10 @@ export const DATA = {
 } as const;
 
 export { PROJECT_FILTERS } from "./project-filters";
+export { EXPERIENCE, CURRENT_ROLE, formatRange } from "./experience";
+export type { ExperienceEntry } from "./experience";
+export { RESUME, companyLabel } from "./resume";
+export type { Project } from "./projects-list";
 export { PROJECT_DETAILS } from "./project-details";
 export type {
   ProjectDetail,

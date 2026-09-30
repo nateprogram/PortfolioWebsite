@@ -4,9 +4,23 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
+
+// ---------------------------------------------------------------------------
+// Media
+// ---------------------------------------------------------------------------
+
+function hashOf(s: string) {
+  let hash = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    hash ^= s.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
 
 function initialsOf(title: string): string {
   const caps = title.match(/[A-Z]/g);
@@ -15,81 +29,170 @@ function initialsOf(title: string): string {
   return title.slice(0, 2).toUpperCase();
 }
 
-function gradientFor(title: string): string {
-  const palettes = [
-    "from-emerald-500/25 via-sky-500/15 to-transparent",
-    "from-violet-500/25 via-fuchsia-500/15 to-transparent",
-    "from-amber-500/25 via-rose-500/15 to-transparent",
-    "from-cyan-500/25 via-blue-500/15 to-transparent",
-  ];
-  let hash = 0;
-  for (let i = 0; i < title.length; i++) {
-    hash = (hash * 31 + title.charCodeAt(i)) >>> 0;
+type CoverCell = { x: number; y: number; r: number; o: number; c: string };
+
+// Seeded LCG so the same title always yields the same cover.
+function coverCells(title: string): CoverCell[] {
+  const cols = 18;
+  const rows = 8;
+  const cells: CoverCell[] = [];
+  let state = hashOf(title);
+  const rand = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const lit = rand() > 0.9;
+      cells.push({
+        x: 12 + x * 22,
+        y: 14 + y * 22,
+        r: lit ? 3 : 1.4,
+        o: lit ? 0.9 : 0.12 + rand() * 0.2,
+        c: lit ? (rand() > 0.5 ? "var(--brand)" : "var(--brand-2)") : "currentColor",
+      });
+    }
   }
-  return palettes[hash % palettes.length];
+  return cells;
+}
+
+// Deterministic cover for projects without a screenshot: a dot lattice
+// seeded from the title, with a few cells lit in the accent colors.
+function GeneratedCover({ title }: { title: string }) {
+  const cells = coverCells(title);
+  return (
+    <div
+      className="relative h-48 w-full overflow-hidden bg-muted/40 text-foreground"
+      aria-hidden
+    >
+      <svg viewBox="0 0 400 180" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice">
+        {cells.map((d, i) => (
+          <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={d.c} opacity={d.o} />
+        ))}
+      </svg>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,var(--background)_90%)] opacity-70" />
+      <div className="relative z-10 flex h-full w-full items-center justify-center">
+        <span className="font-mono text-5xl font-bold tracking-tight text-foreground/85 transition-transform duration-500 group-hover/card:scale-105">
+          {initialsOf(title)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// Three phone screenshots fanned out; they spread apart on card hover.
+function PhoneFan({ shots, title }: { shots: readonly string[]; title: string }) {
+  const [left, center, right] = shots;
+  const phone =
+    "absolute bottom-[-38%] w-[30%] overflow-hidden rounded-[0.9rem] border-[3px] border-zinc-800 bg-black shadow-2xl transition-transform duration-500 ease-out";
+  return (
+    <div className="relative h-48 w-full overflow-hidden bg-[radial-gradient(ellipse_at_50%_100%,var(--brand-soft),transparent_70%)] bg-muted/30">
+      {left && (
+        <div
+          className={cn(phone, "left-[10%] z-0 -rotate-[9deg] group-hover/card:-translate-x-3 group-hover/card:-rotate-[13deg]")}
+        >
+          <img src={left} alt="" loading="lazy" className="aspect-[1080/2125] w-full object-cover object-top" />
+        </div>
+      )}
+      {right && (
+        <div
+          className={cn(phone, "right-[10%] z-0 rotate-[9deg] group-hover/card:translate-x-3 group-hover/card:rotate-[13deg]")}
+        >
+          <img src={right} alt="" loading="lazy" className="aspect-[1080/2125] w-full object-cover object-top" />
+        </div>
+      )}
+      {center && (
+        <div
+          className={cn(phone, "left-1/2 z-10 -translate-x-1/2 bottom-[-30%] group-hover/card:-translate-y-2")}
+        >
+          <img
+            src={center}
+            alt={`${title} screenshot`}
+            loading="lazy"
+            className="aspect-[1080/2125] w-full object-cover object-top"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Autoplay only while on screen, and never for reduced-motion users. The
+// poster shows until then, so the mp4 isn't fetched on first load.
+function InViewVideo({ src, poster }: { src: string; poster?: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const reduceMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    if (reduceMotion) {
+      video.pause();
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(video);
+    return () => io.disconnect();
+  }, [reduceMotion]);
+
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      preload="none"
+      loop
+      muted
+      playsInline
+      aria-hidden
+      className="w-full h-48 object-cover transition-transform duration-500 group-hover/card:scale-[1.03]"
+    />
+  );
 }
 
 function ProjectMedia({
   title,
   image,
   video,
+  poster,
+  shots,
 }: {
   title: string;
   image?: string;
   video?: string;
+  poster?: string;
+  shots?: readonly string[];
 }) {
   const [imageError, setImageError] = useState(false);
 
-  if (video) {
-    return (
-      <video
-        src={video}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-48 object-cover"
-      />
-    );
-  }
-
+  if (video) return <InViewVideo src={video} poster={poster} />;
+  if (shots && shots.length > 0) return <PhoneFan shots={shots} title={title} />;
   if (image && !imageError) {
     return (
       <img
         src={image}
         alt={title}
-        className="w-full h-48 object-cover"
+        loading="lazy"
+        className="w-full h-48 object-cover object-top transition-transform duration-500 group-hover/card:scale-[1.03]"
         onError={() => setImageError(true)}
       />
     );
   }
-
-  const gradient = gradientFor(title);
-  const initials = initialsOf(title);
-  return (
-    <div
-      className={cn(
-        "relative w-full h-48 overflow-hidden bg-muted/40",
-        "bg-gradient-to-br",
-        gradient
-      )}
-      aria-hidden
-    >
-      <div
-        className="absolute inset-0 opacity-40 mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.12), transparent 40%), radial-gradient(circle at 80% 80%, rgba(0,0,0,0.25), transparent 40%)",
-        }}
-      />
-      <div className="relative z-10 flex h-full w-full items-center justify-center">
-        <span className="font-mono text-5xl font-bold tracking-tight text-foreground/80">
-          {initials}
-        </span>
-      </div>
-    </div>
-  );
+  return <GeneratedCover title={title} />;
 }
+
+// ---------------------------------------------------------------------------
+// Card
+// ---------------------------------------------------------------------------
 
 interface Props {
   title: string;
@@ -100,6 +203,8 @@ interface Props {
   link?: string;
   image?: string;
   video?: string;
+  poster?: string;
+  shots?: readonly string[];
   links?: readonly {
     icon: React.ReactNode;
     type: string;
@@ -117,29 +222,45 @@ export function ProjectCard({
   href,
   description,
   tags,
-  status,
-  link,
   image,
   video,
+  poster,
+  shots,
   links,
   className,
 }: Props) {
-  const isPlaceholder = !video && !image;
+  const cardRef = useRef<HTMLDivElement>(null);
   const hasPrimaryLink = !!href && href !== "#";
   const isExternal = hasPrimaryLink && isExternalHref(href!);
   const linkTargetProps = isExternal
     ? { target: "_blank" as const, rel: "noopener noreferrer" }
     : {};
+
+  // The spotlight follows the pointer via CSS variables written straight
+  // onto the element: no React state, so moving the mouse never
+  // re-renders the card. (A 3D tilt was tried and dropped: Chromium blurs
+  // text under perspective transforms.)
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+    el.style.setProperty("--my", `${e.clientY - rect.top}px`);
+  };
+
   return (
     <div
+      ref={cardRef}
+      onPointerMove={onPointerMove}
       className={cn(
-        "flex flex-col h-full border border-border rounded-xl overflow-hidden transition-all duration-200",
+        "spotlight group/card relative flex flex-col h-full border border-border rounded-xl overflow-hidden bg-card/40 transition-[translate,box-shadow] duration-300 ease-out",
         hasPrimaryLink &&
-          "hover:ring-2 cursor-pointer hover:ring-muted focus-within:ring-2 focus-within:ring-ring",
+          "cursor-pointer motion-safe:hover:-translate-y-1 hover:shadow-[0_22px_45px_-24px_var(--brand)] focus-within:ring-2 focus-within:ring-ring",
         className
       )}
     >
-      <div className="relative shrink-0">
+      <div className="relative shrink-0 overflow-hidden border-b border-border/60">
         {hasPrimaryLink ? (
           <Link
             href={href!}
@@ -148,10 +269,10 @@ export function ProjectCard({
             tabIndex={-1}
             aria-hidden
           >
-            <ProjectMedia title={title} image={image} video={video} />
+            <ProjectMedia title={title} image={image} video={video} poster={poster} shots={shots} />
           </Link>
         ) : (
-          <ProjectMedia title={title} image={image} video={video} />
+          <ProjectMedia title={title} image={image} video={video} poster={poster} shots={shots} />
         )}
         {/* Status badge intentionally not rendered. The data field is kept on
             the project type for future filtering/logic, but surfacing labels
@@ -160,7 +281,7 @@ export function ProjectCard({
             every entry in the grid stand on its own merits; dates alone
             already communicate "currently shipping" vs "past". */}
         {links && links.length > 0 && (
-          <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-2">
+          <div className="absolute top-2 right-2 z-20 flex flex-wrap gap-2">
             {links.map((link, idx) => (
               <Link
                 href={link.href}
@@ -181,15 +302,8 @@ export function ProjectCard({
             ))}
           </div>
         )}
-        {isPlaceholder && (
-          <div className="absolute bottom-2 right-2 z-10 pointer-events-none">
-            <span className="rounded-md border border-border/60 bg-background/70 px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground backdrop-blur">
-              Media soon
-            </span>
-          </div>
-        )}
       </div>
-      <div className="relative p-6 flex flex-col gap-3 flex-1">
+      <div className="relative z-10 p-6 flex flex-col gap-3 flex-1">
         {hasPrimaryLink && (
           <Link
             href={href!}
@@ -199,12 +313,10 @@ export function ProjectCard({
           />
         )}
         <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-1">
-            <h3 className="font-semibold">{title}</h3>
-          </div>
+          <h3 className="font-semibold">{title}</h3>
           {hasPrimaryLink && (
             <ArrowUpRight
-              className="h-4 w-4 text-muted-foreground shrink-0"
+              className="h-4 w-4 text-muted-foreground shrink-0 transition-all duration-300 group-hover/card:text-brand group-hover/card:-translate-y-0.5 group-hover/card:translate-x-0.5"
               aria-hidden
             />
           )}

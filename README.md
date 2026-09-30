@@ -20,16 +20,26 @@ Dev server runs at http://localhost:3000.
 
 | Path                                   | What's in it                                          |
 | -------------------------------------- | ----------------------------------------------------- |
-| `src/data/resume.tsx`                  | All personal content: name, bio, skills, projects, PROJECT_DETAILS |
-| `src/app/page.tsx`                     | Home page layout (hero, about, education, skills, projects, contact) |
-| `src/app/projects/[slug]/page.tsx`     | Per-project detail page (STAR-format case study)      |
-| `src/components/section/`              | Home-page sections (projects, contact)                |
-| `src/components/ui/svgs/`              | Brand logos for skills section (Simple Icons, CC0)    |
-| `src/app/globals.css`                  | Theme tokens, global styles                           |
+| `src/data/experience.ts`               | Work history. **A new job is one entry here.**        |
+| `src/data/resume.ts`                   | The resume as data: headline, summary, skills, projects |
+| `src/data/profile.ts`                  | Bio, contact links, skill chips, dock items           |
+| `src/data/projects-list.tsx`           | Project cards on the homepage                         |
+| `src/data/projects/<slug>.tsx`         | Per-project deep dives (STAR-style case studies)      |
+| `src/app/page.tsx`                     | Home: hero, about, experience, projects, skills, education, contact |
+| `src/app/resume/page.tsx`              | `/resume`, the resume as a web page (print-ready)     |
+| `src/app/resume.pdf/route.tsx`         | `/resume.pdf`, generated from the same data at build  |
+| `src/app/projects/[slug]/page.tsx`     | Per-project detail page                               |
+| `src/lib/particles.ts`                 | TS port of the Mayhem Engine emitter (hero + playground) |
+| `src/components/section/`              | Home-page sections (experience, projects, contact)    |
+| `src/app/globals.css`                  | Theme tokens (incl. the `--brand` accent), effects, print styles |
 | `public/`                              | Static media. See `public/README.md` for drop-zone layout. |
 
-Most edits start in `src/data/resume.tsx`. The home page and detail pages
-both pull from the `DATA` export there.
+### Updating the resume
+
+The homepage Experience timeline, `/resume`, `/resume.pdf`, and the ATS
+keyword tool's `RESUME_TEXT` all read from `experience.ts` + `resume.ts`.
+Edit those, push, and every copy updates on the next deploy. There's no
+PDF to re-export by hand. Bump `RESUME.updated` when the content changes.
 
 ## Deploying
 

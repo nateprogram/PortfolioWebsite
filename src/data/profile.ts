@@ -3,7 +3,7 @@
 // door in `projects-list.tsx` and `projects/<slug>.tsx`.
 
 import { Icons } from "@/components/icons";
-import { HomeIcon } from "lucide-react";
+import { BriefcaseIcon, FolderGit2Icon, HomeIcon } from "lucide-react";
 import { ReactLight } from "@/components/ui/svgs/reactLight";
 import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
@@ -17,6 +17,13 @@ import { PyTorch } from "@/components/ui/svgs/pytorch";
 import { Capacitor } from "@/components/ui/svgs/capacitor";
 import { Prisma } from "@/components/ui/svgs/prisma";
 import { Postgresql } from "@/components/ui/svgs/postgresql";
+import { CURRENT_ROLE } from "./experience";
+
+// Hero role line follows the current job in experience.ts, so a job
+// change is a one-file edit.
+const ROLE = CURRENT_ROLE
+  ? `${CURRENT_ROLE.title} · ${CURRENT_ROLE.company}`
+  : "Software Engineer · DigiPen '26";
 
 export const PROFILE = {
   name: "Nate White",
@@ -24,11 +31,12 @@ export const PROFILE = {
   url: "https://natewhite.dev",
   location: "Redmond, WA",
   locationLink: "https://www.google.com/maps/place/redmond+wa",
-  role: "Software Engineer · New Grad · April 2026",
+  role: ROLE,
+  // Hero subtitle, <meta description>, and the OG card all use this.
   description:
-    "Redmond, WA · Open to new-grad SWE roles. Available now.",
+    "AI Engineer at Cyclotron. I've built a C++ engine that shipped a game to Steam, an ML trading research platform, and a web + mobile app I run under my own LLC.",
   summary:
-    "C++, C#, Python, and TypeScript engineer. I ship SquadPact under my own LLC: a scheduling app for adult soccer leagues. It exists because the volunteer managers on my own teams burn hours every week copy-pasting schedules from league sites into group chats.\n\nStockAI is my ML trading research platform. The model retrains itself on fresh data, but a new checkpoint only goes live if it beats the prior one on both direction and regime-stratified accuracy. A silently failing model is worse than no model.\n\nWith two teammates I wrote a custom C++ engine from scratch, no commercial middleware anywhere in the stack, and we shipped a tower-offense title to Steam on it. I later wrote a Python genetic algorithm that played the game and beat it in 16 generations. At Spur Reply, I automated a fully manual newsletter pipeline reaching 10,000+ Microsoft employees.\n\nI use Claude Code to ship MVPs fast.\n\nBS Computer Science & Game Design from [DigiPen](/#education), graduated April 2026. Shipped with multi-disciplinary teams of 6 and 19 there. Open to new-grad SWE roles.",
+    "AI Engineer at [Cyclotron](https://www.cyclotroninc.com), a Microsoft Solutions Partner for modern work, data, and AI. C++, C#, Python, and TypeScript engineer.\n\nI also ship SquadPact under my own LLC: a scheduling app for adult soccer leagues, one codebase for web, iOS, and Android. It exists because the volunteer managers on my own teams burn hours every week copy-pasting schedules from league sites into group chats.\n\nStockAI is my ML trading research platform. The model retrains itself on fresh data, but a new checkpoint only goes live if it beats the prior one on both direction and regime-stratified accuracy. A silently failing model is worse than no model.\n\nWith two teammates I wrote a custom C++ engine from scratch, no commercial middleware anywhere in the stack, and we shipped a tower-offense title to Steam on it. I later wrote a Python genetic algorithm that played the game and beat it in 16 generations. At Spur Reply, I automated a fully manual newsletter pipeline reaching 10,000+ Microsoft employees.\n\nI use Claude Code to ship MVPs fast.\n\nBS Computer Science & Game Design from [DigiPen](/#education), graduated April 2026. Shipped with multi-disciplinary teams of 6 and 19 there.",
 
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
@@ -64,7 +72,11 @@ export const PROFILE = {
     },
   ],
 
-  navbar: [{ href: "/", icon: HomeIcon, label: "Home" }],
+  navbar: [
+    { href: "/", icon: HomeIcon, label: "Home" },
+    { href: "/#experience", icon: BriefcaseIcon, label: "Experience" },
+    { href: "/#projects", icon: FolderGit2Icon, label: "Projects" },
+  ],
 
   contact: {
     email: "NateWhite.dev@gmail.com",
@@ -72,7 +84,7 @@ export const PROFILE = {
     social: {
       Resume: {
         name: "Resume",
-        url: "/resume.pdf",
+        url: "/resume",
         icon: Icons.resume,
         navbar: true,
       },

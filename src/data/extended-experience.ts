@@ -120,7 +120,8 @@ export const EXTENDED_EXPERIENCE: ExtendedExperience = {
   ],
 
   notes: [
-    "Veltarium Software LLC is a real LLC Nate registered for SquadPact and any future side products. He's the sole founder and engineer. The formal LLC entity was active Mar 2026 - May 2026 (wound down at graduation). Use 'Mar 2026 - May 2026' on resumes; the underlying SquadPact project work predates the LLC and continues.",
+    "Veltarium Software LLC is a real LLC Nate registered for SquadPact and any future side products (Budget Buddy, Adaptive Strength Trainer). He's the sole founder and engineer. Use 'Mar 2026 - Present' on resumes; the underlying SquadPact project work predates the LLC and continues.",
+    "Current job: AI Engineer at Cyclotron, Inc. (Microsoft Solutions Partner for modern work, data, and AI), Jul 2026 - Present, remote (US). Anthropic Associate certified; uses Azure DevOps. The canonical work history lives in src/data/experience.ts.",
     "Spur Reply (previously The Spur Group) is a Redmond consulting firm. The Power Automate (Microsoft Flow) newsletter pipeline was built on a Microsoft client engagement and reached 10,000+ recipients. (LinkedIn currently shows 'over 1,000' which Nate is correcting to 10,000+.)",
     "DigiPen: Nate started in 2021 and graduated May 2026 (5-year timeline for the dual-track degree). Degree: BS Computer Science & Game Design. Don't claim ABET accreditation.",
     "High school: Archbishop Murphy High School, graduated 2021.",

@@ -181,7 +181,11 @@ export function VerticalArrow({
 
   return (
     <div className="flex flex-col items-center gap-0.5 py-1" aria-hidden>
-      <div className={cn("h-4 w-px", styles.line)} />
+      {/* A packet of light travels down each arrow so the diagram reads
+          as data moving, not just boxes. Hidden for reduced motion. */}
+      <div className={cn("relative h-4 w-px overflow-visible", styles.line)}>
+        <span className="dataflow-packet motion-reduce:hidden" />
+      </div>
       <ArrowDown className={cn("size-3", styles.icon)} strokeWidth={2.5} />
       {label && (
         <span className="mt-0.5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60">

@@ -12,9 +12,11 @@ import {
   InlineCodeSnippet,
   type CodeSnippet,
 } from "@/components/interleaved-prose";
-import { LightboxFigure } from "@/components/lightbox-figure";
+import { LightboxFigure, PhoneGallery } from "@/components/lightbox-figure";
 import { StockaiDataflow } from "@/components/dataflow";
 import { GaRunChart } from "@/components/ga-run-chart";
+import { ParticlePlayground } from "@/components/particle-playground";
+import type { Figure } from "@/data/types";
 import { highlightCode } from "@/lib/highlight";
 
 const BLUR_FADE_DELAY = 0.04;
@@ -44,23 +46,19 @@ export async function generateMetadata({
 }
 
 // Dispatch table for figures that render a custom interactive component
-// rather than a static image. Keeps the resume.tsx data side declarative.
-type Figure =
-  | { src: string; alt: string; caption?: string }
-  | {
-      diagram: "stockai-dataflow" | "ga-scatter";
-      alt: string;
-      caption?: string;
-    };
+// rather than a static image. Keeps the data side declarative.
+const DIAGRAMS = {
+  "stockai-dataflow": StockaiDataflow,
+  "ga-scatter": GaRunChart,
+  "particle-playground": ParticlePlayground,
+} as const;
 
 function FigureRenderer({ figure }: { figure: Figure }) {
+  if ("phones" in figure) {
+    return <PhoneGallery shots={figure.phones} caption={figure.caption} />;
+  }
   if ("diagram" in figure) {
-    const Diagram =
-      figure.diagram === "stockai-dataflow"
-        ? StockaiDataflow
-        : figure.diagram === "ga-scatter"
-        ? GaRunChart
-        : null;
+    const Diagram = DIAGRAMS[figure.diagram] ?? null;
     if (!Diagram) return null;
     return (
       // NOTE: no `overflow-hidden` here. The GA chart's hover tooltip is
@@ -109,6 +107,14 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
   const details = PROJECT_DETAILS[slug];
 
+  // Mobile apps lead with their phone gallery instead of a single tall
+  // screenshot; that figure then isn't repeated under Figures.
+  const heroPhones =
+    project.shots && project.shots.length > 0
+      ? details?.figures?.find((f) => "phones" in f)
+      : undefined;
+  const figures = (details?.figures ?? []).filter((f) => f !== heroPhones);
+
   // Pre-run every snippet through shiki so the client gets ready-to-paint
   // VS Code Dark+ HTML and the shiki bundle never ships to the browser.
   const highlightedSnippets: ReadonlyArray<CodeSnippet> = await Promise.all(
@@ -137,11 +143,11 @@ export default async function ProjectDetailPage({
     <main className="min-h-dvh flex flex-col gap-10 relative">
       <BlurFade delay={BLUR_FADE_DELAY}>
         <Link
-          href="/#projects"
+          href={project.hideFromGrid ? "/#experience" : "/#projects"}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm w-fit"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
-          All projects
+          {project.hideFromGrid ? "Experience" : "All projects"}
         </Link>
       </BlurFade>
 
@@ -172,7 +178,13 @@ export default async function ProjectDetailPage({
         </BlurFade>
       </header>
 
-      {(project.video || project.image) && (
+      {heroPhones && (
+        <BlurFade delay={BLUR_FADE_DELAY * 5}>
+          <FigureRenderer figure={heroPhones} />
+        </BlurFade>
+      )}
+
+      {!heroPhones && (project.video || project.image) && (
         <BlurFade delay={BLUR_FADE_DELAY * 5}>
           <div
             className={cn(
@@ -181,14 +193,25 @@ export default async function ProjectDetailPage({
             )}
           >
             {project.video ? (
-              <video
-                src={project.video}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-auto object-cover"
-              />
+              <>
+                <video
+                  src={project.video}
+                  poster={project.poster}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-auto object-cover motion-reduce:hidden"
+                />
+                {project.poster && (
+                  <img
+                    src={project.poster}
+                    alt={project.title}
+                    className="hidden w-full h-auto object-cover motion-reduce:block"
+                  />
+                )}
+              </>
             ) : project.image ? (
               <img
                 src={project.image}
@@ -297,14 +320,14 @@ export default async function ProjectDetailPage({
       )}
 
       {/* Figures live right under Approach so diagrams read as part of the story. */}
-      {details?.figures && details.figures.length > 0 && (
+      {figures.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 11}>
           <section className="flex flex-col gap-3">
             <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Figures
             </h2>
             <div className="flex flex-col gap-6">
-              {details.figures.map((figure, i) => (
+              {figures.map((figure, i) => (
                 <FigureRenderer key={i} figure={figure} />
               ))}
             </div>

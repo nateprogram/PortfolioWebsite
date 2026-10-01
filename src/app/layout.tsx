@@ -9,6 +9,7 @@ import "./globals.css";
 import { TopBackdrop } from "@/components/top-backdrop";
 import { MotionProvider } from "@/components/motion-provider";
 import { SectionIndex } from "@/components/section-index";
+import { NavHistory } from "@/components/back-link";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -80,6 +81,7 @@ export default function RootLayout({
             </div>
             <SectionIndex />
             <Navbar />
+            <NavHistory />
           </TooltipProvider>
         </MotionProvider>
       </body>

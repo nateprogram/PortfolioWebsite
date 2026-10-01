@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { BackLink } from "@/components/back-link";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
@@ -154,14 +154,13 @@ export default async function ProjectDetailPage({
           across categories for multi-category projects). It fades out
           behind the media, before the text below it starts. */}
       <GridFloor className="-top-12 sm:-top-24 h-[680px] sm:h-[760px]" />
-      <BlurFade delay={BLUR_FADE_DELAY}>
-        <Link
+      {/* Reveals on load: it sits at the very top edge after a client-side
+          visit, where a scroll-triggered reveal never fires. */}
+      <BlurFade delay={BLUR_FADE_DELAY} inView={false}>
+        <BackLink
           href={project.hideFromGrid ? "/#experience" : "/#projects"}
           className="text-scrim text-scrim-tight inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm w-fit"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden />
-          {project.hideFromGrid ? "Experience" : "All projects"}
-        </Link>
+        />
       </BlurFade>
 
       <header className="text-scrim flex flex-col gap-4">

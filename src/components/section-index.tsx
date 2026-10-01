@@ -30,17 +30,27 @@ const SECTIONS = [
 const itemClass =
   "group flex items-center gap-3 py-1 font-mono text-[11px] uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm";
 
+// Each tick branches off a vertical bus line (see the <ol>). The active
+// tick is a 2px cyan core with a short red underline: weight contrast
+// plus the tertiary mark, instead of a single hairline.
 function Tick({ active }: { active: boolean }) {
   return (
-    <span
-      aria-hidden
-      className={cn(
-        "h-px shrink-0 transition-all duration-300 ease-out",
-        active
-          ? "w-8 bg-gradient-to-r from-brand to-brand-2 shadow-[0_0_8px_0_var(--brand-glow)]"
-          : "w-3 bg-muted-foreground/40 group-hover:w-5 group-hover:bg-foreground/60"
-      )}
-    />
+    <span aria-hidden className="relative flex shrink-0 items-center">
+      <span
+        className={cn(
+          "block transition-all duration-300 ease-out",
+          active
+            ? "h-[2px] w-8 bg-gradient-to-r from-brand to-brand-2 shadow-[0_0_8px_0_var(--brand-glow)]"
+            : "h-px w-3 bg-muted-foreground/40 group-hover:w-5 group-hover:bg-foreground/60"
+        )}
+      />
+      <span
+        className={cn(
+          "absolute left-0 top-[5px] h-px bg-tron-red transition-all duration-300",
+          active ? "w-2.5 opacity-100" : "w-0 opacity-0"
+        )}
+      />
+    </span>
   );
 }
 
@@ -134,7 +144,7 @@ export function SectionIndex() {
       // closer than 1.5rem to the window edge.
       style={{ left: "max(1.5rem, calc(50% - 336px - 13rem))" }}
     >
-      <ol className="flex flex-col">
+      <ol className="relative flex flex-col before:absolute before:-left-2 before:top-2.5 before:bottom-2.5 before:w-px before:bg-border">
         {SECTIONS.map((s) => {
           const isActive = currentId === s.id;
           const content = (

@@ -60,11 +60,11 @@ export function HeroStats() {
     <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {STATS.map((s, i) => (
         <li key={s.label} className="hud-glow">
-          {/* Chamfered HUD readout; the edge is lit from below and fully
-              lit on hover. */}
+          {/* Chamfered HUD readout with an inner bracket and a red notch;
+              the edge is lit from below and fully lit on hover. */}
           <Link
             href={s.href}
-            className="hud hud-hover group flex h-full flex-col gap-0.5 px-3 py-2.5 [--cut:10px] focus-visible:outline-none"
+            className="hud hud-hover hud-detail group flex h-full flex-col gap-0.5 px-3.5 pb-3 pt-2.5 [--cut:10px] focus-visible:outline-none"
           >
             <span className="text-light text-2xl font-semibold tracking-tight">
               <CountUp value={s.value} suffix={s.suffix} delay={0.25 + i * 0.12} />

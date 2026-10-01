@@ -18,14 +18,17 @@ const HeroEmitter = dynamic(
 // Lattice cells are 48px, so ribbon offsets are multiples of 48. Paths
 // stay in the top row and the side margins so a ribbon never runs along
 // the edge of a piece of content and reads as a glitch.
+// Mostly blue, with a red rival on the same rows: the key art's floor has
+// red light-cycle trails cutting across the blue Grid.
 const RIBBONS_X = [
-  { top: 48, dur: "11s", delay: "0s" },
-  { top: 48, dur: "15s", delay: "6s" },
+  { top: 48, dur: "11s", delay: "0s", red: false },
+  { top: 48, dur: "13s", delay: "5s", red: true },
+  { top: 0, dur: "15s", delay: "9s", red: false },
 ];
 const RIBBONS_Y = [
-  { left: 96, dur: "9s", delay: "2s" },
-  { left: 1200, dur: "10s", delay: "4.5s" },
-  { left: 1344, dur: "13s", delay: "8s" },
+  { left: 96, dur: "9s", delay: "2s", red: false },
+  { left: 1200, dur: "10s", delay: "4.5s", red: true },
+  { left: 1344, dur: "13s", delay: "8s", red: false },
 ];
 
 function Lattice({ height, fadeAt }: { height: number; fadeAt: string }) {
@@ -73,15 +76,15 @@ export function TopBackdrop() {
         <div className="absolute inset-0 tron-lattice" />
         {RIBBONS_X.map((r) => (
           <span
-            key={`x${r.top}`}
-            className="ribbon ribbon-x"
+            key={`x${r.top}-${r.delay}`}
+            className={r.red ? "ribbon ribbon-x ribbon-red" : "ribbon ribbon-x"}
             style={{ top: r.top - 1, ["--dur" as string]: r.dur, ["--delay" as string]: r.delay }}
           />
         ))}
         {RIBBONS_Y.map((r) => (
           <span
-            key={`y${r.left}`}
-            className="ribbon ribbon-y"
+            key={`y${r.left}-${r.delay}`}
+            className={r.red ? "ribbon ribbon-y ribbon-red" : "ribbon ribbon-y"}
             style={{ left: r.left - 1, ["--dur" as string]: r.dur, ["--delay" as string]: r.delay }}
           />
         ))}

@@ -65,7 +65,11 @@ export default function ProjectsSection() {
                 interface dividers. */}
             <div className="flex-1 h-px bg-linear-to-r from-transparent from-5% via-border to-brand/60" />
             <div className="hud-glow z-10">
-              <span className="hud hud-lit inline-flex px-3.5 py-1 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground [--cut:6px]">
+              <span className="hud hud-lit inline-flex items-center gap-2 px-3.5 py-1 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground [--cut:6px]">
+                <span aria-hidden className="flex flex-col gap-[2px]">
+            <span className="h-[2px] w-2 bg-brand" />
+            <span className="h-px w-1 bg-tron-red" />
+          </span>
                 Projects
               </span>
             </div>
@@ -89,7 +93,9 @@ export default function ProjectsSection() {
           <div
             role="group"
             aria-label="Filter projects by focus"
-            className="flex flex-wrap items-center justify-center gap-2"
+            // The tabs sit on a rail: a 1px line under the group that the
+            // active tab's light bar rides on.
+            className="relative flex flex-wrap items-center justify-center gap-2 pb-3 after:absolute after:inset-x-[10%] after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-border after:to-transparent"
           >
             {PROJECT_FILTERS.map((filter) => {
               const isActive = filter.value === activeFilter.value;
@@ -119,7 +125,8 @@ export default function ProjectsSection() {
                       transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       aria-hidden
                     >
-                      <span className="absolute inset-x-1.5 -bottom-px h-px bg-brand-2 shadow-[0_0_8px_1px_var(--brand-glow)]" />
+                      <span className="absolute inset-x-1.5 -bottom-px h-[2px] bg-brand-2 shadow-[0_0_8px_1px_var(--brand-glow)]" />
+                      <span className="absolute left-1.5 -bottom-[5px] h-px w-3 bg-tron-red" />
                     </motion.span>
                   )}
                   <span className="relative z-10">
@@ -127,7 +134,7 @@ export default function ProjectsSection() {
                     <span
                       className={cn(
                         "ml-1.5 tabular-nums",
-                        isActive ? "text-brand" : "text-muted-foreground/60"
+                        isActive ? "text-tron-red" : "text-muted-foreground/60"
                       )}
                     >
                       {count}

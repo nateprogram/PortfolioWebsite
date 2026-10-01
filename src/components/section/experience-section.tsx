@@ -46,22 +46,22 @@ export default function ExperienceSection() {
     <div className="flex min-h-0 flex-col gap-y-6">
       <h2 className="section-title text-xl font-bold">Experience</h2>
       <ol ref={listRef} className="relative">
-        {/* The grid line the cycle rides on. */}
+        {/* The grid line the cycle rides on: a 2px rail. */}
         <div
-          className="absolute left-[11px] top-3 bottom-2 w-px bg-border"
+          className="absolute left-[10px] top-3 bottom-2 w-[2px] bg-border"
           aria-hidden
         />
         {/* The light ribbon laid behind the cycle. */}
         <motion.div
-          className="absolute left-[11px] top-3 bottom-2 w-px origin-top bg-brand shadow-[0_0_6px_0_var(--brand-glow)]"
+          className="absolute left-[10px] top-3 bottom-2 w-[2px] origin-top bg-brand shadow-[0_0_6px_0_var(--brand-glow)]"
           style={{ scaleY: reduceMotion ? 1 : progress }}
           aria-hidden
         />
-        {/* The cycle head: an elongated white-hot point at the ribbon tip. */}
+        {/* The cycle head: a white-hot tip with a short tail behind it. */}
         {!reduceMotion && (
-          <div className="pointer-events-none absolute left-[11px] top-3 bottom-2 w-px" aria-hidden>
+          <div className="pointer-events-none absolute left-[10px] top-3 bottom-2 w-[2px]" aria-hidden>
             <motion.span
-              className="absolute -left-[1px] -mt-[10px] h-[10px] w-[3px] rounded-full bg-brand-2 shadow-[0_0_6px_1px_var(--brand),0_0_16px_2px_var(--brand-glow)]"
+              className="absolute -left-[0.5px] -mt-[22px] h-[22px] w-[3px] rounded-full bg-gradient-to-b from-transparent via-brand to-brand-2 shadow-[0_6px_10px_0_var(--brand-glow)]"
               style={{ top: headTop, opacity: headOpacity }}
             />
           </div>
@@ -96,15 +96,27 @@ function TimelineItem({
 
   return (
     <li ref={ref} className="relative pl-10 pb-10 last:pb-0">
-      {/* The ribbon bending off the rail into this role's title. Lit and
-          glowing for current roles; switched off (dim) for past ones. */}
+      {/* The ribbon bending off the rail into this role's title (2px), and
+          a 1px companion line running down beside the rail that turns in
+          at the bottom: together they form a channel around the entry
+          without closing it. Lit for current roles; switched off (dim)
+          for past ones, the way Legacy's cycles toggle their ribbons. */}
       <span
         aria-hidden
         className={cn(
-          "absolute left-[11px] top-0 h-[12px] w-[22px] rounded-bl-[10px] border-b border-l transition-[border-color,filter] duration-500",
+          "absolute left-[10px] top-0 h-[13px] w-[24px] rounded-bl-[10px] border-b-2 border-l-2 transition-[border-color,filter] duration-500",
           !lit && "border-border",
           lit && isCurrent && "border-brand drop-shadow-[0_0_4px_var(--brand-glow)]",
           lit && !isCurrent && "border-brand/45"
+        )}
+      />
+      <span
+        aria-hidden
+        className={cn(
+          "absolute left-[18px] top-[22px] bottom-[22px] w-[6px] rounded-bl-[4px] border-b border-l transition-colors duration-500",
+          !lit && "border-border/70",
+          lit && isCurrent && "border-brand/60",
+          lit && !isCurrent && "border-brand/25"
         )}
       />
 
@@ -177,7 +189,7 @@ function TimelineItem({
           {entry.tags?.map((tag) => (
             <span
               key={tag}
-              className="rounded-sm border border-border bg-card/60 px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-wider text-foreground/80"
+              className="rounded-sm border border-border border-l-2 border-l-brand/50 bg-card/60 px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-wider text-foreground/80"
             >
               {tag}
             </span>
@@ -228,10 +240,11 @@ function Bullet({ children }: { children: string }) {
 function BulletBody({ children }: { children: string }) {
   return (
     <span className="flex gap-2">
-      <span
-        className="mt-[0.7em] h-px w-2 shrink-0 bg-brand/60"
-        aria-hidden
-      />
+      {/* A 2px dash with a shorter 1px dash under it. */}
+      <span className="mt-[0.62em] flex shrink-0 flex-col gap-[2px]" aria-hidden>
+        <span className="h-[2px] w-2 bg-brand/70" />
+        <span className="h-px w-1 bg-brand/35" />
+      </span>
       <span className="text-pretty leading-relaxed">{children}</span>
     </span>
   );

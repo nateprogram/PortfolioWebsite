@@ -86,24 +86,37 @@ export default function Page() {
               </p>
             </div>
             <div className={cn("order-1 md:order-2 shrink-0", enter("delay-100"))}>
-              {/* Identity disc: a lit rim, plus a segmented outer ring
-                  that turns slowly, like the rings of a program's disc. */}
+              {/* Identity disc, after the platform rings in the key art:
+                  concentric rings of different weights with gaps. A thin
+                  segmented outer ring (with one red arc) turns one way, a
+                  heavy broken inner ring turns the other. */}
               <div className="relative size-24 md:size-32">
                 <svg
-                  className="disc-ring pointer-events-none absolute -inset-[9px] h-[calc(100%+18px)] w-[calc(100%+18px)] text-brand"
+                  className="disc-ring pointer-events-none absolute -inset-[10px] h-[calc(100%+20px)] w-[calc(100%+20px)]"
                   viewBox="0 0 100 100"
                   aria-hidden
                 >
                   <circle
-                    cx="50"
-                    cy="50"
-                    r="48.6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.7"
-                    pathLength={360}
-                    strokeDasharray="22 4 6 4"
-                    opacity="0.75"
+                    cx="50" cy="50" r="49" fill="none"
+                    className="stroke-brand" strokeWidth="0.5"
+                    pathLength={360} strokeDasharray="26 3 5 3" opacity="0.7"
+                  />
+                  <circle
+                    cx="50" cy="50" r="49" fill="none"
+                    className="stroke-tron-red" strokeWidth="1.3"
+                    pathLength={360} strokeDasharray="14 346" strokeDashoffset="-40"
+                  />
+                </svg>
+                <svg
+                  className="disc-ring-rev pointer-events-none absolute -inset-[10px] h-[calc(100%+20px)] w-[calc(100%+20px)]"
+                  viewBox="0 0 100 100"
+                  aria-hidden
+                >
+                  <circle
+                    cx="50" cy="50" r="45.6" fill="none"
+                    className="stroke-brand" strokeWidth="1.6"
+                    pathLength={360} strokeDasharray="96 12 52 12 140 48"
+                    opacity="0.85"
                   />
                 </svg>
                 <Avatar className="disc-rim relative size-24 md:size-32 border-2 border-background rounded-full">
@@ -231,7 +244,7 @@ export default function Page() {
                     {group.items.map((skill) => (
                       <div
                         key={skill.name}
-                        className="group border bg-background border-border ring-2 ring-border/20 rounded-xl h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-[0_6px_20px_-10px_var(--brand)]"
+                        className="group border border-border border-b-2 border-b-brand/35 bg-card/60 rounded-md h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:border-b-brand hover:shadow-[0_6px_16px_-10px_var(--brand)]"
                       >
                         {skill.icon && (
                           <skill.icon className="size-4 rounded overflow-hidden object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />

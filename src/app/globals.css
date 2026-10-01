@@ -44,7 +44,8 @@
   --color-brand-2: var(--brand-2);
   --color-brand-soft: var(--brand-soft);
   --color-brand-glow: var(--brand-glow);
-  --color-signal: var(--signal);
+  --color-tron-red: var(--tron-red);
+  --color-tron-red-core: var(--tron-red-core);
 }
 
 /* Theme: TRON: Legacy (2010), read from its production design.
@@ -52,8 +53,11 @@
  *   Dark mode is the Grid: blue-black glossy surfaces, a "very
  *   desaturated metallic light blue" for secondary text, and color that
  *   only ever comes from light lines (white-hot core, cyan halo, like the
- *   suits' electroluminescent "Natural Blue" tape). Orange is Clu's color,
- *   so it's reserved for conflict: errors and destructive actions.
+ *   suits' electroluminescent "Natural Blue" tape).
+ *
+ *   Red-orange (Clu's side; the suits' "Extreme Orange" / "International
+ *   Red" tape) is the tertiary color: small marks that contrast the blue,
+ *   never structure. Roughly one red mark per component, at most.
  *
  *   Light mode is the real world the film shoots flat and desaturated:
  *   overcast greys, ink text, the same cyan as a plain ink accent, and no
@@ -99,8 +103,11 @@
   --brand-2: oklch(0.38 0.07 230);
   --brand-soft: oklch(0.52 0.1 222 / 0.09);
   --brand-glow: transparent;
-  --signal: oklch(0.6 0.19 42);
+  --tron-red: oklch(0.56 0.2 32);
+  --tron-red-core: oklch(0.56 0.2 32);
+  --tron-red-glow: transparent;
   --lattice: oklch(0.45 0.03 230 / 0.07);
+  --lattice-major: oklch(0.45 0.03 230 / 0.12);
 }
 
 .dark {
@@ -142,9 +149,13 @@
   --brand-2: oklch(0.97 0.03 205);
   --brand-soft: oklch(0.86 0.11 212 / 0.1);
   --brand-glow: oklch(0.86 0.11 212 / 0.5);
-  /* Clu's orange. Conflict only. */
-  --signal: oklch(0.74 0.18 50);
-  --lattice: oklch(0.86 0.11 212 / 0.065);
+  /* Tertiary: Clu's red-orange. A hot core with a red halo, like the
+     orange suit lines in the key art. */
+  --tron-red: oklch(0.67 0.22 33);
+  --tron-red-core: oklch(0.86 0.1 60);
+  --tron-red-glow: oklch(0.67 0.22 33 / 0.55);
+  --lattice: oklch(0.86 0.11 212 / 0.055);
+  --lattice-major: oklch(0.86 0.11 212 / 0.12);
 }
 
 @layer base {
@@ -295,6 +306,10 @@
  *   - light is the only ornament, and it lives on edges and seams
  *   - a light line is a white-hot core with a colored halo
  *   - the Grid is lit from below, so edges are brightest at the bottom
+ *   - a line is never alone: it has weight contrast (a 2px core with a
+ *     1px companion running beside it) or it wraps a corner as a bracket
+ *     that implies a closed panel without closing it
+ *   - red-orange marks are small and few; blue carries the structure
  * ------------------------------------------------------------------- */
 
 /* Glowing type for display sizes only; body text never glows. Dark mode
@@ -350,7 +365,16 @@
 }
 
 .disc-ring {
-  animation: disc-turn 24s linear infinite;
+  animation: disc-turn 28s linear infinite;
+}
+
+.disc-ring-rev {
+  animation: disc-turn 40s linear infinite reverse;
+}
+
+.dark .disc-ring,
+.dark .disc-ring-rev {
+  filter: drop-shadow(0 0 2px var(--brand-glow));
 }
 
 @keyframes disc-turn {
@@ -377,10 +401,12 @@
   transition: filter 0.3s ease;
 }
 
+/* The bottom edge is 2px against 1px elsewhere: lit from below, and the
+   weight contrast keeps the frame from reading as a plain outline. */
 .hud::before {
   content: "";
   position: absolute;
-  inset: 1px;
+  inset: 1px 1px 2px 1px;
   z-index: -1;
   background: var(--hud-fill);
   clip-path: polygon(
@@ -404,6 +430,56 @@
 .hud-glow:focus-within,
 .hud-glow-on {
   filter: drop-shadow(0 0 6px var(--brand-glow));
+}
+
+/* Inner detail for larger HUD panels: an L-bracket inside the bottom-left
+   (2px core, then a 1px companion running on), plus one red notch in the
+   top-right. Together with the outer chamfered edge it reads as a panel
+   inside a panel, the way the film's interface frames are layered. */
+.hud-detail {
+  --hud-line: color-mix(in oklch, var(--brand) 40%, transparent);
+}
+
+.hud-detail::after {
+  content: "";
+  position: absolute;
+  inset: 4px 4px 5px 4px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--hud-line), var(--hud-line)) left bottom / 26% 2px no-repeat,
+    linear-gradient(to right, var(--hud-line), transparent) 30% bottom / 55% 1px no-repeat,
+    linear-gradient(to top, var(--hud-line), transparent) left bottom / 1px 55% no-repeat,
+    linear-gradient(var(--tron-red), var(--tron-red)) right top / 7px 2px no-repeat,
+    linear-gradient(var(--tron-red), var(--tron-red)) right top / 2px 4px no-repeat;
+  transition: filter 0.3s ease;
+}
+
+.hud-detail.hud-hover:hover,
+.hud-detail.hud-lit {
+  --hud-line: var(--brand);
+}
+
+/* Bracket corners: two L-brackets (top-left, bottom-right) inset inside a
+   panel, plus a red tick trailing the top-left bracket. The panel looks
+   enclosed by light without a full outline. Light up with their card. */
+.tron-corners {
+  --c: color-mix(in oklch, var(--brand) 30%, transparent);
+  position: absolute;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--c), var(--c)) left top / 16px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) left top / 2px 16px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 16px 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) right bottom / 2px 16px no-repeat,
+    linear-gradient(var(--c), var(--c)) 22px top / 6px 1px no-repeat,
+    linear-gradient(var(--tron-red), var(--tron-red)) 32px top / 6px 2px no-repeat;
+  transition: filter 0.3s ease;
+}
+
+.spotlight:hover .tron-corners,
+.tron-corners-lit {
+  --c: var(--brand);
+  filter: drop-shadow(0 0 3px var(--brand-glow));
 }
 
 /* Cards: the border becomes a light line under the pointer (JS writes
@@ -440,14 +516,17 @@
   transition: opacity 0.3s ease;
 }
 
-/* Lit from below: a hairline of light along the bottom edge. */
+/* Lit from below: a 1px line along the bottom edge with a shorter 2px
+   core riding just above it. */
 .spotlight::after {
   z-index: 29;
   top: auto;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--brand) 50%, transparent);
+  height: 4px;
+  background:
+    linear-gradient(90deg, transparent, var(--brand) 50%, transparent) center bottom / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, var(--brand-2) 50%, transparent) center top / 38% 2px no-repeat;
   opacity: 0.35;
-  transition: opacity 0.3s ease, box-shadow 0.3s ease;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -456,26 +535,40 @@
   }
   .spotlight:hover::after {
     opacity: 1;
-    box-shadow: 0 0 10px 1px var(--brand-glow);
+    filter: drop-shadow(0 0 4px var(--brand-glow));
   }
 }
 
-/* The Grid floor: a square lattice of faint light lines. Pure CSS. */
+/* The Grid floor: a square lattice of light lines in two weights, a
+   brighter major line every fourth cell over faint minor lines. Pure CSS. */
 .tron-lattice {
   background-image:
+    linear-gradient(to right, var(--lattice-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--lattice-major) 1px, transparent 1px),
     linear-gradient(to right, var(--lattice) 1px, transparent 1px),
     linear-gradient(to bottom, var(--lattice) 1px, transparent 1px);
-  background-size: 48px 48px;
+  background-size: 192px 192px, 192px 192px, 48px 48px, 48px 48px;
   background-position: -1px -1px;
 }
 
 /* Light ribbons: a bright head with a fading tail, running along a
    lattice line. Positions are multiples of the 48px cell. */
 .ribbon {
+  --rc: var(--brand);
+  --rcore: var(--brand-2);
+  --rglow: var(--brand-glow);
   position: absolute;
   pointer-events: none;
   opacity: 0;
   display: none;
+}
+
+/* Light-cycle trails, like the two red streaks on the floor of the key
+   art: Clu's side. */
+.ribbon-red {
+  --rc: var(--tron-red);
+  --rcore: var(--tron-red-core);
+  --rglow: var(--tron-red-glow);
 }
 
 /* Ribbons are emitted light, so they only run on the Grid (dark mode). */
@@ -483,22 +576,45 @@
   display: block;
 }
 
+/* A ribbon is a 2px core with a shorter 1px companion trailing beside it. */
 .ribbon-x {
-  height: 1px;
+  height: 2px;
   width: 220px;
   left: 0;
-  background: linear-gradient(90deg, transparent, var(--brand) 70%, var(--brand-2));
-  box-shadow: 0 0 8px 0 var(--brand-glow);
+  background: linear-gradient(90deg, transparent, var(--rc) 70%, var(--rcore));
+  box-shadow: 0 0 8px 0 var(--rglow);
   animation: ribbon-x var(--dur, 9s) linear var(--delay, 0s) infinite;
 }
 
+.ribbon-x::after {
+  content: "";
+  position: absolute;
+  left: 30%;
+  right: 6%;
+  top: 5px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rc));
+  opacity: 0.6;
+}
+
 .ribbon-y {
-  width: 1px;
+  width: 2px;
   height: 180px;
   top: 0;
-  background: linear-gradient(180deg, transparent, var(--brand) 70%, var(--brand-2));
-  box-shadow: 0 0 8px 0 var(--brand-glow);
+  background: linear-gradient(180deg, transparent, var(--rc) 70%, var(--rcore));
+  box-shadow: 0 0 8px 0 var(--rglow);
   animation: ribbon-y var(--dur, 7s) linear var(--delay, 0s) infinite;
+}
+
+.ribbon-y::after {
+  content: "";
+  position: absolute;
+  top: 30%;
+  bottom: 6%;
+  left: 5px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--rc));
+  opacity: 0.6;
 }
 
 @keyframes ribbon-x {
@@ -523,11 +639,21 @@
   gap: 0.75rem;
 }
 
+/* The divider is layered: a 2px cyan core with a red tick under it, then
+   two 1px rails of different lengths running off to the right. */
 .section-title::after {
   content: "";
   flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
+  height: 5px;
+  background:
+    linear-gradient(var(--brand), var(--brand)) left top / 26px 2px no-repeat,
+    linear-gradient(var(--tron-red), var(--tron-red)) left bottom / 8px 1px no-repeat,
+    linear-gradient(90deg, var(--border), transparent) 34px top / calc(100% - 34px) 1px no-repeat,
+    linear-gradient(90deg, var(--border), transparent 70%) 34px bottom / 45% 1px no-repeat;
+}
+
+.dark .section-title::after {
+  filter: drop-shadow(0 0 3px var(--brand-soft));
 }
 
 /* Dataflow diagram: a dot that slides down each connector. */
@@ -567,6 +693,7 @@
     display: none;
   }
   .disc-ring,
+  .disc-ring-rev,
   .text-rez {
     animation: none;
   }

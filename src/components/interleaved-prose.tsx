@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 // dropdowns sit next to the text that talks about them (user's request)
 // instead of piling up at the bottom.
 //
-// Also provides *visible* beautification for the prose: **bold** gets a
-// sky-tinted color + subtle highlighter underline so the bolded lead-ins
+// Also provides *visible* beautification for the prose: **bold** gets
+// full-strength text + an accent highlighter underline so the bolded lead-ins
 // actually stand out (the previous "just make it bold" treatment was
 // invisible because `prose` already does that). Inline code becomes a chip,
 // blockquotes get a vertical accent, and, when `highlightedHtml` is
@@ -41,17 +41,17 @@ const SILVER_CHIP =
 // (defined at module scope) so react-markdown doesn't remount on each
 // render of the parent.
 const PROSE_COMPONENTS: Components = {
-  // Bold gets a *visible* treatment: sky accent color plus a faint
-  // highlighter band underneath. This is the change that makes the prose
+  // Bold gets a *visible* treatment: full-strength text plus a faint
+  // accent highlighter band underneath. This is the change that makes the prose
   // stop looking like "plain text with font-weight: 700" everywhere bold.
   strong: ({ children }) => (
     <strong
       className={cn(
-        "font-semibold text-sky-100",
-        // highlighter: draw a soft sky-tinted band behind the last 35% of
+        "font-semibold text-foreground",
+        // highlighter: draw a soft accent-tinted band behind the last 35% of
         // the line-height so it looks like underline-highlight. `box-decoration-clone`
         // keeps the effect continuous when bold wraps across lines.
-        "bg-gradient-to-b from-transparent from-60% to-sky-400/15 to-60% box-decoration-clone",
+        "bg-gradient-to-b from-transparent from-60% to-brand/20 to-60% box-decoration-clone",
         "px-0.5 rounded-[2px]"
       )}
     >

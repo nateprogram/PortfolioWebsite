@@ -38,8 +38,10 @@ const TRAIL: EmitterConfig = {
   Colors: [],
 };
 
-const DARK_COLORS = ["#38bdf8", "#60a5fa", "#a78bfa", "#e0f2fe"];
-const LIGHT_COLORS = ["#0284c7", "#2563eb", "#7c3aed"];
+// Palette only; follows the site accent (amber into orange). The
+// emitter config and physics above are unchanged.
+const DARK_COLORS = ["#fbbf24", "#f59e0b", "#f97316", "#fde68a"];
+const LIGHT_COLORS = ["#d97706", "#ea580c", "#b45309"];
 
 export function HeroEmitter({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

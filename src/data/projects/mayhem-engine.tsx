@@ -41,7 +41,7 @@ export const mayhemEngine: ProjectDetail = {
       diagram: "particle-playground",
       alt: "Interactive particle emitter driven by an editable Emitter.json",
       caption:
-        "Try it: the same emitter model, ported to TypeScript. Edit the JSON and the emitter hot-reloads on every keystroke; a broken edit keeps the last good config running, the same way the engine's rapidjson reload behaves. PatternType, SpawnRate, SprayAngle, Min/MaxSpeed, Fade, and ScaleSetting use the engine's field names and curves. Direction, Gravity, Drag, Size, and Colors are web-only additions standing in for sprite sheets.",
+        "Try it: the engine's emitter model, ported to TypeScript. Edit the JSON and the emitter hot-reloads on every keystroke; a broken edit keeps the last good config running. PatternType, SpawnRate, ParticleLife, SprayAngle, Min/MaxSpeed, Fade, and ScaleSetting keep the engine's field names. Direction, Gravity, Drag, Size, and Colors are web-only additions: the engine moves particles at constant velocity and gets its look from sprite sheets, while these are plain glowing dots.",
     },
   ],
   codeSnippets: [

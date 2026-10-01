@@ -9,6 +9,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TopBackdrop } from "@/components/top-backdrop";
 import { MotionProvider } from "@/components/motion-provider";
+import { SectionIndex } from "@/components/section-index";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -76,6 +77,7 @@ export default function RootLayout({
                 {children}
                 <Footer />
               </div>
+              <SectionIndex />
               <Navbar />
             </TooltipProvider>
           </MotionProvider>

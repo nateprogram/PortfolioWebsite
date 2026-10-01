@@ -37,9 +37,17 @@ const REZ: Variants = {
   },
 };
 
+// Reduced motion: a plain fade. The server can't know the preference, so
+// the first paint uses REZ's hidden state, clip-path included; FADE has
+// to clear that clip itself (instantly, see `transition`) or the block
+// stays invisible after the fade.
 const FADE: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
+  hidden: { opacity: 0, clipPath: "inset(0% 0% 0% 0%)" },
+  visible: {
+    opacity: 1,
+    clipPath: "inset(0% 0% 0% 0%)",
+    transitionEnd: { clipPath: "none" },
+  },
 };
 
 const BlurFade = ({
@@ -78,8 +86,13 @@ const BlurFade = ({
             delay: 0.04 + delay,
             duration,
             ease: [0.6, 0, 0.25, 1],
+            ...(reduceMotion && !variant
+              ? { clipPath: { duration: 0 } }
+              : {}),
           }}
-          className="h-full"
+          // Paper always gets the finished state, even for blocks the
+          // reader never scrolled to.
+          className="h-full print:!opacity-100 print:![clip-path:none]"
         >
           {children}
         </motion.div>

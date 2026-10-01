@@ -23,7 +23,7 @@ const BLUR_FADE_DELAY = 0.04;
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground print:text-black print:tracking-widest">
+    <h2 className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground print:text-[8.6pt] print:text-black print:tracking-widest">
       {children}
       <span className="h-px flex-1 bg-border print:bg-black/30" aria-hidden />
     </h2>
@@ -33,7 +33,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function Bullets({ items }: { items: ReadonlyArray<string> }) {
   if (items.length === 0) return null;
   return (
-    <ul className="mt-1.5 flex flex-col gap-1 text-sm leading-relaxed text-muted-foreground print:text-[10pt] print:leading-snug print:text-black/85">
+    <ul className="mt-1.5 flex flex-col gap-1 print:mt-0.5 print:gap-0 text-sm leading-relaxed text-muted-foreground print:text-[9.3pt] print:leading-[1.24] print:text-black/85">
       {items.map((b) => (
         <li key={b} className="flex gap-2">
           <span className="mt-[0.6em] size-1 shrink-0 rounded-full bg-muted-foreground/60 print:bg-black/70" aria-hidden />
@@ -80,14 +80,14 @@ export default function ResumePage() {
             aria-hidden
           />
 
-          <header className="flex flex-col gap-1.5 border-b border-border pb-5 print:border-black/30 print:pb-3">
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl print:text-[20pt] print:text-black">
+          <header className="flex flex-col gap-1.5 border-b border-border pb-5 print:border-black/30 print:gap-1 print:pb-2">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl print:text-[17pt] print:leading-none print:text-black">
               {RESUME.name}
             </h1>
-            <p className="text-sm font-medium text-foreground/80 print:text-[10.5pt] print:text-black">
+            <p className="text-sm font-medium text-foreground/80 print:text-[9.8pt] print:text-black">
               {RESUME.headline}
             </p>
-            <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground print:text-[9pt] print:text-black/80">
+            <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground print:text-[8.6pt] print:text-black/80">
               <span>{RESUME.location}</span>
               <a href={`mailto:${RESUME.email}`} className="hover:text-foreground print:text-black">
                 {RESUME.email}
@@ -106,17 +106,17 @@ export default function ResumePage() {
             </p>
           </header>
 
-          <div className="mt-6 flex flex-col gap-7 print:mt-3 print:gap-3.5">
-            <section className="flex flex-col gap-2">
+          <div className="mt-6 flex flex-col gap-7 print:mt-2 print:gap-2.5">
+            <section className="flex flex-col gap-2 print:gap-1">
               <SectionHeading>Summary</SectionHeading>
-              <p className="text-sm leading-relaxed text-muted-foreground text-pretty print:text-[10pt] print:leading-snug print:text-black/85">
+              <p className="text-sm leading-relaxed text-muted-foreground text-pretty print:text-[9.3pt] print:leading-[1.24] print:text-black/85">
                 {RESUME.summary}
               </p>
             </section>
 
-            <section className="flex flex-col gap-2">
+            <section className="flex flex-col gap-2 print:gap-1">
               <SectionHeading>Skills</SectionHeading>
-              <dl className="grid gap-1.5 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-4 print:text-[10pt]">
+              <dl className="grid gap-1.5 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-4 print:gap-y-0.5 print:text-[9.3pt]">
                 {RESUME.skills.map((s) => (
                   <div key={s.label} className="contents">
                     <dt className="font-medium text-foreground/90 print:text-black">{s.label}</dt>
@@ -126,42 +126,47 @@ export default function ResumePage() {
               </dl>
             </section>
 
-            <section className="flex flex-col gap-2">
+            <section className="flex flex-col gap-2 print:gap-1">
               <SectionHeading>Education</SectionHeading>
               {RESUME.education.map((ed) => (
                 <div
                   key={ed.school}
                   className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
                 >
-                  <div className="text-sm print:text-[10pt]">
+                  <div className="text-sm print:text-[9.3pt]">
                     <span className="font-semibold print:text-black">{ed.degree}</span>
                     <span className="text-muted-foreground print:text-black/80">
                       {" "}· {ed.school}, {ed.location}
                     </span>
                   </div>
-                  <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground print:text-[9pt] print:text-black/80">
+                  <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground print:text-[8.6pt] print:text-black/80">
                     {ed.dates}
                   </span>
                 </div>
               ))}
             </section>
 
-            <section className="flex flex-col gap-4 print:gap-2.5">
+            <section className="flex flex-col gap-4 print:gap-1.5">
               <SectionHeading>Experience</SectionHeading>
               {RESUME.experience.map((e) => (
                 <div key={`${e.company}-${e.start}`} className="break-inside-avoid">
                   <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                    <h3 className="text-[15px] font-semibold leading-snug print:text-[10.5pt] print:text-black">
+                    <h3 className="text-[15px] font-semibold leading-snug print:text-[9.8pt] print:text-black">
                       {e.title}
                       <span className="font-normal text-muted-foreground print:text-black/80">
                         {" "}· {companyLabel(e)}
                       </span>
+                      {/* On paper the meta line joins the title line, as in
+                          the PDF, so the page holds everything. */}
+                      <span className="hidden print:inline print:text-[8.6pt] print:font-normal print:text-black/70">
+                        {" "}· {[e.location, ...(e.tags ?? [])].join(" · ")}
+                      </span>
                     </h3>
-                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground print:text-[9pt] print:text-black/80">
+                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground print:text-[8.6pt] print:text-black/80">
                       {formatRange(e)}
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground print:text-[9pt] print:text-black/70">
+                  <div className="text-xs text-muted-foreground print:hidden">
                     {e.location}
                     {e.tags && e.tags.length > 0 && <> · {e.tags.join(" · ")}</>}
                   </div>
@@ -179,12 +184,12 @@ export default function ResumePage() {
               ))}
             </section>
 
-            <section className="flex flex-col gap-4 print:gap-2.5">
+            <section className="flex flex-col gap-4 print:gap-1.5">
               <SectionHeading>Projects</SectionHeading>
               {RESUME.projects.map((p) => (
                 <div key={p.name} className="break-inside-avoid">
                   <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                    <h3 className="text-[15px] font-semibold leading-snug print:text-[10.5pt] print:text-black">
+                    <h3 className="text-[15px] font-semibold leading-snug print:text-[9.8pt] print:text-black">
                       {p.slug ? (
                         <Link
                           href={`/projects/${p.slug}`}
@@ -198,12 +203,15 @@ export default function ResumePage() {
                       <span className="font-normal text-muted-foreground print:text-black/80">
                         {" "}· {p.tagline}
                       </span>
+                      <span className="hidden print:inline print:text-[8.6pt] print:font-normal print:text-black/70">
+                        {" "}· {p.stack}
+                      </span>
                     </h3>
-                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground print:text-[9pt] print:text-black/80">
+                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground print:text-[8.6pt] print:text-black/80">
                       {p.dates}
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground print:text-[9pt] print:text-black/70">
+                  <div className="text-xs text-muted-foreground print:hidden">
                     {p.stack}
                   </div>
                   <Bullets items={p.bullets} />

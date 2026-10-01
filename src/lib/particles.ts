@@ -92,6 +92,8 @@ const DEG = Math.PI / 180;
 export class ParticleSystem {
   readonly cap: number;
   count = 0;
+  /** Spawns refused because the system was full. Callers reset it. */
+  dropped = 0;
   config: EmitterConfig;
   /** Emitter position in CSS px. */
   ex = 0;
@@ -130,7 +132,10 @@ export class ParticleSystem {
   }
 
   private spawn(x: number, y: number, angle: number, speed: number, life: number) {
-    if (this.count >= this.cap) return;
+    if (this.count >= this.cap) {
+      this.dropped++;
+      return;
+    }
     const i = this.count++;
     const c = this.config;
     this.x[i] = x;

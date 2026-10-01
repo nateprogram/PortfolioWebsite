@@ -125,6 +125,8 @@ const presetConfig = (p: Preset): EmitterConfig => ({ ...DEFAULT_EMITTER, ...p.c
 export function ParticlePlayground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const countRef = useRef<HTMLSpanElement>(null);
+  // Shown while the system is at its particle cap (see the frame loop).
+  const capRef = useRef<HTMLDivElement>(null);
   const sysRef = useRef<ParticleSystem | null>(null);
   const spritesRef = useRef<HTMLCanvasElement[]>([]);
   const reduceMotion = usePrefersReducedMotion();
@@ -226,6 +228,28 @@ export function ParticlePlayground() {
     let last = 0;
     let visible = true;
     let lastCount = 0;
+    // The cap message: on while the system is refusing new particles
+    // because it's full, off 2.5s after the last refusal, so it doesn't
+    // flicker at the edge. Written straight to the DOM, like the live
+    // count, so it never re-renders the component.
+    let capShownAt = 0;
+    const capText = `Limit reached: ${sys.cap.toLocaleString("en-US")} particles. New ones spawn as old ones fade.`;
+    const updateCap = (now: number) => {
+      const el = capRef.current;
+      if (!el) return;
+      if (sys.dropped > 0) {
+        sys.dropped = 0;
+        if (!capShownAt) {
+          el.textContent = capText;
+          el.dataset.on = "true";
+        }
+        capShownAt = now;
+      } else if (capShownAt && now - capShownAt > 2500) {
+        capShownAt = 0;
+        el.textContent = "";
+        el.dataset.on = "false";
+      }
+    };
     const frame = (now: number) => {
       const dt = last ? Math.min((now - last) / 1000, 1 / 20) : 1 / 60;
       last = now;
@@ -233,6 +257,7 @@ export function ParticlePlayground() {
       render();
       if (now - lastCount > 200 && countRef.current) {
         countRef.current.textContent = String(sys.count);
+        updateCap(now);
         lastCount = now;
       }
       raf = requestAnimationFrame(frame);
@@ -369,6 +394,13 @@ export function ParticlePlayground() {
           <div className="pointer-events-none absolute left-2 top-2 rounded bg-black/50 px-1.5 py-0.5 font-mono text-[10px] text-zinc-300">
             live: <span ref={countRef}>0</span>
           </div>
+          {/* Pops up while the system is at its particle cap. */}
+          <div
+            ref={capRef}
+            role="status"
+            data-on="false"
+            className="pointer-events-none absolute right-2 top-2 max-w-[60%] rounded border border-brand/60 bg-black/75 px-2 py-1 text-right font-mono text-[10px] leading-snug text-brand shadow-[0_0_10px_0_var(--brand-glow)] transition-opacity duration-300 data-[on=false]:opacity-0 data-[on=true]:opacity-100"
+          />
           <div className="pointer-events-none absolute bottom-2 left-2 font-mono text-[10px] text-zinc-400">
             drag to move · click to burst
           </div>

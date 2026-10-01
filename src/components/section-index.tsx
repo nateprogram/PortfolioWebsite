@@ -138,7 +138,8 @@ export function SectionIndex() {
   return (
     <nav
       aria-label="Sections"
-      className="fixed top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-5 lg:flex print:hidden"
+      // The scrim keeps the labels readable over the Grid floor.
+      className="text-scrim text-scrim-tight fixed top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-5 lg:flex print:hidden"
       // Hug the content column (max-w-2xl = 672px) on wide screens; never
       // closer than 1.5rem to the window edge.
       style={{ left: "max(1.5rem, calc(50% - 336px - 13rem))" }}

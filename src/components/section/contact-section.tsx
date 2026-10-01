@@ -30,7 +30,7 @@ export default function ContactSection() {
         className="absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent shadow-[0_0_10px_1px_var(--brand-glow)]"
         aria-hidden
       />
-      <div className="relative flex flex-col items-center gap-4 text-center">
+      <div className="text-scrim relative flex flex-col items-center gap-4 text-center">
         <h2 className="glow-soft text-3xl font-bold tracking-tighter sm:text-5xl">
           Get in Touch
         </h2>

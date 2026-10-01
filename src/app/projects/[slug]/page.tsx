@@ -151,20 +151,20 @@ export default async function ProjectDetailPage({
       style={projectLightStyle(project)}
     >
       {/* The page stands on the Grid in its category's light (a gradient
-          across categories for multi-category projects), fading out below
-          the media. */}
-      <GridFloor className="-top-12 sm:-top-24 h-[780px] sm:h-[860px]" />
+          across categories for multi-category projects). It fades out
+          behind the media, before the text below it starts. */}
+      <GridFloor className="-top-12 sm:-top-24 h-[680px] sm:h-[760px]" />
       <BlurFade delay={BLUR_FADE_DELAY}>
         <Link
           href={project.hideFromGrid ? "/#experience" : "/#projects"}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm w-fit"
+          className="text-scrim text-scrim-tight inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm w-fit"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
           {project.hideFromGrid ? "Experience" : "All projects"}
         </Link>
       </BlurFade>
 
-      <header className="flex flex-col gap-4">
+      <header className="text-scrim flex flex-col gap-4">
         {/* Intentionally no status pill here. Labels like "Coursework" or
             "Active" create an implicit hierarchy between academic, personal,
             and employed work; we want every entry to stand on its own. The

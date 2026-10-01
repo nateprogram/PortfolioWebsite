@@ -836,6 +836,54 @@
   }
 }
 
+/* Readability scrim: a dark, slightly blurred pane behind a block of
+   text, feathered at its edges so it reads as shade rather than a box.
+   The Grid floor, the light cycles and the hero's particles pass behind
+   it dimmed, so text stays readable wherever they are. `isolation` keeps
+   the pane inside the block (above anything the block sits on). Tune the
+   overhang with --scrim-x / --scrim-y. */
+/* In the components layer so utilities on the same element (e.g. the
+   side index's `fixed`) still win over its `position: relative`. */
+@layer components {
+  .text-scrim {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .text-scrim::before {
+    --scrim-x: 24px;
+    --scrim-y: 16px;
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: calc(-1 * var(--scrim-y)) calc(-1 * var(--scrim-x));
+    pointer-events: none;
+    background: color-mix(in oklch, var(--background) 80%, transparent);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 var(--scrim-x), #000 calc(100% - var(--scrim-x)), transparent),
+      linear-gradient(to bottom, transparent, #000 var(--scrim-y), #000 calc(100% - var(--scrim-y)), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 var(--scrim-x), #000 calc(100% - var(--scrim-x)), transparent),
+      linear-gradient(to bottom, transparent, #000 var(--scrim-y), #000 calc(100% - var(--scrim-y)), transparent);
+    mask-composite: intersect;
+  }
+
+  /* Tighter for small things (a back link, a nav list). */
+  .text-scrim-tight::before {
+    --scrim-x: 14px;
+    --scrim-y: 10px;
+  }
+}
+
+@media print {
+  .text-scrim::before {
+    display: none;
+  }
+}
+
 /* Section rails: a parallel pair leaves each section title, turns the
    corner together and runs down the section's left edge, fading out, the
    way the suit lines trace a body: a 2px line with a 1px partner outside

@@ -129,7 +129,7 @@ export const EXTENDED_EXPERIENCE: ExtendedExperience = {
     "Phone: 425-518-1209.",
     "Linkedin: linkedin.com/in/nathan-white-799765218",
     "GitHub: github.com/nateprogram",
-    "Lives in Redmond, WA.",
+    "Lives in Chicago, IL (previously the Seattle area).",
     "LinkedIn lists '.NET MAUI' as a Top Skill. Nate has not shipped anything in .NET MAUI. Do NOT include .NET MAUI in generated resumes or skill lists. (LinkedIn UI is currently not letting him remove it; Nate is working on that separately.)",
     "Writing-style rules Nate cares about: no em dashes anywhere; no AI-tell vocabulary (leverage, robust, comprehensive, seamless, dive deep, delve, intricate, crucial, vital, transformative, spearhead, synergy, holistic, streamline, in today's, etc.); concrete metrics over adjectives; recruiter-readable; do not flag projects as coursework or academic; do not mention work-style preferences (hybrid/remote/onsite/relocation/comp).",
     "If the user provides a job description, assume he wants the role. Don't hedge or suggest he might not be a fit; just produce the strongest tailored resume the corpus supports.",

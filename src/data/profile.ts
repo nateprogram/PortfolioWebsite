@@ -29,8 +29,8 @@ export const PROFILE = {
   name: "Nate White",
   initials: "NW",
   url: "https://natewhite.dev",
-  location: "Redmond, WA",
-  locationLink: "https://www.google.com/maps/place/redmond+wa",
+  location: "Chicago, IL",
+  locationLink: "https://www.google.com/maps/place/chicago+il",
   role: ROLE,
   // Hero subtitle, <meta description>, and the OG card all use this.
   description:

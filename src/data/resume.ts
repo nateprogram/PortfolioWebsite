@@ -46,7 +46,7 @@ export type Resume = {
 export const RESUME: Resume = {
   name: "Nate White",
   headline: "AI Engineer | C++ / C# / Python / System Design / ML",
-  location: "Seattle, WA",
+  location: "Chicago, IL",
   email: "NateWhite.dev@gmail.com",
   phone: "(425) 518-1209",
   links: [

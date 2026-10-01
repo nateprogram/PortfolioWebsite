@@ -49,7 +49,7 @@ export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
     company: "Veltarium Software LLC",
     companyUrl: "https://veltarium.com",
     title: "Founder & Engineer",
-    location: "Redmond, WA",
+    location: "Chicago, IL",
     start: "Mar 2026",
     end: null,
     blurb: "My software studio. SquadPact is the flagship product.",

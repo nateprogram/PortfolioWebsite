@@ -14,6 +14,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { HOME_EXPERIENCE, type ExperienceEntry } from "@/data";
 import { cn } from "@/lib/utils";
+import { SectionTitle } from "@/components/section-title";
 
 // Work history as a light-cycle run, after TRON: Legacy. A cycle head
 // (white-hot core, cyan halo) travels down the rail as the section
@@ -44,7 +45,7 @@ export default function ExperienceSection() {
 
   return (
     <div className="flex min-h-0 flex-col gap-y-6">
-      <h2 className="section-title text-xl font-bold">Experience</h2>
+      <SectionTitle>Experience</SectionTitle>
       <ol ref={listRef} className="relative">
         {/* The grid line the cycle rides on: a 2px rail. */}
         <div

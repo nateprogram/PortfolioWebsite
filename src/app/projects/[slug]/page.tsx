@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
-import { DATA, PROJECT_DETAILS, projectLightClass } from "@/data";
+import { DATA, PROJECT_DETAILS, projectLightClass, projectLightStyle } from "@/data";
 import { cn } from "@/lib/utils";
 import {
   InterleavedProse,
@@ -148,7 +148,12 @@ export default async function ProjectDetailPage({
         "min-h-dvh flex flex-col gap-10 relative",
         projectLightClass(project)
       )}
+      style={projectLightStyle(project)}
     >
+      {/* The page stands on the Grid in its category's light (a gradient
+          across categories for multi-category projects), fading out below
+          the media. */}
+      <GridFloor className="-top-12 sm:-top-24 h-[780px] sm:h-[860px]" />
       <BlurFade delay={BLUR_FADE_DELAY}>
         <Link
           href={project.hideFromGrid ? "/#experience" : "/#projects"}
@@ -183,12 +188,6 @@ export default async function ProjectDetailPage({
           </p>
         </BlurFade>
       </header>
-
-      {/* The page's Grid floor, in its category's light: the horizon runs
-          under the header and the media stands on it. */}
-      <div className="relative -mb-10 h-0">
-        <GridFloor />
-      </div>
 
       {heroPhones && (
         <BlurFade delay={BLUR_FADE_DELAY * 5}>
@@ -261,7 +260,7 @@ export default async function ProjectDetailPage({
       {details?.highlights && details.highlights.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 7}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Highlights
             </h2>
             <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
@@ -282,7 +281,7 @@ export default async function ProjectDetailPage({
       {project.technologies && project.technologies.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 8}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Stack
             </h2>
             <div className="flex flex-wrap gap-1.5">
@@ -306,7 +305,7 @@ export default async function ProjectDetailPage({
       {details?.problem && (
         <BlurFade delay={BLUR_FADE_DELAY * 9}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Problem
             </h2>
             <InterleavedProse
@@ -320,7 +319,7 @@ export default async function ProjectDetailPage({
       {details?.approach && (
         <BlurFade delay={BLUR_FADE_DELAY * 10}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Approach
             </h2>
             <InterleavedProse
@@ -335,7 +334,7 @@ export default async function ProjectDetailPage({
       {figures.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 11}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Figures
             </h2>
             <div className="flex flex-col gap-6">
@@ -350,7 +349,7 @@ export default async function ProjectDetailPage({
       {details?.stackRationale && details.stackRationale.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 12}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Why these choices
             </h2>
             <dl className="flex flex-col gap-3">
@@ -377,7 +376,7 @@ export default async function ProjectDetailPage({
       {orphanSnippets.length > 0 && (
         <BlurFade delay={BLUR_FADE_DELAY * 13}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               More code
             </h2>
             <div className="flex flex-col gap-2">
@@ -392,7 +391,7 @@ export default async function ProjectDetailPage({
       {!details?.problem && project.description && (
         <BlurFade delay={BLUR_FADE_DELAY * 14}>
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Overview
             </h2>
             <div className="prose max-w-none text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
@@ -405,7 +404,7 @@ export default async function ProjectDetailPage({
       {!details && (
         <BlurFade delay={BLUR_FADE_DELAY * 15}>
           <section className="flex flex-col gap-3 border-t border-border pt-8">
-            <h2 className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+            <h2 className="trace-label text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               More to come
             </h2>
             <p className="text-sm text-muted-foreground max-w-prose">

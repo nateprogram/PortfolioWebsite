@@ -113,8 +113,11 @@ circuit colors, where color says whose side a program is on:
 
 The card, its project page (including that page's Grid floor), and the
 category tags all take the light of the **first** entry in
-`categories`, so list the main one first. `["Systems", "Games"]` is a
-gold card tagged Systems and Games.
+`categories`, so list the main one first. A project in more than one
+category is drawn with a gradient: its card lines, seam, reflection and
+page floor hold the first category's light for most of the width, then
+blend into the next. `["Systems", "Games"]` is a card that is gold
+leaning to orange at the right edge, tagged Systems and Games.
 
 ### Add a full write-up for a project
 

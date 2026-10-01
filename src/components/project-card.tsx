@@ -230,6 +230,8 @@ interface Props {
   light?: string;
   /** Shown as lit tags above the title, each in its own light. */
   categories?: readonly string[];
+  /** Gradient variables for a project in several categories. */
+  lightStyle?: React.CSSProperties;
   className?: string;
 }
 
@@ -249,6 +251,7 @@ export function ProjectCard({
   links,
   light,
   categories,
+  lightStyle,
   className,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -275,6 +278,7 @@ export function ProjectCard({
     <div
       ref={cardRef}
       onPointerMove={onPointerMove}
+      style={lightStyle}
       className={cn(
         light,
         "spotlight group/card relative flex flex-col h-full border border-border rounded-lg overflow-hidden bg-card/40 transition-[translate,box-shadow] duration-300 ease-out",
@@ -283,7 +287,8 @@ export function ProjectCard({
         className
       )}
     >
-      {/* Parallel trace inside the border; lights up with the card. */}
+      {/* A parallel pair of traces inside the border; lights up with the
+          card. */}
       <span aria-hidden className="tron-trace inset-[5px] z-20" />
       <div className="relative shrink-0 overflow-hidden border-b border-border/60">
         {hasPrimaryLink ? (
@@ -331,7 +336,7 @@ export function ProjectCard({
             color, lit from its center. */}
         <span
           aria-hidden
-          className="absolute inset-x-0 bottom-0 z-20 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-80 shadow-[0_0_8px_0_var(--brand-glow)]"
+          className="light-seam absolute inset-x-0 bottom-0 z-20 h-px opacity-90"
         />
       </div>
       <div className="relative z-10 p-6 flex flex-col gap-3 flex-1">

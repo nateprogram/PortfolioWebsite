@@ -14,6 +14,7 @@ import { HeroStats } from "@/components/hero-stats";
 import { GridFloor } from "@/components/grid-floor";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ArrowUpRight, FileText, Github, Linkedin, Mail, Sparkles } from "lucide-react";
+import { SectionTitle } from "@/components/section-title";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -59,7 +60,10 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_JSON_LD) }}
       />
 
-      <section id="hero">
+      <section id="hero" className="relative">
+        {/* The intro stands on the Grid: one floor from the top of the
+            page to the end of the intro, fading out into About. */}
+        <GridFloor className="-top-12 sm:-top-24 -bottom-28" />
         <div className="mx-auto w-full max-w-2xl space-y-8">
           <div className="gap-2 gap-y-6 flex flex-col md:flex-row justify-between">
             <div className="flex flex-col gap-3 order-2 md:order-1">
@@ -132,13 +136,9 @@ export default function Page() {
             </div>
           </div>
 
-          {/* The stats stand on the Grid floor's horizon. */}
-          <div className="relative">
-            <GridFloor />
-            <BlurFade delay={BLUR_FADE_DELAY * 4}>
-              <HeroStats />
-            </BlurFade>
-          </div>
+          <BlurFade delay={BLUR_FADE_DELAY * 4}>
+            <HeroStats />
+          </BlurFade>
 
           <div className={cn("flex flex-wrap items-center gap-2", enter("delay-300"))}>
             <span className="hud-glow">
@@ -217,7 +217,7 @@ export default function Page() {
       <section id="about">
         <div className="flex min-h-0 flex-col gap-y-4">
           <BlurFade>
-            <h2 className="section-title text-xl font-bold">About</h2>
+            <SectionTitle>About</SectionTitle>
           </BlurFade>
           <BlurFade delay={BLUR_FADE_DELAY}>
             <div className="prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
@@ -238,7 +238,7 @@ export default function Page() {
       <section id="skills">
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade>
-            <h2 className="section-title text-xl font-bold">Skills</h2>
+            <SectionTitle>Skills</SectionTitle>
             {/* Legend for the chip colors: the same four lights as the
                 project categories. */}
             <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -283,7 +283,7 @@ export default function Page() {
       <section id="education">
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade>
-            <h2 className="section-title text-xl font-bold">Education</h2>
+            <SectionTitle>Education</SectionTitle>
           </BlurFade>
           <div className="flex flex-col gap-8">
             {DATA.education.map((education, index) => (

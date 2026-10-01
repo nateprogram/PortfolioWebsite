@@ -137,6 +137,7 @@
   --brand-glow: oklch(0.86 0.11 212 / 0.5);
   /* The other three lights. Each is a body color, a hotter core, and a
      glow/falloff, like --brand / --brand-2 / --brand-glow. */
+  --light-blue: oklch(0.86 0.11 212); /* the --brand blue, by name */
   --light-white: oklch(0.982 0.026 197); /* #E6FFFF */
   --light-white-core: oklch(1 0 0); /* #FFFFFE */
   --light-white-glow: oklch(0.774 0.091 222 / 0.55); /* #6FC3DF halo */
@@ -495,34 +496,64 @@
   --hud-line: var(--brand);
 }
 
-/* Parallel trace for rounded panels (cards, the contact panel): a second
-   line inside the border, along the bottom and up both sides with a
-   concentric corner, fading out as it climbs. It suggests the panel is
-   enclosed by light without drawing a closed box. */
+/* Parallel traces for rounded panels (cards, the contact panel): two
+   lines inside the border, along the bottom and up both sides with
+   concentric corners, fading out as they climb; the inner one is fainter
+   and fades sooner. With the border they make a bundle of three, so an
+   edge reads as light wrapping the panel rather than a single stroke.
+   Each line is a 1px ring cut out by masks and painted with --paint (a
+   project's gradient across its categories) or the plain --brand light.
+   The element itself only positions the pair and carries the glow
+   (a filter on the masked lines would be masked away). */
 .tron-trace {
-  --trace: color-mix(in oklch, var(--brand) 26%, transparent);
   position: absolute;
   pointer-events: none;
-  border: 1px solid var(--trace);
-  border-top: 0;
-  border-radius: 0 0 4px 4px;
-  -webkit-mask-image: linear-gradient(to top, #000 25%, transparent 75%);
-  mask-image: linear-gradient(to top, #000 25%, transparent 75%);
-  transition: border-color 0.3s ease, filter 0.3s ease;
+  opacity: 0.35;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-/* Every card carries its light at rest, not just on hover: a lit inner
-   trace, a border tinted toward its light, and a lit under-edge. */
+.tron-trace::before,
+.tron-trace::after {
+  --trace-fade: linear-gradient(to top, #000 25%, transparent 75%);
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 0 0 5px 5px;
+  background: var(--paint, linear-gradient(var(--brand), var(--brand)));
+  -webkit-mask:
+    var(--trace-fade),
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: source-in, xor;
+  mask:
+    var(--trace-fade),
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: intersect, exclude;
+}
+
+.tron-trace::after {
+  --trace-fade: linear-gradient(to top, #000 10%, transparent 45%);
+  inset: 4px;
+  border-radius: 0 0 2px 2px;
+  opacity: 0.55;
+}
+
+/* Every card carries its light at rest, not just on hover: lit inner
+   traces, a border tinted toward its light, a lit under-edge, and its
+   light reflected on its surface. For a project in two categories the
+   reflection is shared, most of it in the main light (--brand-alt is set
+   by projectLightStyle). */
 .spotlight .tron-trace {
-  --trace: color-mix(in oklch, var(--brand) 50%, transparent);
+  opacity: 0.6;
 }
 
 .spotlight {
   border-color: color-mix(in oklch, var(--brand) 26%, transparent);
-  /* Reflection: the light under the card spills up its glossy surface,
-     and a faint wash comes off the top edge. */
   background-image:
-    radial-gradient(110% 55% at 50% 100%, color-mix(in oklch, var(--brand) 14%, transparent), transparent 70%),
+    radial-gradient(80% 55% at 35% 100%, color-mix(in oklch, var(--brand) 14%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 85% 100%, color-mix(in oklch, var(--brand-alt, var(--brand)) 12%, transparent), transparent 70%),
     linear-gradient(to bottom, color-mix(in oklch, var(--brand) 4%, transparent), transparent 30%);
 }
 
@@ -533,12 +564,22 @@
 
 .spotlight:hover .tron-trace,
 .tron-trace-lit {
-  --trace: var(--brand);
+  opacity: 1;
+  filter: drop-shadow(0 0 3px var(--brand-glow));
 }
 
-.spotlight:hover .tron-trace,
-.tron-trace-lit {
-  filter: drop-shadow(0 0 3px var(--brand-glow));
+/* The seam between a card's cover and its body: a light line, held in
+   the main light and blending into the second (if any) toward the end. */
+.light-seam {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--brand) 22%,
+    var(--brand) 55%,
+    var(--brand-alt, var(--brand)) 82%,
+    transparent
+  );
+  box-shadow: 0 0 8px 0 var(--brand-glow);
 }
 
 /* Cards: the border becomes a light line under the pointer (JS writes
@@ -581,7 +622,7 @@
   z-index: 29;
   top: auto;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--brand) 50%, transparent);
+  background: linear-gradient(90deg, transparent, var(--brand) 40%, var(--brand-alt, var(--brand)) 75%, transparent);
   transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
@@ -627,102 +668,97 @@
   --rglow: var(--light-gold-glow);
 }
 
-/* Grid floor (grid-floor.tsx). The parent's top edge is the horizon.
-   A plane of light lines is tilted back in perspective so it recedes to
-   the horizon, with a glow in the sky just above it (lit from below)
-   and light cycles riding the plane toward the viewer. The plane is
-   faded near the horizon, toward the viewer, and under the content
-   column, so text over it stays calm. */
+/* Grid floor (grid-floor.tsx): the Grid in perspective under a whole
+   intro, one continuous background with no horizon line through it. The
+   horizon sits above the top of the floor's box, so the lattice recedes
+   upward toward a vanishing point just off the top of the page. The
+   caller sets the box (top/bottom or height); the floor bleeds to the
+   window edges and fades out at the bottom and under the content
+   column, so text over it stays calm.
+
+   Geometry: a plane tilted 70deg under a 900px perspective. The visible
+   box starts 220px below the horizon (depth ~360px) and the plane ends at
+   800px, short of the camera plane (~957px); past that the projection
+   blows up. */
 .grid-floor {
   position: absolute;
   z-index: -1;
-  top: 0;
   left: 50%;
   width: 100vw;
-  height: 440px;
   transform: translateX(-50%);
+  overflow: hidden;
   pointer-events: none;
   animation: grid-floor-in 1.2s ease-out both;
 }
 
-.grid-floor-sky {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-  height: 220px;
-  background: radial-gradient(
-    ellipse 55% 100% at 50% 100%,
-    color-mix(in oklch, var(--brand) 16%, transparent),
-    transparent 70%
-  );
-}
-
-.grid-floor-horizon {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 4%,
-    var(--brand) 28%,
-    var(--brand-2) 50%,
-    var(--brand) 72%,
-    transparent 96%
-  );
-  filter: drop-shadow(0 0 6px var(--brand-glow)) drop-shadow(0 0 14px var(--brand-glow));
-}
-
 .grid-floor-ground {
   position: absolute;
-  inset: 1px 0 0 0;
-  overflow: hidden;
-  perspective: 700px;
+  left: 0;
+  right: 0;
+  top: -220px;
+  bottom: 0;
+  perspective: 900px;
   perspective-origin: 50% 0;
   -webkit-mask-image:
-    linear-gradient(to bottom, rgb(0 0 0 / 0.5), #000 25%, transparent 90%),
-    radial-gradient(ellipse 30% 70% at 50% 60%, rgb(0 0 0 / 0.35) 40%, #000 100%);
+    linear-gradient(to bottom, #000 55%, transparent 98%),
+    radial-gradient(ellipse 30% 55% at 50% 45%, rgb(0 0 0 / 0.2) 40%, #000 100%);
   -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(to bottom, rgb(0 0 0 / 0.5), #000 25%, transparent 90%),
-    radial-gradient(ellipse 30% 70% at 50% 60%, rgb(0 0 0 / 0.35) 40%, #000 100%);
+    linear-gradient(to bottom, #000 55%, transparent 98%),
+    radial-gradient(ellipse 30% 55% at 50% 45%, rgb(0 0 0 / 0.2) 40%, #000 100%);
   mask-composite: intersect;
 }
 
-/* With this perspective and tilt, plane depth ~535px reaches the bottom
-   of the ground and ~715px reaches the camera, so the plane stops short
-   of that (past it, the projection blows up). */
+/* The lattice is the plane's paint (--floor-paint: a project's gradient
+   across its categories, else the plain light) cut into lines by a mask,
+   so the lines themselves carry the gradient. */
 .grid-floor-plane {
   position: absolute;
   left: -100%;
   right: -100%;
   top: 0;
-  height: 620px;
+  height: 800px;
   transform-origin: 50% 0;
-  transform: rotateX(78deg);
-  background-image:
-    linear-gradient(to right, color-mix(in oklch, var(--brand) 60%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklch, var(--brand) 50%, transparent) 1px, transparent 1px);
-  background-size: 64px 64px;
-  background-position: 50% 0;
-  animation: grid-floor-run 2.6s linear infinite;
+  transform: rotateX(70deg);
+  background: var(--floor-paint, linear-gradient(var(--brand), var(--brand)));
+  opacity: 0.42;
+  -webkit-mask-image:
+    linear-gradient(to right, #000 1px, transparent 1px),
+    linear-gradient(to bottom, #000 1px, transparent 1px);
+  -webkit-mask-size: 48px 48px;
+  -webkit-mask-position: 50% 0;
+  mask-image:
+    linear-gradient(to right, #000 1px, transparent 1px),
+    linear-gradient(to bottom, #000 1px, transparent 1px);
+  mask-size: 48px 48px;
+  mask-position: 50% 0;
+  animation: grid-floor-run 2.4s linear infinite;
 }
 
 /* A light cycle: a bright head with its ribbon trailing back toward the
-   horizon. Colors come from the .cycle-* classes (blue by default). */
+   horizon. It rides on top of the plane, so it sits outside the plane's
+   line mask. Colors come from the .cycle-* classes (blue by default). */
+.grid-floor-cycles {
+  position: absolute;
+  left: -100%;
+  right: -100%;
+  top: 0;
+  height: 800px;
+  transform-origin: 50% 0;
+  transform: rotateX(70deg);
+}
+
 .floor-cycle {
   --rc: var(--brand);
   --rcore: var(--brand-2);
   --rglow: var(--brand-glow);
   position: absolute;
   top: 0;
-  width: 4px;
-  height: 260px;
-  margin-left: -2px;
+  width: 3px;
+  height: 240px;
+  margin-left: -1px;
   background: linear-gradient(180deg, transparent, var(--rc) 70%, var(--rcore));
-  box-shadow: 0 0 12px 2px var(--rglow);
+  box-shadow: 0 0 8px 1px var(--rglow);
   opacity: 0;
   animation: floor-cycle var(--dur, 9s) cubic-bezier(0.5, 0, 0.9, 0.6) var(--delay, 0s) infinite;
 }
@@ -732,18 +768,29 @@
 }
 
 @keyframes grid-floor-run {
-  to { background-position: 50% 64px; }
+  to {
+    -webkit-mask-position: 50% 48px;
+    mask-position: 50% 48px;
+  }
 }
 
-/* A run from the horizon to the near edge of the floor, then a pause
-   before the next lap. The head stops at depth ~580px, short of the
-   camera plane (~715px). */
+/* A run from the horizon (above the box) to the near edge, then a pause
+   before the next lap. The head stops at depth ~760px, short of the
+   camera plane. */
 @keyframes floor-cycle {
-  0% { transform: translateY(-260px); opacity: 0; }
-  5% { opacity: 1; }
-  48% { opacity: 1; }
-  56% { transform: translateY(320px); opacity: 0; }
-  100% { transform: translateY(320px); opacity: 0; }
+  0% { transform: translateY(-240px); opacity: 0; }
+  12% { opacity: 1; }
+  50% { opacity: 1; }
+  58% { transform: translateY(430px); opacity: 0; }
+  100% { transform: translateY(430px); opacity: 0; }
+}
+
+/* On phones the text column is the whole width, so the floor stays
+   quieter everywhere. */
+@media (max-width: 639px) {
+  .grid-floor-plane {
+    opacity: 0.2;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -756,9 +803,78 @@
   }
 }
 
+/* Section rails: a parallel pair leaves each section title, turns the
+   corner together and runs down the section's left edge, fading out, the
+   way the suit lines trace a body: a 2px line with a 1px partner outside
+   it on a concentric corner (same center, radius 6px vs 11px). Section
+   titles get them as spans (their ::after is the title bar); the small
+   labels on project pages draw them with ::before/::after. */
+.rail,
+.rail-partner,
+.trace-label::before,
+.trace-label::after {
+  position: absolute;
+  top: 50%;
+  pointer-events: none;
+  border: 0 solid color-mix(in oklch, var(--brand) 75%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent);
+}
+
+.rail,
+.trace-label::before {
+  left: -18px;
+  width: 12px;
+  height: var(--rail-len, 260px);
+  border-left-width: 2px;
+  border-top-width: 2px;
+  border-top-left-radius: 6px;
+}
+
+.rail-partner,
+.trace-label::after {
+  left: -23px;
+  width: 17px;
+  margin-top: -5px;
+  height: calc(var(--rail-len, 260px) * 0.6);
+  border-left-width: 1px;
+  border-top-width: 1px;
+  border-top-left-radius: 11px;
+  opacity: 0.55;
+}
+
+.trace-label {
+  --rail-len: 120px;
+  position: relative;
+}
+
+.trace-label::before,
+.trace-label::after {
+  content: "";
+}
+
+/* Phones have a 24px gutter: tuck the pair in closer. */
+@media (max-width: 639px) {
+  .rail,
+  .trace-label::before {
+    left: -14px;
+    width: 9px;
+    border-top-left-radius: 5px;
+  }
+  .rail-partner,
+  .trace-label::after {
+    left: -18px;
+    width: 13px;
+    margin-top: -4px;
+    border-top-left-radius: 9px;
+  }
+}
+
+
 /* Section titles carry a light line out to the right, like the film's
    interface dividers. */
 .section-title {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;

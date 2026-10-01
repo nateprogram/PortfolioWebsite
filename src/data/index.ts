@@ -32,9 +32,12 @@ export const DATA = {
 export { PROJECT_FILTERS } from "./project-filters";
 export {
   LIGHT_CLASS,
+  LIGHT_VAR,
   categoryLight,
   projectLight,
   projectLightClass,
+  projectLights,
+  projectLightStyle,
 } from "./lights";
 export type { Light } from "./lights";
 export {

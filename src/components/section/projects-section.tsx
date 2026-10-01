@@ -3,7 +3,13 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { ProjectCard } from "@/components/project-card";
-import { DATA, LIGHT_CLASS, PROJECT_FILTERS, projectLightClass } from "@/data";
+import {
+  DATA,
+  LIGHT_CLASS,
+  PROJECT_FILTERS,
+  projectLightClass,
+  projectLightStyle,
+} from "@/data";
 import { cn } from "@/lib/utils";
 
 // The active filter lives in the URL (`?focus=ai-ml`) so a filtered view
@@ -184,6 +190,7 @@ export default function ProjectsSection() {
                     links={project.links}
                     light={projectLightClass(project)}
                     categories={project.categories}
+                    lightStyle={projectLightStyle(project)}
                   />
                 </motion.div>
               ))}

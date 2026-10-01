@@ -13,11 +13,13 @@ import { cn } from "@/lib/utils";
 // BlurFade, which keeps it invisible until hydration, so resetting to 0
 // before counting never flashes.
 
+// Labels are plain sentences, so the number means something to someone
+// who hasn't read the case study yet; the project name links to it.
 const STATS = [
-  { value: 114, suffix: "", label: "API handlers", project: "SquadPact", href: "/projects/squadpact" },
-  { value: 148, suffix: "", label: "ML features", project: "StockAI", href: "/projects/stockai" },
-  { value: 16, suffix: "", label: "generations to 3 stars", project: "Genetic AI", href: "/projects/zeppelin-rush" },
-  { value: 10000, suffix: "+", label: "employees reached", project: "Spur Reply", href: "/projects/spur-2020" },
+  { value: 114, suffix: "", label: "API endpoints behind my web + mobile app", project: "SquadPact", href: "/projects/squadpact" },
+  { value: 148, suffix: "", label: "data signals feeding my stock-prediction model", project: "StockAI", href: "/projects/stockai" },
+  { value: 14, suffix: "", label: "rounds of evolution for my AI to beat the best human score", project: "Genetic AI", href: "/projects/zeppelin-rush" },
+  { value: 10000, suffix: "+", label: "Microsoft employees reached by an automation I built", project: "Spur Reply", href: "/projects/spur-2020" },
 ] as const;
 
 const fmt = new Intl.NumberFormat("en-US");

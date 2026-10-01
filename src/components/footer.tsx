@@ -1,6 +1,7 @@
 // Sits at the very bottom of every page. The dock already carries the
 // social links, so the footer is a quiet sign-off plus the two links a
-// recruiter is most likely to want again: the resume and the source.
+// recruiter is most likely to want again: the resume. (No source link:
+// the repo is private.)
 //
 // The Job Tracker tool still lives at /tools/applications (unlock-key
 // gated); it's just no longer advertised here.
@@ -19,14 +20,6 @@ export default function Footer() {
           <Link href="/resume" className="hover:text-foreground transition-colors">
             Resume
           </Link>
-          <a
-            href="https://github.com/nateprogram/PortfolioWebsite"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors"
-          >
-            Site source
-          </a>
         </div>
       </div>
     </footer>

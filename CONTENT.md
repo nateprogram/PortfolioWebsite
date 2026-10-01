@@ -29,6 +29,7 @@ broken edit can't deploy.
 | A project card on the homepage                          | `src/data/projects-list.tsx`           |
 | A project's full write-up page (`/projects/<slug>`)     | `src/data/projects/<slug>.tsx`         |
 | Images and videos                                       | `public/` (see `public/README.md`)     |
+| Which color each category is                            | `src/data/project-filters.ts` (`light`), explained in `src/data/lights.ts` |
 
 The hero's "Now ·" line follows the first job in `experience.ts` with
 `end: null`, so a new job updates it with no extra edit.
@@ -100,7 +101,20 @@ Media is optional. Without an image the card draws a generated cover.
 `shots` (2-3 phone screenshots) and `video` (+ a `poster` still) are
 also supported; see the comment at the top of the file.
 
-`"Games"` projects are automatically drawn in the Game Grid's orange.
+**Color comes from the first category.** The site uses TRON: Legacy's
+circuit colors, where color says whose side a program is on:
+
+| Category   | Light  | In the film                          |
+| ---------- | ------ | ------------------------------------ |
+| Full-Stack | blue   | programs that fight for the users    |
+| AI/ML      | white  | users and ISOs (Quorra)              |
+| Systems    | gold   | Clu, who built and runs the Grid     |
+| Games      | orange | Clu's army and the Games             |
+
+The card, its project page (including that page's Grid floor), and the
+category tags all take the light of the **first** entry in
+`categories`, so list the main one first. `["Systems", "Games"]` is a
+gold card tagged Systems and Games.
 
 ### Add a full write-up for a project
 
@@ -146,9 +160,10 @@ and `dates` yourself.
 ### Add a homepage skill chip
 
 Add it to a group in `skillGroups` in `profile.ts` (an icon component
-from `src/components/ui/svgs/`). It must also appear in the resume's
-`skills` in `resume.ts`; the check enforces that, for the same reason
-as jobs.
+from `src/components/ui/svgs/`). Give it `light: "ai"`, `"systems"`, or
+`"games"` if that's where you use it most; leave it off for blue
+(apps). It must also appear in the resume's `skills` in `resume.ts`;
+the check enforces that, for the same reason as jobs.
 
 ## What the check enforces
 

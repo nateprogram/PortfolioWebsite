@@ -3,7 +3,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { ProjectCard } from "@/components/project-card";
-import { DATA, PROJECT_FILTERS } from "@/data";
+import { DATA, LIGHT_CLASS, PROJECT_FILTERS, projectLightClass } from "@/data";
 import { cn } from "@/lib/utils";
 
 // The active filter lives in the URL (`?focus=ai-ml`) so a filtered view
@@ -99,9 +99,9 @@ export default function ProjectsSection() {
           >
             {PROJECT_FILTERS.map((filter) => {
               const isActive = filter.value === activeFilter.value;
-              // Games is the Game Grid: its tab lights orange, and its
-              // count stays orange as a legend for the orange cards.
-              const arena = filter.value === "games";
+              // Each tab is lit in its category's light (blue for All),
+              // so the row doubles as the legend for the card colors.
+              const light = "light" in filter ? LIGHT_CLASS[filter.light] : undefined;
               const count = GRID_PROJECTS.filter((p) =>
                 matchesFilter(p, filter)
               ).length;
@@ -112,14 +112,21 @@ export default function ProjectsSection() {
                   type="button"
                   onClick={() => setFilter(filter.value)}
                   className={cn(
-                    arena && "arena",
+                    light,
                     "relative rounded-sm border px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
                       ? "border-brand/40 text-foreground"
-                      : "border-border bg-card/60 text-muted-foreground hover:text-foreground hover:border-brand/30"
+                      : "border-brand/25 bg-card/60 text-muted-foreground hover:text-foreground hover:border-brand/50"
                   )}
                 >
+                  {/* At rest each tab keeps a short lit under-edge. */}
+                  {!isActive && (
+                    <span
+                      className="absolute inset-x-3 -bottom-px h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-70"
+                      aria-hidden
+                    />
+                  )}
                   {/* The active tab is a light bar that slides between
                       tabs, over a faint wash. */}
                   {isActive && (
@@ -137,7 +144,7 @@ export default function ProjectsSection() {
                     <span
                       className={cn(
                         "ml-1.5 tabular-nums",
-                        isActive || arena ? "text-brand" : "text-muted-foreground/60"
+                        "text-brand"
                       )}
                     >
                       {count}
@@ -175,7 +182,8 @@ export default function ProjectsSection() {
                     poster={project.poster}
                     shots={project.shots}
                     links={project.links}
-                    arena={project.categories.includes("Games")}
+                    light={projectLightClass(project)}
+                    categories={project.categories}
                   />
                 </motion.div>
               ))}

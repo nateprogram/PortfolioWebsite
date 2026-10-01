@@ -45,10 +45,12 @@ export const PROFILE = {
   skillGroups: [
     {
       label: "Languages",
+      // `light`: where the skill is used most, in that category's light
+      // (src/data/lights.ts). No light means blue (apps).
       items: [
-        { name: "C++", icon: Cpp },
-        { name: "C#", icon: Csharp },
-        { name: "Python", icon: Python },
+        { name: "C++", icon: Cpp, light: "systems" },
+        { name: "C#", icon: Csharp, light: "games" },
+        { name: "Python", icon: Python, light: "ai" },
         { name: "TypeScript", icon: Typescript },
         { name: "Java", icon: Java },
       ],
@@ -56,10 +58,9 @@ export const PROFILE = {
     {
       label: "Frameworks & Engines",
       items: [
-        // `arena`: game tech, drawn in the Game Grid's orange.
-        { name: "Unreal Engine", icon: Unreal, arena: true },
-        { name: "Unity", icon: Unity, arena: true },
-        { name: "PyTorch", icon: PyTorch },
+        { name: "Unreal Engine", icon: Unreal, light: "games" },
+        { name: "Unity", icon: Unity, light: "games" },
+        { name: "PyTorch", icon: PyTorch, light: "ai" },
         { name: "Next.js", icon: NextjsIconDark },
         { name: "React", icon: ReactLight },
         { name: "Capacitor", icon: Capacitor },

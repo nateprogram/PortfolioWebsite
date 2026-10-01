@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import BlurFade from "@/components/magicui/blur-fade";
 import { Badge } from "@/components/ui/badge";
-import { DATA, PROJECT_DETAILS } from "@/data";
+import { DATA, PROJECT_DETAILS, projectLightClass } from "@/data";
 import { cn } from "@/lib/utils";
 import {
   InterleavedProse,
@@ -18,6 +18,8 @@ import { GaRunChart } from "@/components/ga-run-chart";
 import { ParticlePlayground } from "@/components/particle-playground";
 import type { Figure } from "@/data/types";
 import { highlightCode } from "@/lib/highlight";
+import { CategoryTags } from "@/components/category-tags";
+import { GridFloor } from "@/components/grid-floor";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -140,11 +142,11 @@ export default async function ProjectDetailPage({
   );
 
   return (
-    // Game projects are on the Game Grid: the page's light turns orange.
+    // The page is lit in its category's light (see src/data/lights.ts).
     <main
       className={cn(
         "min-h-dvh flex flex-col gap-10 relative",
-        project.categories.includes("Games") && "arena"
+        projectLightClass(project)
       )}
     >
       <BlurFade delay={BLUR_FADE_DELAY}>
@@ -165,14 +167,12 @@ export default async function ProjectDetailPage({
             filtering but is never rendered in the UI. */}
         {project.categories && project.categories.length > 0 && (
           <BlurFade delay={BLUR_FADE_DELAY * 2}>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-              <span>{project.categories.join(" / ")}</span>
-            </div>
+            <CategoryTags categories={project.categories} className="[&>span]:text-[11px]" />
           </BlurFade>
         )}
 
         <BlurFade delay={BLUR_FADE_DELAY * 3}>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tighter">
+          <h1 className="glow-soft text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tighter">
             {project.title}
           </h1>
         </BlurFade>
@@ -183,6 +183,12 @@ export default async function ProjectDetailPage({
           </p>
         </BlurFade>
       </header>
+
+      {/* The page's Grid floor, in its category's light: the horizon runs
+          under the header and the media stands on it. */}
+      <div className="relative -mb-10 h-0">
+        <GridFloor />
+      </div>
 
       {heroPhones && (
         <BlurFade delay={BLUR_FADE_DELAY * 5}>

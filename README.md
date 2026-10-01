@@ -33,7 +33,8 @@ Dev server runs at http://localhost:3000.
 | `src/app/projects/[slug]/page.tsx`     | Per-project detail page                               |
 | `src/lib/particles.ts`                 | TS port of the Mayhem Engine emitter (hero + playground) |
 | `src/components/section/`              | Home-page sections (experience, projects, contact)    |
-| `src/app/globals.css`                  | Theme tokens (incl. the `--brand` accent), effects, print styles |
+| `src/app/globals.css`                  | Theme (TRON: Legacy, with sources), the four category lights, the Grid floor, print styles |
+| `src/data/lights.ts`                   | Category to light: blue apps, white AI/ML, gold systems, orange games |
 | `public/`                              | Static media. See `public/README.md` for drop-zone layout. |
 
 ### Editing content

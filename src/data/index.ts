@@ -12,6 +12,8 @@
 //   resume.ts              the resume as data (/resume + /resume.pdf)
 //   projects-list.tsx      the project cards on the homepage
 //   project-filters.ts     the filter chips above the projects grid
+//   lights.ts              category -> circuit color (blue, white, gold,
+//                          orange)
 //   projects/<slug>.tsx    deep-dive content per project
 //   project-details.ts     aggregates the per-project files
 //   types.ts               shared types (ProjectDetail, Figure, ...)
@@ -28,6 +30,13 @@ export const DATA = {
 } as const;
 
 export { PROJECT_FILTERS } from "./project-filters";
+export {
+  LIGHT_CLASS,
+  categoryLight,
+  projectLight,
+  projectLightClass,
+} from "./lights";
+export type { Light } from "./lights";
 export {
   EXPERIENCE,
   HOME_EXPERIENCE,

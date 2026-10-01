@@ -8,6 +8,7 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
+import { CategoryTags } from "@/components/category-tags";
 
 // ---------------------------------------------------------------------------
 // Media
@@ -225,8 +226,10 @@ interface Props {
     type: string;
     href: string;
   }[];
-  /** Game work: the card's light is orange (the Game Grid). */
-  arena?: boolean;
+  /** The card's light class (see src/data/lights.ts); blue if unset. */
+  light?: string;
+  /** Shown as lit tags above the title, each in its own light. */
+  categories?: readonly string[];
   className?: string;
 }
 
@@ -244,7 +247,8 @@ export function ProjectCard({
   poster,
   shots,
   links,
-  arena,
+  light,
+  categories,
   className,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -272,7 +276,7 @@ export function ProjectCard({
       ref={cardRef}
       onPointerMove={onPointerMove}
       className={cn(
-        arena && "arena",
+        light,
         "spotlight group/card relative flex flex-col h-full border border-border rounded-lg overflow-hidden bg-card/40 transition-[translate,box-shadow] duration-300 ease-out",
         hasPrimaryLink &&
           "cursor-pointer motion-safe:hover:-translate-y-1 hover:shadow-[0_22px_45px_-24px_var(--brand)] focus-within:ring-2 focus-within:ring-ring",
@@ -323,6 +327,12 @@ export function ProjectCard({
             ))}
           </div>
         )}
+        {/* The seam between cover and body is a light line in the card's
+            color, lit from its center. */}
+        <span
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 z-20 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-80 shadow-[0_0_8px_0_var(--brand-glow)]"
+        />
       </div>
       <div className="relative z-10 p-6 flex flex-col gap-3 flex-1">
         {hasPrimaryLink && (
@@ -333,6 +343,7 @@ export function ProjectCard({
             className="absolute inset-0 z-10 focus-visible:outline-none"
           />
         )}
+        {categories && <CategoryTags categories={categories} className="-mb-1" />}
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold">{title}</h3>
           {hasPrimaryLink && (

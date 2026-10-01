@@ -1,7 +1,7 @@
 import BlurFade from "@/components/magicui/blur-fade";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CURRENT_ROLE, DATA } from "@/data";
+import { CURRENT_ROLE, DATA, LIGHT_CLASS, type Light } from "@/data";
 import Link from "next/link";
 import Markdown from "react-markdown";
 import ContactSection from "@/components/section/contact-section";
@@ -11,10 +11,18 @@ import { EducationLogo } from "@/components/education-logo";
 import { HashLink } from "@/components/hash-link";
 import { ScrollCue } from "@/components/scroll-cue";
 import { HeroStats } from "@/components/hero-stats";
+import { GridFloor } from "@/components/grid-floor";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ArrowUpRight, FileText, Github, Linkedin, Mail, Sparkles } from "lucide-react";
 
 const BLUR_FADE_DELAY = 0.04;
+
+const SKILL_LEGEND: ReadonlyArray<{ light: Light; label: string }> = [
+  { light: "apps", label: "Apps" },
+  { light: "ai", label: "AI/ML" },
+  { light: "systems", label: "Systems" },
+  { light: "games", label: "Games" },
+];
 
 // Hero text animates with CSS (tw-animate-css) rather than motion, so it
 // paints from the server HTML without waiting on hydration. Reduced-motion
@@ -124,9 +132,13 @@ export default function Page() {
             </div>
           </div>
 
-          <BlurFade delay={BLUR_FADE_DELAY * 4}>
-            <HeroStats />
-          </BlurFade>
+          {/* The stats stand on the Grid floor's horizon. */}
+          <div className="relative">
+            <GridFloor />
+            <BlurFade delay={BLUR_FADE_DELAY * 4}>
+              <HeroStats />
+            </BlurFade>
+          </div>
 
           <div className={cn("flex flex-wrap items-center gap-2", enter("delay-300"))}>
             <span className="hud-glow">
@@ -227,6 +239,17 @@ export default function Page() {
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade>
             <h2 className="section-title text-xl font-bold">Skills</h2>
+            {/* Legend for the chip colors: the same four lights as the
+                project categories. */}
+            <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              <span>Lit by where I use them most:</span>
+              {SKILL_LEGEND.map((l) => (
+                <span key={l.light} className={cn(LIGHT_CLASS[l.light], "inline-flex items-center gap-1.5")}>
+                  <span className="h-[2px] w-3 bg-brand shadow-[0_0_6px_0_var(--brand-glow)]" aria-hidden />
+                  {l.label}
+                </span>
+              ))}
+            </p>
           </BlurFade>
           <div className="flex flex-col gap-5">
             {DATA.skillGroups.map((group, gIdx) => (
@@ -239,7 +262,7 @@ export default function Page() {
                     {group.items.map((skill) => (
                       <div
                         key={skill.name}
-                        className={cn("arena" in skill && skill.arena && "arena", "group border border-border border-b-2 border-b-brand/35 bg-card/60 rounded-md h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:border-b-brand hover:shadow-[0_6px_16px_-10px_var(--brand)]")}
+                        className={cn("light" in skill && LIGHT_CLASS[skill.light], "group border border-border border-b-2 border-b-brand/75 shadow-[0_6px_14px_-10px_var(--brand-glow)] bg-card/60 rounded-md h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:border-b-brand hover:shadow-[0_6px_16px_-10px_var(--brand)]")}
                       >
                         {skill.icon && (
                           <skill.icon className="size-4 rounded overflow-hidden object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />

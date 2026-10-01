@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { animate } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
+import { DATA, projectLightClass } from "@/data";
+import { cn } from "@/lib/utils";
 
 // Four numbers from real projects, each linking to its case study. They
 // count up once on load. The final value is in the server HTML (crawlers
@@ -19,6 +21,11 @@ const STATS = [
 ] as const;
 
 const fmt = new Intl.NumberFormat("en-US");
+
+function lightFor(href: string) {
+  const project = DATA.projects.find((p) => p.href === href);
+  return project ? projectLightClass(project) : undefined;
+}
 
 function CountUp({ value, suffix, delay }: { value: number; suffix: string; delay: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -59,9 +66,13 @@ export function HeroStats() {
   return (
     <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {STATS.map((s, i) => (
-        <li key={s.label} className="hud-glow">
-          {/* Chamfered HUD readout with an inner bracket and a red notch;
-              the edge is lit from below and fully lit on hover. */}
+        <li
+          key={s.label}
+          // Each readout is lit in its project's category light.
+          className={cn("hud-glow", lightFor(s.href))}
+        >
+          {/* Chamfered HUD readout with an inner parallel trace; the edge
+              is lit from below and fully lit on hover. */}
           <Link
             href={s.href}
             className="hud hud-hover hud-detail group flex h-full flex-col gap-0.5 px-3.5 pb-3 pt-2.5 [--cut:10px] focus-visible:outline-none"

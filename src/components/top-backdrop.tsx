@@ -2,18 +2,19 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { DATA } from "@/data";
+import { DATA, projectLightClass } from "@/data";
 import { cn } from "@/lib/utils";
 
-// Game project pages sit on the Game Grid, so their band is orange too.
-const ARENA_PATHS = new Set(
-  DATA.projects.filter((p) => p.categories.includes("Games")).map((p) => p.href)
+// Project pages take their category's light (see src/data/lights.ts).
+const PATH_LIGHT = new Map(
+  DATA.projects.map((p) => [p.href, projectLightClass(p)] as const)
 );
 
-// The band behind the top of every page: the Grid floor (a faint square
-// lattice of light) with a few light ribbons running along its lines.
-// The homepage adds the particle emitter on top. /resume gets nothing so
-// it reads (and prints) like a document.
+// The band behind the top of every page. Inner pages get a faint square
+// lattice of light. The homepage gets the sky above the Grid floor (the
+// floor itself is part of the hero, see grid-floor.tsx, so its horizon
+// can sit on the stats row at every screen size) plus the particle
+// emitter. /resume gets nothing so it reads (and prints) like a document.
 //
 // Everything here except the emitter is CSS: no canvas, no JS loop.
 
@@ -21,23 +22,6 @@ const HeroEmitter = dynamic(
   () => import("@/components/hero-emitter").then((m) => m.HeroEmitter),
   { ssr: false }
 );
-
-// Lattice cells are 48px, so ribbon offsets are multiples of 48. Paths
-// stay in the top row and the side margins so a ribbon never runs along
-// the edge of a piece of content and reads as a glitch.
-// Light-cycle matches, as on the key art's floor: on each track an
-// orange cycle chases a blue one at the same speed, a beat behind. The
-// orange never appears on its own.
-const RIBBONS_X = [
-  { top: 48, dur: "11s", delay: "0s", arena: false },
-  { top: 48, dur: "11s", delay: "1.3s", arena: true },
-  { top: 0, dur: "15s", delay: "7s", arena: false },
-];
-const RIBBONS_Y = [
-  { left: 96, dur: "9s", delay: "2s", arena: false },
-  { left: 1200, dur: "10s", delay: "4.5s", arena: false },
-  { left: 1200, dur: "10s", delay: "5.6s", arena: true },
-];
 
 function Lattice({ height, fadeAt }: { height: number; fadeAt: string }) {
   return (
@@ -62,7 +46,7 @@ export function TopBackdrop() {
       <div
         className={cn(
           "pointer-events-none absolute inset-x-0 top-0 z-0 h-[220px] overflow-hidden print:hidden",
-          ARENA_PATHS.has(pathname ?? "") && "arena"
+          PATH_LIGHT.get(pathname ?? "")
         )}
       >
         <Lattice height={220} fadeAt="80%" />
@@ -72,35 +56,17 @@ export function TopBackdrop() {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[640px] overflow-hidden print:hidden">
-      {/* Under-light: the Grid is lit from below, so the haze is
-          brightest near the floor line, not in the sky. */}
+      {/* The sky: dark, with only a faint far lattice, so the floor and
+          its horizon carry the scene. */}
       <div
-        className="absolute inset-x-0 top-0 h-full bg-[radial-gradient(ellipse_70%_40%_at_50%_0%,var(--brand-soft),transparent_70%)]"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-40"
         style={{
-          maskImage: "radial-gradient(ellipse 80% 90% at 50% 0%, black 30%, transparent 78%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 50% 0%, black 30%, transparent 78%)",
+          maskImage: "radial-gradient(ellipse 80% 70% at 50% 0%, black 20%, transparent 75%)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 0%, black 20%, transparent 75%)",
         }}
         aria-hidden
       >
         <div className="absolute inset-0 tron-lattice" />
-        {RIBBONS_X.map((r) => (
-          <span
-            key={`x${r.top}-${r.delay}`}
-            className={r.arena ? "ribbon ribbon-x ribbon-arena" : "ribbon ribbon-x"}
-            style={{ top: r.top - 1, ["--dur" as string]: r.dur, ["--delay" as string]: r.delay }}
-          />
-        ))}
-        {RIBBONS_Y.map((r) => (
-          <span
-            key={`y${r.left}-${r.delay}`}
-            className={r.arena ? "ribbon ribbon-y ribbon-arena" : "ribbon ribbon-y"}
-            style={{ left: r.left - 1, ["--dur" as string]: r.dur, ["--delay" as string]: r.delay }}
-          />
-        ))}
       </div>
       <div
         className="absolute inset-0"

@@ -88,8 +88,8 @@ export default function Page() {
             <div className={cn("order-1 md:order-2 shrink-0", enter("delay-100"))}>
               {/* Identity disc, after the platform rings in the key art:
                   concentric rings of different weights with gaps. A thin
-                  segmented outer ring (with one red arc) turns one way, a
-                  heavy broken inner ring turns the other. */}
+                  segmented outer ring turns one way, a heavy broken inner
+                  ring turns the other. Blue: this is a user's disc. */}
               <div className="relative size-24 md:size-32">
                 <svg
                   className="disc-ring pointer-events-none absolute -inset-[10px] h-[calc(100%+20px)] w-[calc(100%+20px)]"
@@ -100,11 +100,6 @@ export default function Page() {
                     cx="50" cy="50" r="49" fill="none"
                     className="stroke-brand" strokeWidth="0.5"
                     pathLength={360} strokeDasharray="26 3 5 3" opacity="0.7"
-                  />
-                  <circle
-                    cx="50" cy="50" r="49" fill="none"
-                    className="stroke-tron-red" strokeWidth="1.3"
-                    pathLength={360} strokeDasharray="14 346" strokeDashoffset="-40"
                   />
                 </svg>
                 <svg
@@ -244,7 +239,7 @@ export default function Page() {
                     {group.items.map((skill) => (
                       <div
                         key={skill.name}
-                        className="group border border-border border-b-2 border-b-brand/35 bg-card/60 rounded-md h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:border-b-brand hover:shadow-[0_6px_16px_-10px_var(--brand)]"
+                        className={cn("arena" in skill && skill.arena && "arena", "group border border-border border-b-2 border-b-brand/35 bg-card/60 rounded-md h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:border-b-brand hover:shadow-[0_6px_16px_-10px_var(--brand)]")}
                       >
                         {skill.icon && (
                           <skill.icon className="size-4 rounded overflow-hidden object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />

@@ -2,6 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { DATA } from "@/data";
+import { cn } from "@/lib/utils";
+
+// Game project pages sit on the Game Grid, so their band is orange too.
+const ARENA_PATHS = new Set(
+  DATA.projects.filter((p) => p.categories.includes("Games")).map((p) => p.href)
+);
 
 // The band behind the top of every page: the Grid floor (a faint square
 // lattice of light) with a few light ribbons running along its lines.
@@ -18,17 +25,18 @@ const HeroEmitter = dynamic(
 // Lattice cells are 48px, so ribbon offsets are multiples of 48. Paths
 // stay in the top row and the side margins so a ribbon never runs along
 // the edge of a piece of content and reads as a glitch.
-// Mostly blue, with a red rival on the same rows: the key art's floor has
-// red light-cycle trails cutting across the blue Grid.
+// Light-cycle matches, as on the key art's floor: on each track an
+// orange cycle chases a blue one at the same speed, a beat behind. The
+// orange never appears on its own.
 const RIBBONS_X = [
-  { top: 48, dur: "11s", delay: "0s", red: false },
-  { top: 48, dur: "13s", delay: "5s", red: true },
-  { top: 0, dur: "15s", delay: "9s", red: false },
+  { top: 48, dur: "11s", delay: "0s", arena: false },
+  { top: 48, dur: "11s", delay: "1.3s", arena: true },
+  { top: 0, dur: "15s", delay: "7s", arena: false },
 ];
 const RIBBONS_Y = [
-  { left: 96, dur: "9s", delay: "2s", red: false },
-  { left: 1200, dur: "10s", delay: "4.5s", red: true },
-  { left: 1344, dur: "13s", delay: "8s", red: false },
+  { left: 96, dur: "9s", delay: "2s", arena: false },
+  { left: 1200, dur: "10s", delay: "4.5s", arena: false },
+  { left: 1200, dur: "10s", delay: "5.6s", arena: true },
 ];
 
 function Lattice({ height, fadeAt }: { height: number; fadeAt: string }) {
@@ -51,7 +59,12 @@ export function TopBackdrop() {
 
   if (pathname !== "/") {
     return (
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[220px] overflow-hidden print:hidden">
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 z-0 h-[220px] overflow-hidden print:hidden",
+          ARENA_PATHS.has(pathname ?? "") && "arena"
+        )}
+      >
         <Lattice height={220} fadeAt="80%" />
       </div>
     );
@@ -77,14 +90,14 @@ export function TopBackdrop() {
         {RIBBONS_X.map((r) => (
           <span
             key={`x${r.top}-${r.delay}`}
-            className={r.red ? "ribbon ribbon-x ribbon-red" : "ribbon ribbon-x"}
+            className={r.arena ? "ribbon ribbon-x ribbon-arena" : "ribbon ribbon-x"}
             style={{ top: r.top - 1, ["--dur" as string]: r.dur, ["--delay" as string]: r.delay }}
           />
         ))}
         {RIBBONS_Y.map((r) => (
           <span
             key={`y${r.left}-${r.delay}`}
-            className={r.red ? "ribbon ribbon-y ribbon-red" : "ribbon ribbon-y"}
+            className={r.arena ? "ribbon ribbon-y ribbon-arena" : "ribbon ribbon-y"}
             style={{ left: r.left - 1, ["--dur" as string]: r.dur, ["--delay" as string]: r.delay }}
           />
         ))}

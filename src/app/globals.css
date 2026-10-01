@@ -44,8 +44,7 @@
   --color-brand-2: var(--brand-2);
   --color-brand-soft: var(--brand-soft);
   --color-brand-glow: var(--brand-glow);
-  --color-tron-red: var(--tron-red);
-  --color-tron-red-core: var(--tron-red-core);
+  --color-arena: var(--tron-orange);
 }
 
 /* Theme: TRON: Legacy (2010), read from its production design.
@@ -55,9 +54,14 @@
  *   only ever comes from light lines (white-hot core, cyan halo, like the
  *   suits' electroluminescent "Natural Blue" tape).
  *
- *   Red-orange (Clu's side; the suits' "Extreme Orange" / "International
- *   Red" tape) is the tertiary color: small marks that contrast the blue,
- *   never structure. Roughly one red mark per component, at most.
+ *   Orange is the Game Grid. In the film it marks Clu's side: the
+ *   military programs and the arenas they run the games in (Clu himself
+ *   is yellow, and the EL tape "shifts between deep red and orange"
+ *   with the light around it). Here it marks game work only: game
+ *   project cards and pages, the Games filter, game-engine skills, and
+ *   one orange cycle racing a blue one across the floor. It is drawn as
+ *   an orange line with a yellow-hot core and a red falloff, and it is
+ *   applied by scoping (.arena), never sprinkled as standalone marks.
  *
  *   Light mode is the real world the film shoots flat and desaturated:
  *   overcast greys, ink text, the same cyan as a plain ink accent, and no
@@ -103,9 +107,10 @@
   --brand-2: oklch(0.38 0.07 230);
   --brand-soft: oklch(0.52 0.1 222 / 0.09);
   --brand-glow: transparent;
-  --tron-red: oklch(0.56 0.2 32);
-  --tron-red-core: oklch(0.56 0.2 32);
-  --tron-red-glow: transparent;
+  --tron-orange: oklch(0.6 0.17 48);
+  --tron-orange-core: oklch(0.6 0.17 48);
+  --tron-orange-soft: oklch(0.6 0.17 48 / 0.09);
+  --tron-orange-glow: transparent;
   --lattice: oklch(0.45 0.03 230 / 0.07);
   --lattice-major: oklch(0.45 0.03 230 / 0.12);
 }
@@ -149,13 +154,26 @@
   --brand-2: oklch(0.97 0.03 205);
   --brand-soft: oklch(0.86 0.11 212 / 0.1);
   --brand-glow: oklch(0.86 0.11 212 / 0.5);
-  /* Tertiary: Clu's red-orange. A hot core with a red halo, like the
-     orange suit lines in the key art. */
-  --tron-red: oklch(0.67 0.22 33);
-  --tron-red-core: oklch(0.86 0.1 60);
-  --tron-red-glow: oklch(0.67 0.22 33 / 0.55);
+  /* The Game Grid: orange body, yellow-hot core (Clu's color), red
+     falloff in the glow. */
+  --tron-orange: oklch(0.75 0.17 55);
+  --tron-orange-core: oklch(0.9 0.11 80);
+  --tron-orange-soft: oklch(0.75 0.17 55 / 0.11);
+  --tron-orange-glow: oklch(0.63 0.22 32 / 0.55);
   --lattice: oklch(0.86 0.11 212 / 0.055);
   --lattice-major: oklch(0.86 0.11 212 / 0.12);
+}
+
+/* The Game Grid. Any subtree with .arena re-themes its light from blue
+   to orange: every component reads --brand*, so scoping these variables
+   is the whole mechanism. */
+.arena {
+  --brand: var(--tron-orange);
+  --brand-2: var(--tron-orange-core);
+  --brand-soft: var(--tron-orange-soft);
+  --brand-glow: var(--tron-orange-glow);
+  --lattice: color-mix(in oklch, var(--tron-orange) 7%, transparent);
+  --lattice-major: color-mix(in oklch, var(--tron-orange) 14%, transparent);
 }
 
 @layer base {
@@ -306,10 +324,13 @@
  *   - light is the only ornament, and it lives on edges and seams
  *   - a light line is a white-hot core with a colored halo
  *   - the Grid is lit from below, so edges are brightest at the bottom
- *   - a line is never alone: it has weight contrast (a 2px core with a
- *     1px companion running beside it) or it wraps a corner as a bracket
- *     that implies a closed panel without closing it
- *   - red-orange marks are small and few; blue carries the structure
+ *   - lines come in parallel pairs that follow a contour: the second
+ *     line keeps a constant offset from an edge, turns the corner with
+ *     it (same angle, concentric radius), and fades out instead of
+ *     closing. That's how the suit lines describe a body and how the
+ *     vehicle and architecture lines trace panels.
+ *   - weight contrast inside a pair: a heavier line with a 1px partner
+ *   - orange is scoped (.arena), never scattered
  * ------------------------------------------------------------------- */
 
 /* Glowing type for display sizes only; body text never glows. Dark mode
@@ -432,26 +453,31 @@
   filter: drop-shadow(0 0 6px var(--brand-glow));
 }
 
-/* Inner detail for larger HUD panels: an L-bracket inside the bottom-left
-   (2px core, then a 1px companion running on), plus one red notch in the
-   top-right. Together with the outer chamfered edge it reads as a panel
-   inside a panel, the way the film's interface frames are layered. */
+/* Inner trace for larger HUD panels: a 1px line running parallel to the
+   frame's outer edge at a ~4px inset. It runs along the bottom, turns up
+   the bottom-right chamfer at the same 45 degrees, climbs the right side,
+   and fades out at both ends. With the 2px outer bottom edge it forms a
+   heavy/light pair that wraps the corner, like a suit line. */
 .hud-detail {
   --hud-line: color-mix(in oklch, var(--brand) 40%, transparent);
 }
 
 .hud-detail::after {
+  --c: calc(var(--cut) - 2px);
   content: "";
   position: absolute;
   inset: 4px 4px 5px 4px;
   pointer-events: none;
   background:
-    linear-gradient(var(--hud-line), var(--hud-line)) left bottom / 26% 2px no-repeat,
-    linear-gradient(to right, var(--hud-line), transparent) 30% bottom / 55% 1px no-repeat,
-    linear-gradient(to top, var(--hud-line), transparent) left bottom / 1px 55% no-repeat,
-    linear-gradient(var(--tron-red), var(--tron-red)) right top / 7px 2px no-repeat,
-    linear-gradient(var(--tron-red), var(--tron-red)) right top / 2px 4px no-repeat;
-  transition: filter 0.3s ease;
+    linear-gradient(to right, transparent, var(--hud-line) 45%) left bottom / calc(100% - var(--c)) 1px no-repeat,
+    linear-gradient(
+      to top left,
+      transparent calc(50% - 0.6px),
+      var(--hud-line) calc(50% - 0.6px),
+      var(--hud-line) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    ) right bottom / var(--c) var(--c) no-repeat,
+    linear-gradient(to top, var(--hud-line), transparent) right 0 bottom var(--c) / 1px 50% no-repeat;
 }
 
 .hud-detail.hud-hover:hover,
@@ -459,26 +485,44 @@
   --hud-line: var(--brand);
 }
 
-/* Bracket corners: two L-brackets (top-left, bottom-right) inset inside a
-   panel, plus a red tick trailing the top-left bracket. The panel looks
-   enclosed by light without a full outline. Light up with their card. */
-.tron-corners {
-  --c: color-mix(in oklch, var(--brand) 30%, transparent);
+/* Parallel trace for rounded panels (cards, the contact panel): a second
+   line inside the border, along the bottom and up both sides with a
+   concentric corner, fading out as it climbs. It suggests the panel is
+   enclosed by light without drawing a closed box. */
+.tron-trace {
+  --trace: color-mix(in oklch, var(--brand) 26%, transparent);
   position: absolute;
   pointer-events: none;
-  background:
-    linear-gradient(var(--c), var(--c)) left top / 16px 2px no-repeat,
-    linear-gradient(var(--c), var(--c)) left top / 2px 16px no-repeat,
-    linear-gradient(var(--c), var(--c)) right bottom / 16px 2px no-repeat,
-    linear-gradient(var(--c), var(--c)) right bottom / 2px 16px no-repeat,
-    linear-gradient(var(--c), var(--c)) 22px top / 6px 1px no-repeat,
-    linear-gradient(var(--tron-red), var(--tron-red)) 32px top / 6px 2px no-repeat;
-  transition: filter 0.3s ease;
+  border: 1px solid var(--trace);
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+  -webkit-mask-image: linear-gradient(to top, #000 25%, transparent 75%);
+  mask-image: linear-gradient(to top, #000 25%, transparent 75%);
+  transition: border-color 0.3s ease, filter 0.3s ease;
 }
 
-.spotlight:hover .tron-corners,
-.tron-corners-lit {
-  --c: var(--brand);
+/* Game cards carry their allegiance at rest, not just on hover: a
+   stronger orange trace, a lit under-edge, and a border tinted toward
+   orange. */
+.arena .tron-trace {
+  --trace: color-mix(in oklch, var(--brand) 55%, transparent);
+}
+
+.arena.spotlight {
+  border-color: color-mix(in oklch, var(--brand) 30%, transparent);
+}
+
+.arena.spotlight::after {
+  opacity: 0.75;
+}
+
+.spotlight:hover .tron-trace,
+.tron-trace-lit {
+  --trace: var(--brand);
+}
+
+.dark .spotlight:hover .tron-trace,
+.dark .tron-trace-lit {
   filter: drop-shadow(0 0 3px var(--brand-glow));
 }
 
@@ -516,15 +560,13 @@
   transition: opacity 0.3s ease;
 }
 
-/* Lit from below: a 1px line along the bottom edge with a shorter 2px
-   core riding just above it. */
+/* Lit from below: the outer bottom edge carries a faint line, which the
+   inner trace runs parallel to. */
 .spotlight::after {
   z-index: 29;
   top: auto;
-  height: 4px;
-  background:
-    linear-gradient(90deg, transparent, var(--brand) 50%, transparent) center bottom / 100% 1px no-repeat,
-    linear-gradient(90deg, transparent, var(--brand-2) 50%, transparent) center top / 38% 2px no-repeat;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand) 50%, transparent);
   opacity: 0.35;
   transition: opacity 0.3s ease, filter 0.3s ease;
 }
@@ -563,12 +605,12 @@
   display: none;
 }
 
-/* Light-cycle trails, like the two red streaks on the floor of the key
-   art: Clu's side. */
-.ribbon-red {
-  --rc: var(--tron-red);
-  --rcore: var(--tron-red-core);
-  --rglow: var(--tron-red-glow);
+/* An orange cycle chasing a blue one on the same line: the light-cycle
+   match from the key art's floor. */
+.ribbon-arena {
+  --rc: var(--tron-orange);
+  --rcore: var(--tron-orange-core);
+  --rglow: var(--tron-orange-glow);
 }
 
 /* Ribbons are emitted light, so they only run on the Grid (dark mode). */
@@ -639,17 +681,15 @@
   gap: 0.75rem;
 }
 
-/* The divider is layered: a 2px cyan core with a red tick under it, then
-   two 1px rails of different lengths running off to the right. */
+/* The divider is a parallel pair leaving the title together: a 2px line
+   and a longer 1px partner 3px above it, both fading out. */
 .section-title::after {
   content: "";
   flex: 1;
-  height: 5px;
+  height: 4px;
   background:
-    linear-gradient(var(--brand), var(--brand)) left top / 26px 2px no-repeat,
-    linear-gradient(var(--tron-red), var(--tron-red)) left bottom / 8px 1px no-repeat,
-    linear-gradient(90deg, var(--border), transparent) 34px top / calc(100% - 34px) 1px no-repeat,
-    linear-gradient(90deg, var(--border), transparent 70%) 34px bottom / 45% 1px no-repeat;
+    linear-gradient(90deg, var(--brand), color-mix(in oklch, var(--brand) 25%, var(--border)) 35%, transparent 90%) left top / 100% 1px no-repeat,
+    linear-gradient(90deg, var(--brand), transparent) left bottom / 32% 2px no-repeat;
 }
 
 .dark .section-title::after {

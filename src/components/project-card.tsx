@@ -225,6 +225,8 @@ interface Props {
     type: string;
     href: string;
   }[];
+  /** Game work: the card's light is orange (the Game Grid). */
+  arena?: boolean;
   className?: string;
 }
 
@@ -242,6 +244,7 @@ export function ProjectCard({
   poster,
   shots,
   links,
+  arena,
   className,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -269,14 +272,15 @@ export function ProjectCard({
       ref={cardRef}
       onPointerMove={onPointerMove}
       className={cn(
+        arena && "arena",
         "spotlight group/card relative flex flex-col h-full border border-border rounded-lg overflow-hidden bg-card/40 transition-[translate,box-shadow] duration-300 ease-out",
         hasPrimaryLink &&
           "cursor-pointer motion-safe:hover:-translate-y-1 hover:shadow-[0_22px_45px_-24px_var(--brand)] focus-within:ring-2 focus-within:ring-ring",
         className
       )}
     >
-      {/* Bracket corners over the panel; they light up with the card. */}
-      <span aria-hidden className="tron-corners inset-[6px] z-20" />
+      {/* Parallel trace inside the border; lights up with the card. */}
+      <span aria-hidden className="tron-trace inset-[5px] z-20" />
       <div className="relative shrink-0 overflow-hidden border-b border-border/60">
         {hasPrimaryLink ? (
           <Link

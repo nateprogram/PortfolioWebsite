@@ -31,8 +31,7 @@ const itemClass =
   "group flex items-center gap-3 py-1 font-mono text-[11px] uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm";
 
 // Each tick branches off a vertical bus line (see the <ol>). The active
-// tick is a 2px cyan core with a short red underline: weight contrast
-// plus the tertiary mark, instead of a single hairline.
+// tick is a parallel pair: a 2px line with a shorter 1px partner under it.
 function Tick({ active }: { active: boolean }) {
   return (
     <span aria-hidden className="relative flex shrink-0 items-center">
@@ -46,8 +45,8 @@ function Tick({ active }: { active: boolean }) {
       />
       <span
         className={cn(
-          "absolute left-0 top-[5px] h-px bg-tron-red transition-all duration-300",
-          active ? "w-2.5 opacity-100" : "w-0 opacity-0"
+          "absolute left-0 top-[5px] h-px bg-brand/55 transition-all duration-300",
+          active ? "w-5 opacity-100" : "w-0 opacity-0"
         )}
       />
     </span>

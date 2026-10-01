@@ -140,7 +140,13 @@ export default async function ProjectDetailPage({
   );
 
   return (
-    <main className="min-h-dvh flex flex-col gap-10 relative">
+    // Game projects are on the Game Grid: the page's light turns orange.
+    <main
+      className={cn(
+        "min-h-dvh flex flex-col gap-10 relative",
+        project.categories.includes("Games") && "arena"
+      )}
+    >
       <BlurFade delay={BLUR_FADE_DELAY}>
         <Link
           href={project.hideFromGrid ? "/#experience" : "/#projects"}

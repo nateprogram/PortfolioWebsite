@@ -55,8 +55,9 @@ export const PROFILE = {
     {
       label: "Frameworks & Engines",
       items: [
-        { name: "Unreal Engine", icon: Unreal },
-        { name: "Unity", icon: Unity },
+        // `arena`: game tech, drawn in the Game Grid's orange.
+        { name: "Unreal Engine", icon: Unreal, arena: true },
+        { name: "Unity", icon: Unity, arena: true },
         { name: "PyTorch", icon: PyTorch },
         { name: "Next.js", icon: NextjsIconDark },
         { name: "React", icon: ReactLight },

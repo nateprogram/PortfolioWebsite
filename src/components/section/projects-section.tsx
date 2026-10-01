@@ -68,7 +68,7 @@ export default function ProjectsSection() {
               <span className="hud hud-lit inline-flex items-center gap-2 px-3.5 py-1 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground [--cut:6px]">
                 <span aria-hidden className="flex flex-col gap-[2px]">
             <span className="h-[2px] w-2 bg-brand" />
-            <span className="h-px w-1 bg-tron-red" />
+            <span className="h-px w-1 bg-brand/55" />
           </span>
                 Projects
               </span>
@@ -99,6 +99,9 @@ export default function ProjectsSection() {
           >
             {PROJECT_FILTERS.map((filter) => {
               const isActive = filter.value === activeFilter.value;
+              // Games is the Game Grid: its tab lights orange, and its
+              // count stays orange as a legend for the orange cards.
+              const arena = filter.value === "games";
               const count = GRID_PROJECTS.filter((p) =>
                 matchesFilter(p, filter)
               ).length;
@@ -109,6 +112,7 @@ export default function ProjectsSection() {
                   type="button"
                   onClick={() => setFilter(filter.value)}
                   className={cn(
+                    arena && "arena",
                     "relative rounded-sm border px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
@@ -126,7 +130,6 @@ export default function ProjectsSection() {
                       aria-hidden
                     >
                       <span className="absolute inset-x-1.5 -bottom-px h-[2px] bg-brand-2 shadow-[0_0_8px_1px_var(--brand-glow)]" />
-                      <span className="absolute left-1.5 -bottom-[5px] h-px w-3 bg-tron-red" />
                     </motion.span>
                   )}
                   <span className="relative z-10">
@@ -134,7 +137,7 @@ export default function ProjectsSection() {
                     <span
                       className={cn(
                         "ml-1.5 tabular-nums",
-                        isActive ? "text-tron-red" : "text-muted-foreground/60"
+                        isActive || arena ? "text-brand" : "text-muted-foreground/60"
                       )}
                     >
                       {count}
@@ -172,6 +175,7 @@ export default function ProjectsSection() {
                     poster={project.poster}
                     shots={project.shots}
                     links={project.links}
+                    arena={project.categories.includes("Games")}
                   />
                 </motion.div>
               ))}

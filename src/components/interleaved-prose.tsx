@@ -241,19 +241,18 @@ export function InlineCodeSnippet({ snippet }: { snippet: CodeSnippet }) {
           {snippet.description}
         </div>
       )}
-      {/* Code body. Shiki now emits both Light+ and Dark+ palettes as CSS
-          custom properties on every token; `globals.css` flips between
-          them based on the `.dark` class and forces the shiki node's own
+      {/* Code body. Shiki emits both Light+ and Dark+ palettes as CSS
+          custom properties on every token; `globals.css` picks Dark+ (the
+          site is dark only) and forces the shiki node's own
           `background-color` to `transparent`, so the wrapper's background
-          below is what the reader actually sees. We use `bg-muted/50` in
-          light mode (a soft off-white that matches the rest of the page)
-          and `bg-background/60` in dark mode (a slightly deeper-than-card
-          tone that still reads as a distinct code region). */}
+          below is what the reader actually sees: `bg-background/60`, a
+          slightly deeper-than-card tone that reads as a distinct code
+          region. */}
       {snippet.highlightedHtml ? (
         <div
           className={cn(
             "overflow-x-auto border-t border-border/60",
-            "bg-muted/50 dark:bg-background/60",
+            "bg-background/60",
             "[&>pre]:m-0 [&>pre]:px-5 [&>pre]:py-3.5 [&>pre]:text-[12px] [&>pre]:leading-relaxed",
             "[&_code]:font-mono"
           )}

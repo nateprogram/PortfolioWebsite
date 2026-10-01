@@ -30,7 +30,7 @@ import { FlowNode, ScraperCard, VerticalArrow } from "./nodes";
 //   3. Row 2+: left column (main pipeline) and right column (DB + retrain
 //      loop). The right column's promoted-checkpoint chip is tied to the
 //      LSTM predictor by a measured SVG curve (FeedbackArrow) so the
-//      yellow retrain-loop visual from the original diagram is preserved
+//      retrain-loop arrow from the original diagram is preserved
 //      without pinning any layout to hardcoded pixel coordinates.
 //
 // The whole region is `position: relative` so the absolutely-positioned
@@ -134,8 +134,8 @@ export function StockaiDataflow({ className }: { className?: string }) {
         <aside className="flex flex-col gap-3">
           <FlowNode {...DATABASE} />
 
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.04] p-2.5">
-            <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+          <div className="rounded-lg border border-brand-2/30 bg-brand-2/[0.04] p-2.5">
+            <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-brand-2">
               <RefreshCw className="size-3" strokeWidth={2.5} aria-hidden />
               retrain &amp; rollback loop
             </div>
@@ -150,7 +150,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
                 top of this chip and sweeps over to the LSTM predictor. */}
             <div
               ref={feedbackSourceRef}
-              className="mt-2 flex items-center gap-1.5 rounded-md bg-amber-500/10 px-2 py-1 font-mono text-[9px] uppercase tracking-widest text-amber-700 dark:text-amber-400"
+              className="mt-2 flex items-center gap-1.5 rounded-md bg-brand-2/10 px-2 py-1 font-mono text-[9px] uppercase tracking-widest text-brand-2"
             >
               <TrendingUp className="size-3" strokeWidth={2.5} aria-hidden />
               promoted checkpoint → predictor
@@ -175,7 +175,7 @@ export function StockaiDataflow({ className }: { className?: string }) {
         </aside>
       </div>
 
-      {/* Measured SVG overlay drawing the amber retrain-loop arrow from
+      {/* Measured SVG overlay drawing the white retrain-loop arrow from
           the promoted-checkpoint chip up and across to the LSTM
           predictor. Rendered last so it stacks above the cards. */}
       <FeedbackArrow

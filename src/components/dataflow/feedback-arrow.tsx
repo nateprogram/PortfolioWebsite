@@ -3,9 +3,9 @@
 import { useEffect, useState, type RefObject } from "react";
 import { FEEDBACK_ARROW_COLORS } from "./tokens";
 
-// SVG overlay that draws the amber retrain-loop arrow from the right-
+// SVG overlay that draws the white retrain-loop arrow from the right-
 // column feedback source (backtester checkpoint) up and around to the
-// MultiHeadLSTM predictor on the left. This brings back the "yellow arrow
+// MultiHeadLSTM predictor on the left. This brings back the "arrow
 // connecting the retrain loop to the model" visual from the original SVG
 // version of the diagram, but driven by measured DOM rects so the curve
 // always terminates at the correct cards regardless of content length.
@@ -158,7 +158,7 @@ export function FeedbackArrow({
       aria-hidden
     >
       <defs>
-        {/* Arrowhead marker, amber-tinted. `refX` offset backs the head
+        {/* Arrowhead marker, same white as the stroke. `refX` offset backs the head
             into the stroke so the tip lands at the path's end point. */}
         <marker
           id="feedback-arrowhead"
@@ -182,7 +182,7 @@ export function FeedbackArrow({
         strokeWidth={4}
         strokeLinecap="round"
       />
-      {/* Main amber stroke. `strokeDasharray` gives it the dashed cadence
+      {/* Main white stroke. `strokeDasharray` gives it the dashed cadence
           that reads as "feedback / retrain" rather than forward flow, and
           matches the feel of the original diagram. */}
       <path

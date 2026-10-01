@@ -258,8 +258,8 @@ export type LegendItem = {
 };
 
 export const LEGEND_ITEMS: ReadonlyArray<LegendItem> = [
-  { label: "Model path", swatch: "bg-cyan-500/60" },
-  { label: "Retrain / rollback loop", swatch: "bg-amber-500/70" },
+  { label: "Model path", swatch: "bg-brand/70" },
+  { label: "Retrain / rollback loop", swatch: "bg-brand-2/80" },
   { label: "Deploy-gate validator", swatch: "bg-emerald-500/60" },
   { label: "Database layer", swatch: "bg-slate-500/60" },
 ];

@@ -7,10 +7,8 @@ import { codeToHtml, type BundledLanguage } from "shiki";
 // Uses shiki's *dual theme* mode: both "light-plus" (VS Code Light+) and
 // "dark-plus" (VS Code Dark+) colors are written into the HTML as CSS
 // custom properties (`--shiki-light`, `--shiki-dark`). The site's
-// `globals.css` then flips between them based on the `.dark` class on
-// `<html>`. That means the same rendered snippet looks correct in both
-// color modes: light mode readers get the familiar Light+ palette on a
-// light background instead of a jarring black inline block.
+// `globals.css` picks the dark set through the static `.dark` class on
+// `<html>` (the site is dark only); the light set is simply unused.
 
 // Map the loose language labels we author in `resume.tsx` to shiki's bundled
 // grammar names. Anything not in this table falls through to a plaintext

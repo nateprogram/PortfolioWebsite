@@ -50,23 +50,38 @@
 /* Theme: TRON: Legacy (2010), read from its production design.
  *
  *   Dark only. The site is the Grid: blue-black glossy surfaces, a "very
- *   desaturated metallic light blue" for secondary text, and color that
- *   only ever comes from light lines (white-hot core, cyan halo, like the
- *   suits' electroluminescent "Natural Blue" tape). The <html> element
- *   carries a static `dark` class so Tailwind's dark: variants and the
- *   shiki dual theme resolve to their dark side.
+ *   desaturated metallic light blue" for secondary text [1], and color
+ *   that only ever comes from light lines (white-hot core, cyan halo,
+ *   like the suits' electroluminescent "Natural Blue" tape [2]). The film
+ *   swaps "the full-color warm palette" for "a predominantly dark
+ *   environment" [1]; so does this site, with no light mode. The <html>
+ *   element carries a static `dark` class so Tailwind's dark: variants
+ *   and the shiki dual theme resolve to their dark side.
  *
  *   Orange is the Game Grid. In the film it marks Clu's side: the
  *   military programs and the arenas they run the games in (Clu himself
  *   is yellow, and the EL tape "shifts between deep red and orange"
  *   with the light around it). Here it marks game work only: game
  *   project cards and pages, the Games filter, game-engine skills, and
- *   one orange cycle racing a blue one across the floor. It is drawn as
- *   an orange line with a yellow-hot core and a red falloff, and it is
- *   applied by scoping (.arena), never sprinkled as standalone marks.
+ *   one orange cycle racing a blue one across the floor. The film uses
+ *   orange "to create and maintain visual conflict" and lets it grow
+ *   "more pervasive" as the conflict does [1]: here it is sparse on the
+ *   homepage and floods the floor grid only on game pages. There is "no
+ *   single hue of orange", it spans "saturated yellow to a darker reddish
+ *   hue" [1]; here that span is one light, an orange line with a
+ *   yellow-hot core and a red falloff. It is applied by scoping
+ *   (.arena), never sprinkled as standalone marks.
  *
  *   Corners are tighter than the shadcn default: the Grid is architecture
- *   (Mies, Kahn), softened only slightly. */
+ *   (Mies, Kahn), softened only slightly.
+ *
+ *   Sources:
+ *   [1] Kirill Grouchnikov, "The colors of Tron: Legacy", Pushing Pixels
+ *       https://www.pushing-pixels.org/2010/12/28/the-colors-of-tron-legacy.html
+ *   [2] Clothes on Film, on the light suits' EL tape
+ *       https://clothesonfilm.net/2013/04/03/tron-legacy-light-suit-costume/
+ *   [3] GMUNK on the film's interface graphics, Pushing Pixels
+ *       https://www.pushing-pixels.org/2011/06/01/visual-effects-of-tron-legacy-and-beyond-conversation-with-gmunk.html */
 :root {
   color-scheme: dark;
   --radius: 0.375rem;
@@ -357,7 +372,8 @@
   }
 }
 
-/* HUD frame: chamfered corners with a 1px edge that can light up.
+/* HUD frame: chamfered corners with a 1px edge that can light up, after
+   the film's interface graphics (see [3] in the theme notes above).
    The edge is the element's own background, clipped to the chamfer; the
    fill is ::before, inset by 1px with the same chamfer. Glow has to come
    from a parent's drop-shadow, because clip-path clips box-shadow. */

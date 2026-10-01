@@ -1,23 +1,10 @@
-// Who you are: name, location, contact links, education, the homepage
-// bio, and the skill chips. The resume (/resume and the PDF) reads name,
+// Who you are: name, location, contact links, education, and the
+// homepage bio. (Skills live in skills.ts.) The resume (/resume and the PDF) reads name,
 // location, email, links, and education from here too, so a move or a
 // new email is a one-line change in this file. See CONTENT.md.
 
 import { Icons } from "@/components/icons";
 import { BriefcaseIcon, FolderGit2Icon, HomeIcon } from "lucide-react";
-import { ReactLight } from "@/components/ui/svgs/reactLight";
-import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
-import { Typescript } from "@/components/ui/svgs/typescript";
-import { Python } from "@/components/ui/svgs/python";
-import { Cpp } from "@/components/ui/svgs/cpp";
-import { Csharp } from "@/components/ui/svgs/csharp";
-import { Java } from "@/components/ui/svgs/java";
-import { Unity } from "@/components/ui/svgs/unity";
-import { Unreal } from "@/components/ui/svgs/unreal";
-import { PyTorch } from "@/components/ui/svgs/pytorch";
-import { Capacitor } from "@/components/ui/svgs/capacitor";
-import { Prisma } from "@/components/ui/svgs/prisma";
-import { Postgresql } from "@/components/ui/svgs/postgresql";
 import { CURRENT_ROLE } from "./experience";
 
 // Hero role line follows the current job in experience.ts, so a job
@@ -41,39 +28,6 @@ export const PROFILE = {
 
   // Expected at /public/avatar.jpg. If missing, AvatarFallback ("NW") renders instead.
   avatarUrl: "/avatar.jpg",
-
-  skillGroups: [
-    {
-      label: "Languages",
-      // `light`: where the skill is used most, in that category's light
-      // (src/data/lights.ts). No light means blue (apps).
-      items: [
-        { name: "C++", icon: Cpp, light: "systems" },
-        { name: "C#", icon: Csharp, light: "games" },
-        { name: "Python", icon: Python, light: "ai" },
-        { name: "TypeScript", icon: Typescript },
-        { name: "Java", icon: Java },
-      ],
-    },
-    {
-      label: "Frameworks & Engines",
-      items: [
-        { name: "Unreal Engine", icon: Unreal, light: "games" },
-        { name: "Unity", icon: Unity, light: "games" },
-        { name: "PyTorch", icon: PyTorch, light: "ai" },
-        { name: "Next.js", icon: NextjsIconDark },
-        { name: "React", icon: ReactLight },
-        { name: "Capacitor", icon: Capacitor },
-      ],
-    },
-    {
-      label: "Data",
-      items: [
-        { name: "Prisma", icon: Prisma },
-        { name: "PostgreSQL", icon: Postgresql },
-      ],
-    },
-  ],
 
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },

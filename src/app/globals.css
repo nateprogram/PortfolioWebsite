@@ -669,18 +669,19 @@
 }
 
 /* Grid floor (grid-floor.tsx): the Grid in perspective under a whole
-   intro, one continuous background with no horizon line through it. The
-   horizon sits above the top of the floor's box, so the lattice recedes
-   upward toward a vanishing point just off the top of the page. The
-   caller sets the box (top/bottom or height); the floor bleeds to the
-   window edges and fades out at the bottom and under the content
-   column, so text over it stays calm.
+   intro, one continuous background. The horizon runs along the top edge
+   of the floor's box (the top of the page, --horizon below it) with a
+   glow in the sky above, like the film's key art, so it frames the page
+   instead of cutting through the content. The caller sets the box
+   (top/bottom or height); the floor bleeds to the window edges and fades
+   out at the bottom and under the content column, so text over it stays
+   calm.
 
-   Geometry: a plane tilted 70deg under a 900px perspective. The visible
-   box starts 220px below the horizon (depth ~360px) and the plane ends at
-   800px, short of the camera plane (~957px); past that the projection
-   blows up. */
+   Geometry: a plane tilted 70deg under a 900px perspective. The plane is
+   800px deep, short of the camera plane (~957px); past that the
+   projection blows up. */
 .grid-floor {
+  --horizon: 56px;
   position: absolute;
   z-index: -1;
   left: 50%;
@@ -691,20 +692,50 @@
   animation: grid-floor-in 1.2s ease-out both;
 }
 
+.grid-floor-sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--horizon);
+  background: radial-gradient(
+    ellipse 60% 140% at 50% 100%,
+    color-mix(in oklch, var(--brand) 16%, transparent),
+    transparent 70%
+  );
+}
+
+.grid-floor-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--horizon);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 4%,
+    var(--brand) 28%,
+    var(--brand-2) 50%,
+    var(--brand) 72%,
+    transparent 96%
+  );
+  filter: drop-shadow(0 0 6px var(--brand-glow)) drop-shadow(0 0 14px var(--brand-glow));
+}
+
 .grid-floor-ground {
   position: absolute;
   left: 0;
   right: 0;
-  top: -220px;
+  top: var(--horizon);
   bottom: 0;
   perspective: 900px;
   perspective-origin: 50% 0;
   -webkit-mask-image:
-    linear-gradient(to bottom, #000 55%, transparent 98%),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.35), #000 18%, #000 55%, transparent 98%),
     radial-gradient(ellipse 30% 55% at 50% 45%, rgb(0 0 0 / 0.2) 40%, #000 100%);
   -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(to bottom, #000 55%, transparent 98%),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.35), #000 18%, #000 55%, transparent 98%),
     radial-gradient(ellipse 30% 55% at 50% 45%, rgb(0 0 0 / 0.2) 40%, #000 100%);
   mask-composite: intersect;
 }
@@ -774,9 +805,8 @@
   }
 }
 
-/* A run from the horizon (above the box) to the near edge, then a pause
-   before the next lap. The head stops at depth ~760px, short of the
-   camera plane. */
+/* A run from the horizon to the near edge, then a pause before the next
+   lap. The head stops at depth ~670px, short of the camera plane. */
 @keyframes floor-cycle {
   0% { transform: translateY(-240px); opacity: 0; }
   12% { opacity: 1; }
@@ -786,8 +816,11 @@
 }
 
 /* On phones the text column is the whole width, so the floor stays
-   quieter everywhere. */
+   quieter everywhere, and the horizon sits a little higher. */
 @media (max-width: 639px) {
+  .grid-floor {
+    --horizon: 40px;
+  }
   .grid-floor-plane {
     opacity: 0.2;
   }

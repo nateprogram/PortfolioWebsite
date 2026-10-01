@@ -4,7 +4,9 @@
 // and flattened to plain text for the ATS keyword tool (resume-text.ts).
 //
 // What you edit where (CONTENT.md has step-by-step recipes):
-//   headline, phone, summary, skills, projects   here
+//   headline, phone, summary, projects           here
+//   skills                                       skills.ts (shared with the
+//                                                homepage chips)
 //   name, location, email, links, education      profile.ts (shared with
 //                                                the homepage)
 //   work history                                 experience.ts (every role
@@ -21,6 +23,7 @@
 import { EXPERIENCE, type ExperienceEntry } from "./experience";
 import { PROFILE } from "./profile";
 import { PROJECTS } from "./projects-list";
+import { SKILL_GROUPS } from "./skills";
 
 type ResumeProjectCopy = {
   tagline: string;
@@ -152,19 +155,11 @@ export const RESUME: Resume = {
   updated: "Oct 2026",
   summary:
     "AI Engineer at Cyclotron, Inc. C++, C#, Python, and TypeScript engineer. Shipped a cross-platform scheduling app to web, iOS, and Android under my LLC. Created a live ML trading research platform and a custom C++ engine that shipped a game to Steam. I use Claude Code to ship MVPs fast. Shipped with multi-disciplinary teams of 6 and 19 at DigiPen.",
-  skills: [
-    { label: "Languages", items: "C++, C#, Python, TypeScript, Java" },
-    {
-      label: "Frameworks & Engines",
-      items:
-        "PyTorch, FastAPI, Next.js, React, Capacitor, Unreal Engine 5, Unity, OpenGL",
-    },
-    {
-      label: "Tools, Infrastructure & Databases",
-      items:
-        "Git, Docker, Azure DevOps, Jenkins, Vercel, Linux, PostgreSQL, Prisma, SQLite",
-    },
-  ],
+  // The same list as the homepage chips (skills.ts), grouped.
+  skills: SKILL_GROUPS.map((g) => ({
+    label: g.label,
+    items: g.skills.map((s) => s.name).join(", "),
+  })),
   education: PROFILE.education.map((e) => ({
     degree: e.degree,
     school: e.school,

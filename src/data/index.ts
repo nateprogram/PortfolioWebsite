@@ -14,6 +14,7 @@
 //   project-filters.ts     the filter chips above the projects grid
 //   lights.ts              category -> circuit color (blue, white, gold,
 //                          orange)
+//   skills.ts              the skills list (homepage chips + resume)
 //   projects/<slug>.tsx    deep-dive content per project
 //   project-details.ts     aggregates the per-project files
 //   types.ts               shared types (ProjectDetail, Figure, ...)
@@ -40,6 +41,8 @@ export {
   projectLightStyle,
 } from "./lights";
 export type { Light } from "./lights";
+export { SKILLS, SKILL_GROUPS, findSkill } from "./skills";
+export type { Skill } from "./skills";
 export {
   EXPERIENCE,
   HOME_EXPERIENCE,

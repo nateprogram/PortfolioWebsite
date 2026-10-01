@@ -2,9 +2,11 @@ import { cn } from "@/lib/utils";
 
 // The Grid floor, the film's signature image: a lattice of light in
 // perspective, with light cycles riding it toward the viewer. It fills
-// its box as one continuous background (the horizon is just above the
-// top, so no line splits the section) and bleeds to the window edges.
-// The caller sets the box with top/bottom or height classes.
+// its box as one continuous background, and the horizon runs along the
+// very top of the box (the top of the page) with a glow above it, so it
+// frames the page instead of splitting the section. It bleeds to the
+// window edges; the caller sets the box with top/bottom or height
+// classes.
 //
 // The lattice takes --floor-paint when set (a project page in several
 // categories, see projectLightStyle), else the plain --brand light.
@@ -26,6 +28,7 @@ const CYCLES = [
 export function GridFloor({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("grid-floor print:hidden", className)}>
+      <div className="grid-floor-sky" />
       <div className="grid-floor-ground">
         <div className="grid-floor-plane" />
         <div className="grid-floor-cycles">
@@ -42,6 +45,7 @@ export function GridFloor({ className }: { className?: string }) {
           ))}
         </div>
       </div>
+      <div className="grid-floor-horizon" />
     </div>
   );
 }

@@ -1,36 +1,23 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import { X } from "lucide-react";
 import { ProjectCard } from "@/components/project-card";
 import {
   DATA,
   LIGHT_CLASS,
   PROJECT_FILTERS,
+  findSkill,
   projectLightClass,
   projectLightStyle,
 } from "@/data";
+import { setProjectFilter, useProjectFilter } from "@/lib/project-filter";
 import { cn } from "@/lib/utils";
 
-// The active filter lives in the URL (`?focus=ai-ml`) so a filtered view
-// can be shared. It's read through useSyncExternalStore rather than
-// useSearchParams: the server snapshot is "all", so the full grid is in
-// the prerendered HTML (crawlers and link previews see every project)
-// and the client swaps to the URL's filter right after hydration.
-
-const FOCUS_EVENT = "projects:focus";
-
-function subscribe(onChange: () => void) {
-  window.addEventListener("popstate", onChange);
-  window.addEventListener(FOCUS_EVENT, onChange);
-  return () => {
-    window.removeEventListener("popstate", onChange);
-    window.removeEventListener(FOCUS_EVENT, onChange);
-  };
-}
-const getSnapshot = () =>
-  new URLSearchParams(window.location.search).get("focus") ?? "all";
-const getServerSnapshot = () => "all";
+// The grid shows everything, one category (the tabs), or one skill (the
+// chips in the Skills section just above). The filter lives in the URL;
+// see src/lib/project-filter.ts.
 
 const GRID_PROJECTS = DATA.projects.filter((p) => !p.hideFromGrid);
 
@@ -43,24 +30,21 @@ function matchesFilter(
 }
 
 export default function ProjectsSection() {
-  const focus = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const activeFilter =
-    PROJECT_FILTERS.find((f) => f.value === focus) ?? PROJECT_FILTERS[0];
+  const filter = useProjectFilter();
+  const skill = findSkill(filter.skill);
+  const activeFilter = skill
+    ? undefined
+    : (PROJECT_FILTERS.find((f) => f.value === filter.focus) ?? PROJECT_FILTERS[0]);
 
-  const visible = useMemo(
-    () => GRID_PROJECTS.filter((p) => matchesFilter(p, activeFilter)),
-    [activeFilter]
-  );
+  const visible = useMemo(() => {
+    if (skill) {
+      const slugs = new Set(skill.projects.map((p) => p.slug));
+      return GRID_PROJECTS.filter((p) => slugs.has(p.slug));
+    }
+    return GRID_PROJECTS.filter((p) => matchesFilter(p, activeFilter ?? PROJECT_FILTERS[0]));
+  }, [skill, activeFilter]);
 
-  const setFilter = (value: string) => {
-    const url = new URL(window.location.href);
-    if (value === "all") url.searchParams.delete("focus");
-    else url.searchParams.set("focus", value);
-    url.hash = "projects";
-    // Passing history.state through keeps Next's router state intact.
-    window.history.replaceState(window.history.state, "", url);
-    window.dispatchEvent(new Event(FOCUS_EVENT));
-  };
+  const setFilter = (value: string) => setProjectFilter({ focus: value });
 
   return (
     <section aria-labelledby="projects-heading">
@@ -90,33 +74,35 @@ export default function ProjectsSection() {
             </h2>
             <p className="text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed text-balance text-center">
               Full-stack apps, ML systems, a custom engine, and team-built
-              games. Filter by what you want to see.
+              games. Filter by what you want to see, or pick a skill
+              above.
             </p>
           </div>
         </div>
 
         <LayoutGroup>
           <div
+            id="project-filters"
             role="group"
             aria-label="Filter projects by focus"
             // The tabs sit on a rail: a 1px line under the group that the
             // active tab's light bar rides on.
-            className="relative flex flex-wrap items-center justify-center gap-2 pb-3 after:absolute after:inset-x-[10%] after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-border after:to-transparent"
+            className="relative flex scroll-mt-24 flex-wrap items-center justify-center gap-2 pb-3 after:absolute after:inset-x-[10%] after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-border after:to-transparent"
           >
-            {PROJECT_FILTERS.map((filter) => {
-              const isActive = filter.value === activeFilter.value;
+            {PROJECT_FILTERS.map((tab) => {
+              const isActive = tab.value === activeFilter?.value;
               // Each tab is lit in its category's light (blue for All),
               // so the row doubles as the legend for the card colors.
-              const light = "light" in filter ? LIGHT_CLASS[filter.light] : undefined;
+              const light = "light" in tab ? LIGHT_CLASS[tab.light] : undefined;
               const count = GRID_PROJECTS.filter((p) =>
-                matchesFilter(p, filter)
+                matchesFilter(p, tab)
               ).length;
               return (
                 <button
-                  key={filter.value}
+                  key={tab.value}
                   aria-pressed={isActive}
                   type="button"
-                  onClick={() => setFilter(filter.value)}
+                  onClick={() => setFilter(tab.value)}
                   className={cn(
                     light,
                     "relative rounded-sm border px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors",
@@ -146,7 +132,7 @@ export default function ProjectsSection() {
                     </motion.span>
                   )}
                   <span className="relative z-10">
-                    {filter.label}
+                    {tab.label}
                     <span
                       className={cn(
                         "ml-1.5 tabular-nums",
@@ -159,6 +145,35 @@ export default function ProjectsSection() {
                 </button>
               );
             })}
+            {/* A skill picked in the Skills section shows up as its own
+                active tab, lit in the skill's light; × clears it. */}
+            {skill && (
+              <button
+                type="button"
+                aria-pressed
+                onClick={() => setFilter("all")}
+                aria-label={`Showing projects that use ${skill.name}. Clear`}
+                className={cn(
+                  LIGHT_CLASS[skill.light],
+                  "relative inline-flex items-center gap-1.5 rounded-sm border border-brand/40 px-3 py-1 text-xs font-mono uppercase tracking-wider text-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                )}
+              >
+                <motion.span
+                  layoutId="project-filter-pill"
+                  className="absolute inset-0 rounded-sm bg-brand-soft"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  aria-hidden
+                >
+                  <span className="absolute inset-x-1.5 -bottom-px h-[2px] bg-brand-2 shadow-[0_0_8px_1px_var(--brand-glow)]" />
+                </motion.span>
+                <span className="relative z-10">
+                  {skill.name}
+                  <span className="ml-1.5 tabular-nums text-brand">{visible.length}</span>
+                </span>
+                <X className="relative z-10 size-3 text-muted-foreground" aria-hidden />
+              </button>
+            )}
           </div>
 
           <motion.div

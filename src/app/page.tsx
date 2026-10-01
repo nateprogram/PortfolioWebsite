@@ -1,11 +1,12 @@
 import BlurFade from "@/components/magicui/blur-fade";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CURRENT_ROLE, DATA, LIGHT_CLASS, type Light } from "@/data";
+import { CURRENT_ROLE, DATA } from "@/data";
 import Link from "next/link";
 import Markdown from "react-markdown";
 import ContactSection from "@/components/section/contact-section";
 import ProjectsSection from "@/components/section/projects-section";
+import SkillsSection from "@/components/section/skills-section";
 import ExperienceSection from "@/components/section/experience-section";
 import { EducationLogo } from "@/components/education-logo";
 import { HashLink } from "@/components/hash-link";
@@ -18,12 +19,6 @@ import { SectionTitle } from "@/components/section-title";
 
 const BLUR_FADE_DELAY = 0.04;
 
-const SKILL_LEGEND: ReadonlyArray<{ light: Light; label: string }> = [
-  { light: "apps", label: "Apps" },
-  { light: "ai", label: "AI/ML" },
-  { light: "systems", label: "Systems" },
-  { light: "games", label: "Games" },
-];
 
 // Hero text animates with CSS (tw-animate-css) rather than motion, so it
 // paints from the server HTML without waiting on hydration. Reduced-motion
@@ -231,53 +226,14 @@ export default function Page() {
         <ExperienceSection />
       </section>
 
-      <section id="projects">
-        <ProjectsSection />
+      {/* Skills sit directly above the projects: each chip filters the
+          grid to the projects behind it. */}
+      <section id="skills">
+        <SkillsSection />
       </section>
 
-      <section id="skills">
-        <div className="flex min-h-0 flex-col gap-y-6">
-          <BlurFade>
-            <SectionTitle>Skills</SectionTitle>
-            {/* Legend for the chip colors: the same four lights as the
-                project categories. */}
-            <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <span>Lit by where I use them most:</span>
-              {SKILL_LEGEND.map((l) => (
-                <span key={l.light} className={cn(LIGHT_CLASS[l.light], "inline-flex items-center gap-1.5")}>
-                  <span className="h-[2px] w-3 bg-brand shadow-[0_0_6px_0_var(--brand-glow)]" aria-hidden />
-                  {l.label}
-                </span>
-              ))}
-            </p>
-          </BlurFade>
-          <div className="flex flex-col gap-5">
-            {DATA.skillGroups.map((group, gIdx) => (
-              <BlurFade key={group.label} delay={gIdx * 0.06}>
-                <div className="flex flex-col gap-2">
-                  <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
-                    {group.label}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {group.items.map((skill) => (
-                      <div
-                        key={skill.name}
-                        className={cn("light" in skill && LIGHT_CLASS[skill.light], "group border border-border border-b-2 border-b-brand/75 shadow-[0_6px_14px_-10px_var(--brand-glow)] bg-card/60 rounded-md h-8 w-fit px-3 flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:border-b-brand hover:shadow-[0_6px_16px_-10px_var(--brand)]")}
-                      >
-                        {skill.icon && (
-                          <skill.icon className="size-4 rounded overflow-hidden object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
-                        )}
-                        <span className="text-foreground text-sm font-medium">
-                          {skill.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </BlurFade>
-            ))}
-          </div>
-        </div>
+      <section id="projects">
+        <ProjectsSection />
       </section>
 
       <section id="education">

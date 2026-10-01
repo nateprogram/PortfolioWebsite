@@ -14,6 +14,7 @@ import {
   PROJECT_DETAILS,
   PROJECT_FILTERS,
   RESUME,
+  SKILLS,
   type ExperienceEntry,
 } from "@/data";
 
@@ -134,16 +135,30 @@ const roleName = (e: ExperienceEntry) => `${e.title} at ${e.company} (${e.start}
       error(`resume.ts`, `${roleName(e)} is on the homepage but missing from the resume`);
     }
   }
-  const resumeSkills = RESUME.skills.map((s) => s.items).join(", ").toLowerCase();
-  for (const group of DATA.skillGroups) {
-    for (const skill of group.items) {
-      if (!resumeSkills.includes(skill.name.toLowerCase())) {
-        error(
-          "resume.ts > skills",
-          `"${skill.name}" is a homepage skill (profile.ts) but isn't in the resume's skills`
-        );
-      }
-    }
+}
+
+// -------------------------------------------------------------------- skills
+{
+  const at = "skills.ts";
+  const ids = new Set<string>();
+  for (const s of SKILLS) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(s.id)) error(`${at} > ${s.name}`, `id "${s.id}" should be lowercase-with-dashes`);
+    if (ids.has(s.id)) error(`${at} > ${s.name}`, `id "${s.id}" is used twice`);
+    ids.add(s.id);
+  }
+  // The resume's skills are built from the same list; make sure nobody
+  // swapped in a hand-written copy.
+  const resumeSkills = RESUME.skills.flatMap((g) => g.items.split(", "));
+  for (const s of SKILLS) {
+    if (!resumeSkills.includes(s.name)) error("resume.ts > skills", `"${s.name}" is in skills.ts but not on the resume`);
+  }
+  const noProof = SKILLS.filter((s) => s.projects.length === 0 && s.roles.length === 0);
+  if (noProof.length > 0) {
+    warn(
+      at,
+      `nothing on the site shows: ${noProof.map((s) => s.name).join(", ")}. ` +
+        "Fine to keep (plain chip); to link it, add it to a card's technologies or a job's tags"
+    );
   }
 }
 

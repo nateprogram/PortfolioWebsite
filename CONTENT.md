@@ -22,9 +22,9 @@ broken edit can't deploy.
 | Name, location, email, LinkedIn/GitHub links            | `src/data/profile.ts`                  |
 | Education (homepage and resume)                         | `src/data/profile.ts` → `education`    |
 | Homepage bio and hero line                              | `src/data/profile.ts` → `description`, `summary` |
-| Homepage skill chips                                    | `src/data/profile.ts` → `skillGroups`  |
+| Skills (homepage chips and the resume, one list)        | `src/data/skills.ts`                   |
 | A job (homepage timeline, resume, PDF)                  | `src/data/experience.ts`               |
-| Resume headline, summary, skills, phone                 | `src/data/resume.ts` → `RESUME`        |
+| Resume headline, summary, phone                         | `src/data/resume.ts` → `RESUME`        |
 | Which projects are on the resume, and their bullets     | `src/data/resume.ts` → `PROJECT_PICKS` |
 | A project card on the homepage                          | `src/data/projects-list.tsx`           |
 | A project's full write-up page (`/projects/<slug>`)     | `src/data/projects/<slug>.tsx`         |
@@ -40,7 +40,8 @@ The hero's "Now ·" line follows the first job in `experience.ts` with
 
 - **Moved, new email, new LinkedIn URL:** change it once in `profile.ts`.
   The homepage, `/resume`, and the PDF all read it from there.
-- **Headline, summary, skills, phone:** `resume.ts`, in the `RESUME`
+- **Skills:** `skills.ts` (one list for the homepage and the resume).
+- **Headline, summary, phone:** `resume.ts`, in the `RESUME`
   object.
 - Bump `updated` in `RESUME` (for example `"Nov 2026"`); `/resume`
   shows it as "Updated Nov 2026".
@@ -160,20 +161,40 @@ Add `name: "..."` to use a shorter name than the card's title. For a
 project with no card on the site, leave out `slug` and give `name`
 and `dates` yourself.
 
-### Add a homepage skill chip
+### Add a skill
 
-Add it to a group in `skillGroups` in `profile.ts` (an icon component
-from `src/components/ui/svgs/`). Give it `light: "ai"`, `"systems"`, or
-`"games"` if that's where you use it most; leave it off for blue
-(apps). It must also appear in the resume's `skills` in `resume.ts`;
-the check enforces that, for the same reason as jobs.
+Skills are one list in `skills.ts`. The resume prints them as grouped
+lines, and the homepage shows them as chips directly above the projects,
+so the two always match. Add an entry to its group:
+
+```ts
+{ id: "kubernetes", name: "Kubernetes", group: "Tools, Infrastructure & Databases" },
+```
+
+Optional: `icon` (from `src/components/ui/svgs/`; without one the chip
+shows a lit dash), `match` (other spellings the cards use, e.g.
+`["PostgreSQL", "Postgres"]`), and `light` to override the chip color.
+
+Each chip leads to its proof, found automatically:
+
+- **Projects:** a card whose `technologies` lists the skill. The chip
+  shows a count, and clicking it filters the grid to those projects
+  (and the link becomes shareable, e.g. `natewhite.dev/?skill=docker`).
+- **Jobs only:** a job whose `tags` or bullets mention it, or whose
+  linked case study lists it. The chip shows a briefcase and jumps to
+  Experience.
+- **Nothing yet:** a plain chip. The content check lists these.
+
+The chip's color is the light of the category it's used in most. So to
+make a skill clickable, add it to a card's `technologies` (or a job's
+`tags`); there is nothing to wire up by hand.
 
 ## What the check enforces
 
 **Errors** stop `npm run check:content` and the build:
 
-- Every job on the homepage is on the resume, and every homepage skill
-  chip is in the resume's skills.
+- Every job on the homepage is on the resume, and every skill in
+  `skills.ts` is on the resume. Skill ids are unique.
 - Jobs are newest first, dates look like `"Jul 2026"`, and nothing ends
   before it starts.
 - Every slug a job or the resume points at has a project card, and
@@ -189,6 +210,7 @@ the check enforces that, for the same reason as jobs.
 **Warnings** print but don't block:
 
 - A current job with no bullets yet.
+- A skill with no project or job on the site behind it.
 - Resume wording that reads as AI-written (leverage, robust, seamless,
   spearheaded, and similar).
 - A video with no poster, or a hidden project nothing links to.

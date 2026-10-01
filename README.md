@@ -22,10 +22,11 @@ Dev server runs at http://localhost:3000.
 | -------------------------------------- | ----------------------------------------------------- |
 | `src/data/experience.ts`               | Work history. **A new job is one entry here.**        |
 | `src/data/resume.ts`                   | The resume as data: headline, summary, skills, projects |
-| `src/data/profile.ts`                  | Name, location, contact links, education, bio, skill chips |
+| `src/data/profile.ts`                  | Name, location, contact links, education, bio          |
+| `src/data/skills.ts`                   | Skills: homepage chips (filter the projects) and the resume |
 | `src/data/projects-list.tsx`           | Project cards on the homepage                         |
 | `src/data/projects/<slug>.tsx`         | Per-project deep dives (STAR-style case studies)      |
-| `src/app/page.tsx`                     | Home: hero, about, experience, projects, skills, education, contact |
+| `src/app/page.tsx`                     | Home: hero, about, experience, skills, projects, education, contact |
 | `src/app/resume/page.tsx`              | `/resume`, the resume as a web page (print-ready)     |
 | `src/app/resume.pdf/route.tsx`         | `/resume.pdf`, generated from the same data at build  |
 | `src/lib/resume-pdf.tsx`               | The PDF document itself                               |

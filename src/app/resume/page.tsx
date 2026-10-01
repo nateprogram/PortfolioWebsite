@@ -47,7 +47,11 @@ function Bullets({ items }: { items: ReadonlyArray<string> }) {
 export default function ResumePage() {
   return (
     <main className="flex flex-col gap-6">
-      <BlurFade delay={BLUR_FADE_DELAY}>
+      {/* The resume reveals on load rather than on scroll-into-view: a
+          client-side visit from a scrolled page lands with this toolbar at
+          the very top edge, where the in-view check never fires, and the
+          Print / Download buttons stayed invisible. */}
+      <BlurFade delay={BLUR_FADE_DELAY} inView={false}>
         <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
           <Link
             href="/"
@@ -73,7 +77,7 @@ export default function ResumePage() {
         </div>
       </BlurFade>
 
-      <BlurFade delay={BLUR_FADE_DELAY * 2}>
+      <BlurFade delay={BLUR_FADE_DELAY * 2} inView={false}>
         <article className="relative overflow-hidden rounded-2xl border border-border bg-card/70 p-6 shadow-[0_30px_80px_-40px_var(--brand-soft)] backdrop-blur sm:p-10 print:overflow-visible print:rounded-none print:border-0 print:bg-white print:p-0 print:text-black print:shadow-none">
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-60 print:hidden"

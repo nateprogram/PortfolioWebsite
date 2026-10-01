@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight, Mail } from "lucide-react";
 import { Icons } from "@/components/icons";
 import { HashLink } from "@/components/hash-link";
-import { ModeToggle } from "@/components/mode-toggle";
 import { DATA } from "@/data";
 import { cn } from "@/lib/utils";
 
 // Desktop navigation: a quiet index in the left margin that tracks which
-// homepage section is in view. Phones and tablets keep the bottom dock
+// homepage section is in view. There's no theme toggle: the site is dark
+// only (see layout.tsx). Phones and tablets keep the bottom dock
 // (navbar.tsx is lg:hidden; this is hidden below lg).
 //
 // On other pages the same index links back to the homepage sections, and
@@ -219,7 +219,6 @@ export function SectionIndex() {
         >
           <Mail className="size-4" />
         </a>
-        <ModeToggle className="size-7 p-1.5 text-muted-foreground hover:text-foreground" />
       </div>
     </nav>
   );

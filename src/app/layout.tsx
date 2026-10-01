@@ -1,6 +1,5 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DATA } from "@/data";
 import { cn } from "@/lib/utils";
@@ -61,7 +60,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // Dark only: the site is themed on the Grid from TRON: Legacy, which
+    // is a world of light in the dark. The class is static, so the first
+    // paint is already dark and no script is involved.
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased relative",
@@ -69,19 +71,17 @@ export default function RootLayout({
           geistMono.variable
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <MotionProvider>
-            <TooltipProvider delayDuration={0}>
-              <TopBackdrop />
-              <div className="relative z-10 max-w-2xl mx-auto py-12 pb-24 sm:py-24 px-6 print:max-w-none print:p-0">
-                {children}
-                <Footer />
-              </div>
-              <SectionIndex />
-              <Navbar />
-            </TooltipProvider>
-          </MotionProvider>
-        </ThemeProvider>
+        <MotionProvider>
+          <TooltipProvider delayDuration={0}>
+            <TopBackdrop />
+            <div className="relative z-10 max-w-2xl mx-auto py-12 pb-24 sm:py-24 px-6 print:max-w-none print:p-0">
+              {children}
+              <Footer />
+            </div>
+            <SectionIndex />
+            <Navbar />
+          </TooltipProvider>
+        </MotionProvider>
       </body>
     </html>
   );

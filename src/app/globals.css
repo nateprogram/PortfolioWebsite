@@ -49,10 +49,12 @@
 
 /* Theme: TRON: Legacy (2010), read from its production design.
  *
- *   Dark mode is the Grid: blue-black glossy surfaces, a "very
+ *   Dark only. The site is the Grid: blue-black glossy surfaces, a "very
  *   desaturated metallic light blue" for secondary text, and color that
  *   only ever comes from light lines (white-hot core, cyan halo, like the
- *   suits' electroluminescent "Natural Blue" tape).
+ *   suits' electroluminescent "Natural Blue" tape). The <html> element
+ *   carries a static `dark` class so Tailwind's dark: variants and the
+ *   shiki dual theme resolve to their dark side.
  *
  *   Orange is the Game Grid. In the film it marks Clu's side: the
  *   military programs and the arenas they run the games in (Clu himself
@@ -63,59 +65,11 @@
  *   an orange line with a yellow-hot core and a red falloff, and it is
  *   applied by scoping (.arena), never sprinkled as standalone marks.
  *
- *   Light mode is the real world the film shoots flat and desaturated:
- *   overcast greys, ink text, the same cyan as a plain ink accent, and no
- *   glow (nothing emits light out here).
- *
  *   Corners are tighter than the shadcn default: the Grid is architecture
  *   (Mies, Kahn), softened only slightly. */
 :root {
+  color-scheme: dark;
   --radius: 0.375rem;
-  --background: oklch(0.972 0.003 230);
-  --foreground: oklch(0.2 0.012 240);
-  --card: oklch(0.985 0.002 230);
-  --card-foreground: oklch(0.2 0.012 240);
-  --popover: oklch(0.985 0.002 230);
-  --popover-foreground: oklch(0.2 0.012 240);
-  --primary: oklch(0.24 0.014 240);
-  --primary-foreground: oklch(0.97 0.004 230);
-  --secondary: oklch(0.935 0.004 230);
-  --secondary-foreground: oklch(0.24 0.014 240);
-  --muted: oklch(0.935 0.004 230);
-  --muted-foreground: oklch(0.48 0.018 235);
-  --accent: oklch(0.935 0.004 230);
-  --accent-foreground: oklch(0.24 0.014 240);
-  --destructive: oklch(0.6 0.19 42);
-  --border: oklch(0.885 0.006 230);
-  --input: oklch(0.885 0.006 230);
-  --ring: oklch(0.52 0.1 222);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0.002 230);
-  --sidebar-foreground: oklch(0.2 0.012 240);
-  --sidebar-primary: oklch(0.24 0.014 240);
-  --sidebar-primary-foreground: oklch(0.97 0.004 230);
-  --sidebar-accent: oklch(0.935 0.004 230);
-  --sidebar-accent-foreground: oklch(0.24 0.014 240);
-  --sidebar-border: oklch(0.885 0.006 230);
-  --sidebar-ring: oklch(0.52 0.1 222);
-  /* Light: cyan as ink (~5:1 on the background), no emission. */
-  --brand: oklch(0.52 0.1 222);
-  --brand-2: oklch(0.38 0.07 230);
-  --brand-soft: oklch(0.52 0.1 222 / 0.09);
-  --brand-glow: transparent;
-  --tron-orange: oklch(0.6 0.17 48);
-  --tron-orange-core: oklch(0.6 0.17 48);
-  --tron-orange-soft: oklch(0.6 0.17 48 / 0.09);
-  --tron-orange-glow: transparent;
-  --lattice: oklch(0.45 0.03 230 / 0.07);
-  --lattice-major: oklch(0.45 0.03 230 / 0.12);
-}
-
-.dark {
   --background: oklch(0.135 0.014 238);
   --foreground: oklch(0.965 0.012 215);
   --card: oklch(0.165 0.016 238);
@@ -333,13 +287,12 @@
  *   - orange is scoped (.arena), never scattered
  * ------------------------------------------------------------------- */
 
-/* Glowing type for display sizes only; body text never glows. Dark mode
-   only: nothing emits light in the real world. */
-.dark .glow-soft {
+/* Glowing type for display sizes only; body text never glows. */
+.glow-soft {
   filter: drop-shadow(0 0 1px var(--brand-glow)) drop-shadow(0 0 22px var(--brand-soft));
 }
 
-.dark .text-light {
+.text-light {
   color: var(--foreground);
   text-shadow:
     0 0 1px var(--brand-2),
@@ -393,8 +346,8 @@
   animation: disc-turn 40s linear infinite reverse;
 }
 
-.dark .disc-ring,
-.dark .disc-ring-rev {
+.disc-ring,
+.disc-ring-rev {
   filter: drop-shadow(0 0 2px var(--brand-glow));
 }
 
@@ -521,8 +474,8 @@
   --trace: var(--brand);
 }
 
-.dark .spotlight:hover .tron-trace,
-.dark .tron-trace-lit {
+.spotlight:hover .tron-trace,
+.tron-trace-lit {
   filter: drop-shadow(0 0 3px var(--brand-glow));
 }
 
@@ -602,7 +555,6 @@
   position: absolute;
   pointer-events: none;
   opacity: 0;
-  display: none;
 }
 
 /* An orange cycle chasing a blue one on the same line: the light-cycle
@@ -611,11 +563,6 @@
   --rc: var(--tron-orange);
   --rcore: var(--tron-orange-core);
   --rglow: var(--tron-orange-glow);
-}
-
-/* Ribbons are emitted light, so they only run on the Grid (dark mode). */
-.dark .ribbon {
-  display: block;
 }
 
 /* A ribbon is a 2px core with a shorter 1px companion trailing beside it. */
@@ -692,7 +639,7 @@
     linear-gradient(90deg, var(--brand), transparent) left bottom / 32% 2px no-repeat;
 }
 
-.dark .section-title::after {
+.section-title::after {
   filter: drop-shadow(0 0 3px var(--brand-soft));
 }
 
@@ -749,7 +696,13 @@
 @media print {
   @page {
     size: letter;
-    margin: 0.5in;
+    margin: 0.36in 0.5in;
+  }
+
+  /* The site is dark only, but paper isn't: without this, Chromium
+     paints the page margins in the dark scheme's canvas color. */
+  html {
+    color-scheme: light !important;
   }
 
   html,

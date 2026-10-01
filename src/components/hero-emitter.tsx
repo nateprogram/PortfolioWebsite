@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import {
   makeSprite,
@@ -39,17 +38,13 @@ const TRAIL: EmitterConfig = {
 };
 
 // Palette only; the emitter config and physics above are unchanged.
-// Dark: the suits' "Natural Blue" light tape, mixed with near-white so
-// the trail reads as white-hot cores with a cyan halo. Light mode is the
-// "real world", so the particles are ink-blue and dimmer.
-const DARK_COLORS = ["#6ee2ff", "#3fc6f0", "#bff4ff", "#e8fcff"];
-const LIGHT_COLORS = ["#0e7490", "#0369a1", "#155e75"];
+// The suits' "Natural Blue" light tape, mixed with near-white so the
+// trail reads as white-hot cores with a cyan halo.
+const COLORS = ["#6ee2ff", "#3fc6f0", "#bff4ff", "#e8fcff"];
 
 export function HeroEmitter({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduceMotion = usePrefersReducedMotion();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme !== "light";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -58,7 +53,7 @@ export function HeroEmitter({ className }: { className?: string }) {
     if (!ctx) return;
 
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
+    const colors = COLORS;
     const sprites = colors.map((c) => makeSprite(c));
     const sys = new ParticleSystem(coarse ? 160 : 420, {
       ...TRAIL,
@@ -119,12 +114,12 @@ export function HeroEmitter({ className }: { className?: string }) {
 
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = isDark ? "lighter" : "source-over";
+      ctx.globalCompositeOperation = "lighter";
       // Dim while the emitter is behind the text column (max-w-2xl) so the
       // glow never fights the copy for contrast.
       const fromCenter = Math.abs(sys.ex - w / 2);
       const columnDim = w < 640 ? 0.8 : Math.min(1, Math.max(0.45, (fromCenter - 200) / 260 + 0.45));
-      sys.draw(ctx, sprites, dpr, (isDark ? 0.85 : 0.55) * columnDim);
+      sys.draw(ctx, sprites, dpr, 0.85 * columnDim);
       ctx.globalCompositeOperation = "source-over";
     };
 
@@ -204,7 +199,7 @@ export function HeroEmitter({ className }: { className?: string }) {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
     };
-  }, [reduceMotion, isDark]);
+  }, [reduceMotion]);
 
   return (
     <canvas

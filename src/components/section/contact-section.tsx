@@ -1,26 +1,30 @@
 import Link from "next/link";
-import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { DATA } from "@/data";
 
 export default function ContactSection() {
   return (
-    <div className="border rounded-xl p-10 relative">
-      <div className="absolute -top-4 border bg-primary z-10 rounded-xl px-4 py-1 left-1/2 -translate-x-1/2">
-        <span className="text-background text-sm font-medium">Contact</span>
+    <div className="relative rounded-xl border bg-card/40 p-10">
+      <div className="hud-glow absolute -top-3.5 left-1/2 z-10 -translate-x-1/2">
+        <span className="hud hud-lit inline-flex px-3.5 py-1 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground [--cut:6px]">
+          Contact
+        </span>
       </div>
-      <div className="absolute inset-0 top-0 left-0 right-0 h-1/2 rounded-xl overflow-hidden">
-        <FlickeringGrid
-          className="h-full w-full"
-          squareSize={2}
-          gridGap={2}
-          style={{
-            maskImage: "linear-gradient(to bottom, black, transparent)",
-            WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
-          }}
-        />
-      </div>
+      {/* The Grid floor, fading out downward. */}
+      <div
+        className="tron-lattice absolute inset-0 rounded-xl"
+        style={{
+          maskImage: "linear-gradient(to bottom, black, transparent 70%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black, transparent 70%)",
+        }}
+        aria-hidden
+      />
+      {/* Lit from below. */}
+      <div
+        className="absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent shadow-[0_0_10px_1px_var(--brand-glow)]"
+        aria-hidden
+      />
       <div className="relative flex flex-col items-center gap-4 text-center">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+        <h2 className="glow-soft text-3xl font-bold tracking-tighter sm:text-5xl">
           Get in Touch
         </h2>
         <p className="mx-auto max-w-lg text-muted-foreground text-balance">

@@ -61,13 +61,15 @@ export default function ProjectsSection() {
       <div className="flex min-h-0 flex-col gap-y-8">
         <div className="flex flex-col gap-y-4 items-center justify-center">
           <div className="flex items-center w-full">
-            <div className="flex-1 h-px bg-linear-to-r from-transparent from-5% via-border via-95% to-transparent" />
-            <div className="border bg-primary z-10 rounded-xl px-4 py-1">
-              <span className="text-background text-sm font-medium">
-                My Projects
+            {/* Light lines run into a lit HUD tag, like the film's
+                interface dividers. */}
+            <div className="flex-1 h-px bg-linear-to-r from-transparent from-5% via-border to-brand/60" />
+            <div className="hud-glow z-10">
+              <span className="hud hud-lit inline-flex px-3.5 py-1 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground [--cut:6px]">
+                Projects
               </span>
             </div>
-            <div className="flex-1 h-px bg-linear-to-l from-transparent from-5% via-border via-95% to-transparent" />
+            <div className="flex-1 h-px bg-linear-to-l from-transparent from-5% via-border to-brand/60" />
           </div>
           <div className="flex flex-col gap-y-3 items-center justify-center">
             <h2
@@ -101,27 +103,31 @@ export default function ProjectsSection() {
                   type="button"
                   onClick={() => setFilter(filter.value)}
                   className={cn(
-                    "relative rounded-full border px-3 py-1 text-xs font-mono transition-colors",
+                    "relative rounded-sm border px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
-                      ? "border-transparent text-background"
-                      : "border-border bg-card/60 text-muted-foreground hover:text-foreground hover:border-foreground/30"
+                      ? "border-brand/40 text-foreground"
+                      : "border-border bg-card/60 text-muted-foreground hover:text-foreground hover:border-brand/30"
                   )}
                 >
+                  {/* The active tab is a light bar that slides between
+                      tabs, over a faint wash. */}
                   {isActive && (
                     <motion.span
                       layoutId="project-filter-pill"
-                      className="absolute inset-0 rounded-full bg-foreground"
+                      className="absolute inset-0 rounded-sm bg-brand-soft"
                       transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       aria-hidden
-                    />
+                    >
+                      <span className="absolute inset-x-1.5 -bottom-px h-px bg-brand-2 shadow-[0_0_8px_1px_var(--brand-glow)]" />
+                    </motion.span>
                   )}
                   <span className="relative z-10">
                     {filter.label}
                     <span
                       className={cn(
                         "ml-1.5 tabular-nums",
-                        isActive ? "text-background/60" : "text-muted-foreground/60"
+                        isActive ? "text-brand" : "text-muted-foreground/60"
                       )}
                     >
                       {count}

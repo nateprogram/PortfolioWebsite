@@ -37,7 +37,7 @@ function Tick({ active }: { active: boolean }) {
       className={cn(
         "h-px shrink-0 transition-all duration-300 ease-out",
         active
-          ? "w-8 bg-gradient-to-r from-brand to-brand-2"
+          ? "w-8 bg-gradient-to-r from-brand to-brand-2 shadow-[0_0_8px_0_var(--brand-glow)]"
           : "w-3 bg-muted-foreground/40 group-hover:w-5 group-hover:bg-foreground/60"
       )}
     />

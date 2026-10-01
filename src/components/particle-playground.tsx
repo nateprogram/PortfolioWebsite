@@ -381,7 +381,7 @@ export function ParticlePlayground() {
               key={reloads}
               className={cn(
                 "normal-case tracking-normal",
-                error ? "text-destructive" : "text-emerald-500 motion-safe:animate-in fade-in"
+                error ? "text-destructive" : "text-brand motion-safe:animate-in fade-in"
               )}
               aria-live="polite"
             >

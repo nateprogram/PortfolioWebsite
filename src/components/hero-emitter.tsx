@@ -38,10 +38,12 @@ const TRAIL: EmitterConfig = {
   Colors: [],
 };
 
-// Palette only; follows the site accent (amber into orange). The
-// emitter config and physics above are unchanged.
-const DARK_COLORS = ["#fbbf24", "#f59e0b", "#f97316", "#fde68a"];
-const LIGHT_COLORS = ["#d97706", "#ea580c", "#b45309"];
+// Palette only; the emitter config and physics above are unchanged.
+// Dark: the suits' "Natural Blue" light tape, mixed with near-white so
+// the trail reads as white-hot cores with a cyan halo. Light mode is the
+// "real world", so the particles are ink-blue and dimmer.
+const DARK_COLORS = ["#6ee2ff", "#3fc6f0", "#bff4ff", "#e8fcff"];
+const LIGHT_COLORS = ["#0e7490", "#0369a1", "#155e75"];
 
 export function HeroEmitter({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

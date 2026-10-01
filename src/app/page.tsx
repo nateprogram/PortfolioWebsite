@@ -56,28 +56,25 @@ export default function Page() {
           <div className="gap-2 gap-y-6 flex flex-col md:flex-row justify-between">
             <div className="flex flex-col gap-3 order-2 md:order-1">
               {CURRENT_ROLE && (
-                <HashLink
-                  targetId="experience"
-                  className={cn(
-                    "group inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur transition-colors hover:border-brand/50 hover:text-foreground",
-                    enter("delay-0")
-                  )}
-                >
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex size-full rounded-full bg-brand opacity-70 motion-safe:animate-ping" />
-                    <span className="relative inline-flex size-2 rounded-full bg-brand" />
-                  </span>
-                  Now: {CURRENT_ROLE.title} at {CURRENT_ROLE.company}
-                  <ArrowRight className="size-3 opacity-60 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                </HashLink>
+                <span className={cn("hud-glow w-fit", enter("delay-0"))}>
+                  <HashLink
+                    targetId="experience"
+                    className="hud hud-hover group inline-flex items-center gap-2 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [--cut:6px]"
+                  >
+                    {/* Square status light, not a pulsing dot. */}
+                    <span className="inline-flex size-1.5 bg-brand shadow-[0_0_6px_1px_var(--brand-glow)]" />
+                    Now · {CURRENT_ROLE.title} at {CURRENT_ROLE.company}
+                    <ArrowRight className="size-3 opacity-60 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </HashLink>
+                </span>
               )}
               <h1
                 className={cn(
-                  "text-4xl font-semibold tracking-tighter sm:text-5xl lg:text-6xl",
+                  "glow-soft text-4xl font-semibold tracking-tighter sm:text-5xl lg:text-6xl",
                   enter("delay-75")
                 )}
               >
-                <span className="text-sheen">{DATA.name}</span>
+                <span className="text-rez">{DATA.name}</span>
               </h1>
               <p
                 className={cn(
@@ -89,9 +86,27 @@ export default function Page() {
               </p>
             </div>
             <div className={cn("order-1 md:order-2 shrink-0", enter("delay-100"))}>
+              {/* Identity disc: a lit rim, plus a segmented outer ring
+                  that turns slowly, like the rings of a program's disc. */}
               <div className="relative size-24 md:size-32">
-                <div className="avatar-ring absolute -inset-[3px] rounded-full opacity-90 blur-[1px]" aria-hidden />
-                <Avatar className="relative size-24 md:size-32 border-2 border-background rounded-full shadow-lg">
+                <svg
+                  className="disc-ring pointer-events-none absolute -inset-[9px] h-[calc(100%+18px)] w-[calc(100%+18px)] text-brand"
+                  viewBox="0 0 100 100"
+                  aria-hidden
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="48.6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.7"
+                    pathLength={360}
+                    strokeDasharray="22 4 6 4"
+                    opacity="0.75"
+                  />
+                </svg>
+                <Avatar className="disc-rim relative size-24 md:size-32 border-2 border-background rounded-full">
                   <AvatarImage alt={DATA.name} src={DATA.avatarUrl} />
                   <AvatarFallback className="font-mono text-2xl md:text-3xl">
                     {DATA.initials}
@@ -106,15 +121,23 @@ export default function Page() {
           </BlurFade>
 
           <div className={cn("flex flex-wrap items-center gap-2", enter("delay-300"))}>
-            <Button asChild size="sm" className="gap-1.5">
-              <Link href="/resume">
+            <span className="hud-glow">
+              <Link
+                href="/resume"
+                className="hud hud-lit inline-flex h-8 items-center gap-1.5 px-3.5 text-xs font-medium text-foreground [--cut:7px] [--hud-fill:color-mix(in_oklch,var(--brand)_14%,var(--card))]"
+              >
                 <FileText className="size-3.5" aria-hidden />
                 Resume
               </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-1.5">
-              <HashLink targetId="projects">See my projects</HashLink>
-            </Button>
+            </span>
+            <span className="hud-glow">
+              <HashLink
+                targetId="projects"
+                className="hud hud-hover inline-flex h-8 items-center px-3.5 text-xs font-medium text-foreground/90 [--cut:7px]"
+              >
+                See my projects
+              </HashLink>
+            </span>
             <div className="flex items-center gap-1">
               <Button asChild variant="ghost" size="icon" className="size-8">
                 <a
@@ -174,7 +197,7 @@ export default function Page() {
       <section id="about">
         <div className="flex min-h-0 flex-col gap-y-4">
           <BlurFade>
-            <h2 className="text-xl font-bold">About</h2>
+            <h2 className="section-title text-xl font-bold">About</h2>
           </BlurFade>
           <BlurFade delay={BLUR_FADE_DELAY}>
             <div className="prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
@@ -195,7 +218,7 @@ export default function Page() {
       <section id="skills">
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade>
-            <h2 className="text-xl font-bold">Skills</h2>
+            <h2 className="section-title text-xl font-bold">Skills</h2>
           </BlurFade>
           <div className="flex flex-col gap-5">
             {DATA.skillGroups.map((group, gIdx) => (
@@ -229,7 +252,7 @@ export default function Page() {
       <section id="education">
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade>
-            <h2 className="text-xl font-bold">Education</h2>
+            <h2 className="section-title text-xl font-bold">Education</h2>
           </BlurFade>
           <div className="flex flex-col gap-8">
             {DATA.education.map((education, index) => (

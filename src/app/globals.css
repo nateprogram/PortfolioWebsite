@@ -43,85 +43,108 @@
   --color-brand: var(--brand);
   --color-brand-2: var(--brand-2);
   --color-brand-soft: var(--brand-soft);
+  --color-brand-glow: var(--brand-glow);
+  --color-signal: var(--signal);
 }
 
+/* Theme: TRON: Legacy (2010), read from its production design.
+ *
+ *   Dark mode is the Grid: blue-black glossy surfaces, a "very
+ *   desaturated metallic light blue" for secondary text, and color that
+ *   only ever comes from light lines (white-hot core, cyan halo, like the
+ *   suits' electroluminescent "Natural Blue" tape). Orange is Clu's color,
+ *   so it's reserved for conflict: errors and destructive actions.
+ *
+ *   Light mode is the real world the film shoots flat and desaturated:
+ *   overcast greys, ink text, the same cyan as a plain ink accent, and no
+ *   glow (nothing emits light out here).
+ *
+ *   Corners are tighter than the shadcn default: the Grid is architecture
+ *   (Mies, Kahn), softened only slightly. */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --radius: 0.375rem;
+  --background: oklch(0.972 0.003 230);
+  --foreground: oklch(0.2 0.012 240);
+  --card: oklch(0.985 0.002 230);
+  --card-foreground: oklch(0.2 0.012 240);
+  --popover: oklch(0.985 0.002 230);
+  --popover-foreground: oklch(0.2 0.012 240);
+  --primary: oklch(0.24 0.014 240);
+  --primary-foreground: oklch(0.97 0.004 230);
+  --secondary: oklch(0.935 0.004 230);
+  --secondary-foreground: oklch(0.24 0.014 240);
+  --muted: oklch(0.935 0.004 230);
+  --muted-foreground: oklch(0.48 0.018 235);
+  --accent: oklch(0.935 0.004 230);
+  --accent-foreground: oklch(0.24 0.014 240);
+  --destructive: oklch(0.6 0.19 42);
+  --border: oklch(0.885 0.006 230);
+  --input: oklch(0.885 0.006 230);
+  --ring: oklch(0.52 0.1 222);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  /* One warm accent (amber into orange), used sparingly: live dots,
-     timeline progress, active filter, card spotlight, particles.
-     Everything else stays neutral. Light-mode values are a shade darker
-     so accent text keeps ~4.5:1 contrast on white. */
-  --brand: oklch(0.6 0.15 58);
-  --brand-2: oklch(0.56 0.19 36);
-  --brand-soft: oklch(0.6 0.15 58 / 0.1);
+  --sidebar: oklch(0.985 0.002 230);
+  --sidebar-foreground: oklch(0.2 0.012 240);
+  --sidebar-primary: oklch(0.24 0.014 240);
+  --sidebar-primary-foreground: oklch(0.97 0.004 230);
+  --sidebar-accent: oklch(0.935 0.004 230);
+  --sidebar-accent-foreground: oklch(0.24 0.014 240);
+  --sidebar-border: oklch(0.885 0.006 230);
+  --sidebar-ring: oklch(0.52 0.1 222);
+  /* Light: cyan as ink (~5:1 on the background), no emission. */
+  --brand: oklch(0.52 0.1 222);
+  --brand-2: oklch(0.38 0.07 230);
+  --brand-soft: oklch(0.52 0.1 222 / 0.09);
+  --brand-glow: transparent;
+  --signal: oklch(0.6 0.19 42);
+  --lattice: oklch(0.45 0.03 230 / 0.07);
 }
 
 .dark {
-  --background: oklch(0.18 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --background: oklch(0.135 0.014 238);
+  --foreground: oklch(0.965 0.012 215);
+  --card: oklch(0.165 0.016 238);
+  --card-foreground: oklch(0.965 0.012 215);
+  --popover: oklch(0.165 0.016 238);
+  --popover-foreground: oklch(0.965 0.012 215);
+  --primary: oklch(0.93 0.04 210);
+  --primary-foreground: oklch(0.135 0.014 238);
+  --secondary: oklch(0.21 0.018 236);
+  --secondary-foreground: oklch(0.965 0.012 215);
+  --muted: oklch(0.21 0.018 236);
+  /* The film's dominant non-light color: desaturated metallic blue. */
+  --muted-foreground: oklch(0.73 0.028 225);
+  --accent: oklch(0.21 0.018 236);
+  --accent-foreground: oklch(0.965 0.012 215);
+  --destructive: oklch(0.72 0.18 45);
+  --border: oklch(0.82 0.06 220 / 0.13);
+  --input: oklch(0.82 0.06 220 / 0.18);
+  --ring: oklch(0.86 0.11 212);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --brand: oklch(0.82 0.15 75);
-  --brand-2: oklch(0.7 0.19 42);
-  --brand-soft: oklch(0.82 0.15 75 / 0.12);
+  --sidebar: oklch(0.165 0.016 238);
+  --sidebar-foreground: oklch(0.965 0.012 215);
+  --sidebar-primary: oklch(0.86 0.11 212);
+  --sidebar-primary-foreground: oklch(0.135 0.014 238);
+  --sidebar-accent: oklch(0.21 0.018 236);
+  --sidebar-accent-foreground: oklch(0.965 0.012 215);
+  --sidebar-border: oklch(0.82 0.06 220 / 0.13);
+  --sidebar-ring: oklch(0.86 0.11 212);
+  /* Light lines: cyan halo (brand) around a near-white core (brand-2).
+     Gradients between them read as intensity, not a hue shift. */
+  --brand: oklch(0.86 0.11 212);
+  --brand-2: oklch(0.97 0.03 205);
+  --brand-soft: oklch(0.86 0.11 212 / 0.1);
+  --brand-glow: oklch(0.86 0.11 212 / 0.5);
+  /* Clu's orange. Conflict only. */
+  --signal: oklch(0.74 0.18 50);
+  --lattice: oklch(0.86 0.11 212 / 0.065);
 }
 
 @layer base {
@@ -203,7 +226,7 @@
   }
 
   .prose blockquote {
-    @apply border-l-4 border-amber-500! pl-4 italic bg-muted/50 p-4 rounded-md rounded-l-none;
+    @apply border-l-2 border-brand! pl-4 italic bg-muted/50 p-4 rounded-md rounded-l-none;
   }
 
   .prose blockquote p {
@@ -265,54 +288,50 @@
 }
 
 /* ---------------------------------------------------------------------
- * Motion + effects. Every animation here is gated on
+ * Motion + effects, after TRON: Legacy. Every animation is gated on
  * prefers-reduced-motion; the static fallback is the final state.
+ *
+ * Rules taken from the film's design (see the PR for sources):
+ *   - light is the only ornament, and it lives on edges and seams
+ *   - a light line is a white-hot core with a colored halo
+ *   - the Grid is lit from below, so edges are brightest at the bottom
  * ------------------------------------------------------------------- */
 
-@property --angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
+/* Glowing type for display sizes only; body text never glows. Dark mode
+   only: nothing emits light in the real world. */
+.dark .glow-soft {
+  filter: drop-shadow(0 0 1px var(--brand-glow)) drop-shadow(0 0 22px var(--brand-soft));
 }
 
-@keyframes spin-angle {
-  to {
-    --angle: 360deg;
-  }
+.dark .text-light {
+  color: var(--foreground);
+  text-shadow:
+    0 0 1px var(--brand-2),
+    0 0 14px var(--brand-glow),
+    0 0 42px var(--brand-soft);
 }
 
-/* Rotating gradient ring behind the avatar. */
-.avatar-ring {
-  background: conic-gradient(
-    from var(--angle),
-    var(--brand),
-    var(--brand-2),
-    transparent 35%,
-    transparent 60%,
-    var(--brand)
-  );
-  animation: spin-angle 7s linear infinite;
-}
-
-/* Text with a slow sheen, for the name. */
-.text-sheen {
+/* A one-time "rez" pass: a white-core scan line sweeps the name once. */
+.text-rez {
   background: linear-gradient(
     100deg,
     var(--foreground) 0%,
-    var(--foreground) 40%,
-    var(--brand) 50%,
-    var(--foreground) 60%,
+    var(--foreground) 44%,
+    var(--brand) 48%,
+    var(--brand-2) 50%,
+    var(--brand) 52%,
+    var(--foreground) 56%,
     var(--foreground) 100%
   );
-  background-size: 250% 100%;
+  background-size: 260% 100%;
   background-position: 100% 0;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: sheen 1.6s 0.5s ease-out both;
+  animation: rez-scan 1.5s 0.45s cubic-bezier(0.6, 0, 0.3, 1) both;
 }
 
-@keyframes sheen {
+@keyframes rez-scan {
   from {
     background-position: 100% 0;
   }
@@ -321,10 +340,77 @@
   }
 }
 
-/* Cursor-following border glow for cards. JS writes --mx / --my. */
+/* Identity disc around the avatar: a lit rim plus a segmented outer ring
+   that turns slowly, like the inner rings of a program's disc. */
+.disc-rim {
+  box-shadow:
+    0 0 0 1px var(--brand),
+    0 0 10px 1px var(--brand-glow),
+    inset 0 0 12px var(--brand-soft);
+}
+
+.disc-ring {
+  animation: disc-turn 24s linear infinite;
+}
+
+@keyframes disc-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* HUD frame: chamfered corners with a 1px edge that can light up.
+   The edge is the element's own background, clipped to the chamfer; the
+   fill is ::before, inset by 1px with the same chamfer. Glow has to come
+   from a parent's drop-shadow, because clip-path clips box-shadow. */
+.hud {
+  --cut: 9px;
+  --hud-edge: linear-gradient(to top, color-mix(in oklch, var(--brand) 45%, transparent), var(--border) 55%);
+  --hud-fill: var(--card);
+  position: relative;
+  isolation: isolate;
+  background: var(--hud-edge);
+  clip-path: polygon(
+    var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)
+  );
+  transition: filter 0.3s ease;
+}
+
+.hud::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--hud-fill);
+  clip-path: polygon(
+    calc(var(--cut) - 0.4px) 0, 100% 0, 100% calc(100% - var(--cut) + 0.4px),
+    calc(100% - var(--cut) + 0.4px) 100%, 0 100%, 0 calc(var(--cut) - 0.4px)
+  );
+}
+
+.hud-lit,
+.hud-hover:hover,
+.hud-hover:focus-visible {
+  --hud-edge: linear-gradient(to top, var(--brand-2), var(--brand) 30%, color-mix(in oklch, var(--brand) 55%, transparent));
+}
+
+/* Halo for a HUD frame; put on the HUD's wrapper. */
+.hud-glow {
+  transition: filter 0.3s ease;
+}
+
+.hud-glow:hover,
+.hud-glow:focus-within,
+.hud-glow-on {
+  filter: drop-shadow(0 0 6px var(--brand-glow));
+}
+
+/* Cards: the border becomes a light line under the pointer (JS writes
+   --mx / --my), and the bottom edge always carries a faint under-light. */
 .spotlight {
   --mx: 50%;
-  --my: -30%;
+  --my: 120%;
 }
 
 .spotlight::before,
@@ -334,39 +420,114 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
 .spotlight::before {
   z-index: 30;
   padding: 1px;
   background: radial-gradient(
-    320px circle at var(--mx) var(--my),
-    var(--brand),
-    transparent 60%
+    260px circle at var(--mx) var(--my),
+    var(--brand-2),
+    var(--brand) 25%,
+    transparent 70%
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
+/* Lit from below: a hairline of light along the bottom edge. */
 .spotlight::after {
-  z-index: 1;
-  background: radial-gradient(
-    480px circle at var(--mx) var(--my),
-    var(--brand-soft),
-    transparent 55%
-  );
+  z-index: 29;
+  top: auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand) 50%, transparent);
+  opacity: 0.35;
+  transition: opacity 0.3s ease, box-shadow 0.3s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .spotlight:hover::before,
-  .spotlight:hover::after {
+  .spotlight:hover::before {
     opacity: 1;
   }
+  .spotlight:hover::after {
+    opacity: 1;
+    box-shadow: 0 0 10px 1px var(--brand-glow);
+  }
+}
+
+/* The Grid floor: a square lattice of faint light lines. Pure CSS. */
+.tron-lattice {
+  background-image:
+    linear-gradient(to right, var(--lattice) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--lattice) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+}
+
+/* Light ribbons: a bright head with a fading tail, running along a
+   lattice line. Positions are multiples of the 48px cell. */
+.ribbon {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+}
+
+/* Ribbons are emitted light, so they only run on the Grid (dark mode). */
+.dark .ribbon {
+  display: block;
+}
+
+.ribbon-x {
+  height: 1px;
+  width: 220px;
+  left: 0;
+  background: linear-gradient(90deg, transparent, var(--brand) 70%, var(--brand-2));
+  box-shadow: 0 0 8px 0 var(--brand-glow);
+  animation: ribbon-x var(--dur, 9s) linear var(--delay, 0s) infinite;
+}
+
+.ribbon-y {
+  width: 1px;
+  height: 180px;
+  top: 0;
+  background: linear-gradient(180deg, transparent, var(--brand) 70%, var(--brand-2));
+  box-shadow: 0 0 8px 0 var(--brand-glow);
+  animation: ribbon-y var(--dur, 7s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes ribbon-x {
+  0% { transform: translateX(-240px); opacity: 0; }
+  8% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+
+@keyframes ribbon-y {
+  0% { transform: translateY(-200px); opacity: 0; }
+  10% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { transform: translateY(640px); opacity: 0; }
+}
+
+/* Section titles carry a light line out to the right, like the film's
+   interface dividers. */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
 }
 
 /* Dataflow diagram: a dot that slides down each connector. */
@@ -378,7 +539,7 @@
   height: 3px;
   margin-left: -1.5px;
   border-radius: 9999px;
-  background: var(--brand);
+  background: var(--brand-2);
   box-shadow: 0 0 6px 1px var(--brand);
   animation: packet 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -401,14 +562,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dataflow-packet {
+  .dataflow-packet,
+  .ribbon {
     display: none;
   }
-  .avatar-ring,
-  .text-sheen {
+  .disc-ring,
+  .text-rez {
     animation: none;
   }
-  .text-sheen {
+  .text-rez {
     background-position: 0 0;
   }
 }

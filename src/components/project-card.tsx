@@ -29,35 +29,42 @@ function initialsOf(title: string): string {
   return title.slice(0, 2).toUpperCase();
 }
 
-type CoverCell = { x: number; y: number; r: number; o: number; c: string };
+type CoverCell = { points: string; lit: boolean; o: number; c: string };
 
-// Seeded LCG so the same title always yields the same cover.
+// Hexagon mesh, after the pattern printed on the light suits. Seeded LCG
+// so the same title always yields the same cover; ~1 in 9 cells is lit.
 function coverCells(title: string): CoverCell[] {
-  const cols = 18;
-  const rows = 8;
+  const R = 13;
+  const w = Math.sqrt(3) * R;
+  const vstep = 1.5 * R;
   const cells: CoverCell[] = [];
   let state = hashOf(title);
   const rand = () => {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
     return state / 4294967296;
   };
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      const lit = rand() > 0.9;
+  for (let row = 0; row < 11; row++) {
+    for (let col = 0; col < 20; col++) {
+      const cx = col * w + (row % 2 ? w / 2 : 0);
+      const cy = row * vstep;
+      const points = Array.from({ length: 6 }, (_, k) => {
+        const a = (Math.PI / 180) * (60 * k + 30);
+        return `${(cx + R * Math.cos(a)).toFixed(1)},${(cy + R * Math.sin(a)).toFixed(1)}`;
+      }).join(" ");
+      const lit = rand() > 0.89;
       cells.push({
-        x: 12 + x * 22,
-        y: 14 + y * 22,
-        r: lit ? 3 : 1.4,
-        o: lit ? 0.9 : 0.12 + rand() * 0.2,
-        c: lit ? (rand() > 0.5 ? "var(--brand)" : "var(--brand-2)") : "currentColor",
+        points,
+        lit,
+        o: lit ? 0.9 : 0.1 + rand() * 0.12,
+        c: lit ? (rand() > 0.6 ? "var(--brand-2)" : "var(--brand)") : "currentColor",
       });
     }
   }
   return cells;
 }
 
-// Deterministic cover for projects without a screenshot: a dot lattice
-// seeded from the title, with a few cells lit in the accent colors.
+// Deterministic cover for projects without a screenshot: the suits' hex
+// mesh, seeded from the title, with a few cells lit.
 function GeneratedCover({ title }: { title: string }) {
   const cells = coverCells(title);
   return (
@@ -67,12 +74,20 @@ function GeneratedCover({ title }: { title: string }) {
     >
       <svg viewBox="0 0 400 180" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice">
         {cells.map((d, i) => (
-          <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={d.c} opacity={d.o} />
+          <polygon
+            key={i}
+            points={d.points}
+            fill={d.lit ? d.c : "none"}
+            fillOpacity={d.lit ? 0.16 : 0}
+            stroke={d.c}
+            strokeOpacity={d.o}
+            strokeWidth={d.lit ? 1.1 : 0.7}
+          />
         ))}
       </svg>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,var(--background)_90%)] opacity-70" />
       <div className="relative z-10 flex h-full w-full items-center justify-center">
-        <span className="font-mono text-5xl font-bold tracking-tight text-foreground/85 transition-transform duration-500 group-hover/card:scale-105">
+        <span className="text-light font-mono text-5xl font-bold tracking-tight transition-transform duration-500 group-hover/card:scale-105">
           {initialsOf(title)}
         </span>
       </div>

@@ -8,16 +8,22 @@ import {
   useInView,
   useScroll,
   useSpring,
+  useTransform,
 } from "motion/react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
-import { EXPERIENCE, formatRange, type ExperienceEntry } from "@/data";
+import { EXPERIENCE, type ExperienceEntry } from "@/data";
 import { cn } from "@/lib/utils";
 
-// Work history as a vertical timeline. The accent line draws itself as the
-// section scrolls past, and each role's node lights up once the line
-// reaches it. Content comes from src/data/experience.ts, the same source
-// as /resume and the PDF.
+// Work history as a light-cycle run, after TRON: Legacy. A cycle head
+// (white-hot core, cyan halo) travels down the rail as the section
+// scrolls, laying a light ribbon behind it. At each role the ribbon bends
+// into the title (Legacy's cycles turn at any angle, not just 90°).
+// Ribbons in the film can be switched on and off, so current roles keep
+// theirs lit and past roles' go dark once the cycle has passed. No dots.
+//
+// Content comes from src/data/experience.ts, the same source as /resume
+// and the PDF.
 
 const VISIBLE_BULLETS = 3;
 
@@ -33,21 +39,33 @@ export default function ExperienceSection() {
     damping: 30,
     restDelta: 0.001,
   });
+  const headTop = useTransform(progress, (v) => `${v * 100}%`);
+  const headOpacity = useTransform(progress, [0, 0.02, 0.98, 1], [0, 1, 1, 0]);
 
   return (
     <div className="flex min-h-0 flex-col gap-y-6">
-      <h2 className="text-xl font-bold">Experience</h2>
+      <h2 className="section-title text-xl font-bold">Experience</h2>
       <ol ref={listRef} className="relative">
-        {/* Track + drawn progress. */}
+        {/* The grid line the cycle rides on. */}
         <div
-          className="absolute left-[11px] top-2 bottom-2 w-px bg-border"
+          className="absolute left-[11px] top-3 bottom-2 w-px bg-border"
           aria-hidden
         />
+        {/* The light ribbon laid behind the cycle. */}
         <motion.div
-          className="absolute left-[11px] top-2 bottom-2 w-px origin-top bg-gradient-to-b from-brand via-brand to-brand-2"
+          className="absolute left-[11px] top-3 bottom-2 w-px origin-top bg-brand shadow-[0_0_6px_0_var(--brand-glow)]"
           style={{ scaleY: reduceMotion ? 1 : progress }}
           aria-hidden
         />
+        {/* The cycle head: an elongated white-hot point at the ribbon tip. */}
+        {!reduceMotion && (
+          <div className="pointer-events-none absolute left-[11px] top-3 bottom-2 w-px" aria-hidden>
+            <motion.span
+              className="absolute -left-[1px] -mt-[10px] h-[10px] w-[3px] rounded-full bg-brand-2 shadow-[0_0_6px_1px_var(--brand),0_0_16px_2px_var(--brand-glow)]"
+              style={{ top: headTop, opacity: headOpacity }}
+            />
+          </div>
+        )}
         {EXPERIENCE.map((entry) => (
           <TimelineItem
             key={`${entry.company}-${entry.start}`}
@@ -78,21 +96,17 @@ function TimelineItem({
 
   return (
     <li ref={ref} className="relative pl-10 pb-10 last:pb-0">
+      {/* The ribbon bending off the rail into this role's title. Lit and
+          glowing for current roles; switched off (dim) for past ones. */}
       <span
         aria-hidden
         className={cn(
-          "absolute left-[5px] top-[5px] size-[13px] rounded-full border-2 transition-all duration-500",
-          lit
-            ? "border-brand bg-brand shadow-[0_0_0_5px_var(--brand-soft)]"
-            : "border-border bg-background"
+          "absolute left-[11px] top-0 h-[12px] w-[22px] rounded-bl-[10px] border-b border-l transition-[border-color,filter] duration-500",
+          !lit && "border-border",
+          lit && isCurrent && "border-brand drop-shadow-[0_0_4px_var(--brand-glow)]",
+          lit && !isCurrent && "border-brand/45"
         )}
       />
-      {isCurrent && lit && (
-        <span
-          aria-hidden
-          className="absolute left-[5px] top-[5px] size-[13px] rounded-full bg-brand/60 motion-safe:animate-ping"
-        />
-      )}
 
       <motion.div
         initial={{ opacity: 0, x: -8 }}
@@ -122,13 +136,11 @@ function TimelineItem({
               {[entry.companyNote, entry.location].filter(Boolean).join(" · ")}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2 font-mono text-xs tabular-nums text-muted-foreground">
-            {isCurrent && (
-              <span className="rounded-full border border-brand/40 bg-brand-soft px-2 py-0.5 text-[10px] uppercase tracking-widest text-brand">
-                Now
-              </span>
-            )}
-            {formatRange(entry)}
+          <div className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+            {entry.start} -{" "}
+            <span className={cn(isCurrent && "text-brand")}>
+              {entry.end ?? "Present"}
+            </span>
           </div>
         </div>
 
@@ -165,7 +177,7 @@ function TimelineItem({
           {entry.tags?.map((tag) => (
             <span
               key={tag}
-              className="rounded-md border border-border bg-card/60 px-2 py-0.5 text-[11px] font-medium text-foreground/80"
+              className="rounded-sm border border-border bg-card/60 px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-wider text-foreground/80"
             >
               {tag}
             </span>
@@ -217,7 +229,7 @@ function BulletBody({ children }: { children: string }) {
   return (
     <span className="flex gap-2">
       <span
-        className="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"
+        className="mt-[0.7em] h-px w-2 shrink-0 bg-brand/60"
         aria-hidden
       />
       <span className="text-pretty leading-relaxed">{children}</span>

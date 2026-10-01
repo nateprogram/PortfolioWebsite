@@ -256,7 +256,7 @@ export default async function ProjectDetailPage({
               {details.highlights.map((item, i) => (
                 <li key={i} className="flex gap-2">
                   <span
-                    className="mt-2 size-1 shrink-0 rounded-full bg-gradient-to-b from-zinc-200 to-zinc-500 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
+                    className="mt-[0.7em] h-px w-2 shrink-0 bg-brand/60"
                     aria-hidden
                   />
                   <span className="text-pretty leading-relaxed">{item}</span>

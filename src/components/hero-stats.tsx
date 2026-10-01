@@ -59,12 +59,14 @@ export function HeroStats() {
   return (
     <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {STATS.map((s, i) => (
-        <li key={s.label}>
+        <li key={s.label} className="hud-glow">
+          {/* Chamfered HUD readout; the edge is lit from below and fully
+              lit on hover. */}
           <Link
             href={s.href}
-            className="group flex h-full flex-col gap-0.5 rounded-xl border border-border bg-card/50 px-3 py-2.5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-[0_10px_30px_-15px_var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="hud hud-hover group flex h-full flex-col gap-0.5 px-3 py-2.5 [--cut:10px] focus-visible:outline-none"
           >
-            <span className="text-2xl font-semibold tracking-tight text-foreground">
+            <span className="text-light text-2xl font-semibold tracking-tight">
               <CountUp value={s.value} suffix={s.suffix} delay={0.25 + i * 0.12} />
             </span>
             <span className="text-xs leading-snug text-muted-foreground">

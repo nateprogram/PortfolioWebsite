@@ -12,7 +12,7 @@ import {
 } from "motion/react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
-import { EXPERIENCE, type ExperienceEntry } from "@/data";
+import { HOME_EXPERIENCE, type ExperienceEntry } from "@/data";
 import { cn } from "@/lib/utils";
 
 // Work history as a light-cycle run, after TRON: Legacy. A cycle head
@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 // theirs lit and past roles' go dark once the cycle has passed. No dots.
 //
 // Content comes from src/data/experience.ts, the same source as /resume
-// and the PDF.
+// and the PDF. Entries marked `onHome: false` stay resume-only.
 
 const VISIBLE_BULLETS = 3;
 
@@ -66,7 +66,7 @@ export default function ExperienceSection() {
             />
           </div>
         )}
-        {EXPERIENCE.map((entry) => (
+        {HOME_EXPERIENCE.map((entry) => (
           <TimelineItem
             key={`${entry.company}-${entry.start}`}
             entry={entry}

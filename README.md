@@ -22,24 +22,31 @@ Dev server runs at http://localhost:3000.
 | -------------------------------------- | ----------------------------------------------------- |
 | `src/data/experience.ts`               | Work history. **A new job is one entry here.**        |
 | `src/data/resume.ts`                   | The resume as data: headline, summary, skills, projects |
-| `src/data/profile.ts`                  | Bio, contact links, skill chips, dock items           |
+| `src/data/profile.ts`                  | Name, location, contact links, education, bio, skill chips |
 | `src/data/projects-list.tsx`           | Project cards on the homepage                         |
 | `src/data/projects/<slug>.tsx`         | Per-project deep dives (STAR-style case studies)      |
 | `src/app/page.tsx`                     | Home: hero, about, experience, projects, skills, education, contact |
 | `src/app/resume/page.tsx`              | `/resume`, the resume as a web page (print-ready)     |
 | `src/app/resume.pdf/route.tsx`         | `/resume.pdf`, generated from the same data at build  |
+| `src/lib/resume-pdf.tsx`               | The PDF document itself                               |
+| `scripts/check-content.ts`             | `npm run check:content`, the data consistency check   |
 | `src/app/projects/[slug]/page.tsx`     | Per-project detail page                               |
 | `src/lib/particles.ts`                 | TS port of the Mayhem Engine emitter (hero + playground) |
 | `src/components/section/`              | Home-page sections (experience, projects, contact)    |
 | `src/app/globals.css`                  | Theme tokens (incl. the `--brand` accent), effects, print styles |
 | `public/`                              | Static media. See `public/README.md` for drop-zone layout. |
 
-### Updating the resume
+### Editing content
 
-The homepage Experience timeline, `/resume`, `/resume.pdf`, and the ATS
-keyword tool's `RESUME_TEXT` all read from `experience.ts` + `resume.ts`.
-Edit those, push, and every copy updates on the next deploy. There's no
-PDF to re-export by hand. Bump `RESUME.updated` when the content changes.
+**See [CONTENT.md](./CONTENT.md)** for step-by-step recipes (change a
+resume detail, add a job, add a project card or write-up) with
+copy-paste templates.
+
+The homepage, `/resume`, `/resume.pdf`, and the ATS keyword tool's
+`RESUME_TEXT` all read from `src/data/`. Edit the data, push, and every
+copy updates on the next deploy; there's no PDF to re-export by hand.
+Run `npm run check:content` after editing. `npm run build` runs it too
+and also fails if the PDF no longer fits on one page.
 
 ## Deploying
 

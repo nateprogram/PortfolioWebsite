@@ -5,19 +5,19 @@
 // from "@/data"` always works no matter how the data is organized
 // underneath.
 //
-//   profile.ts             bio, contact, education, skill chips, navbar
+//   profile.ts             name, location, contact, education, bio,
+//                          skill chips, navbar (the resume reads the
+//                          identity fields from here too)
 //   experience.ts          work history (timeline, /resume, PDF)
 //   resume.ts              the resume as data (/resume + /resume.pdf)
-//   projects-list.tsx      the projects[] array (cards on the homepage)
+//   projects-list.tsx      the project cards on the homepage
 //   project-filters.ts     the filter chips above the projects grid
 //   projects/<slug>.tsx    deep-dive content per project
 //   project-details.ts     aggregates the per-project files
 //   types.ts               shared types (ProjectDetail, Figure, ...)
 //
-// To add a new project:
-//   1. add a new entry to PROJECTS in projects-list.tsx (the card)
-//   2. drop a new projects/<slug>.tsx file (the deep dive, optional)
-//   3. wire that file into project-details.ts
+// CONTENT.md at the repo root has step-by-step recipes for every common
+// edit, and `npm run check:content` verifies the pieces still agree.
 
 import { PROFILE } from "./profile";
 import { PROJECTS } from "./projects-list";
@@ -28,7 +28,12 @@ export const DATA = {
 } as const;
 
 export { PROJECT_FILTERS } from "./project-filters";
-export { EXPERIENCE, CURRENT_ROLE, formatRange } from "./experience";
+export {
+  EXPERIENCE,
+  HOME_EXPERIENCE,
+  CURRENT_ROLE,
+  formatRange,
+} from "./experience";
 export type { ExperienceEntry } from "./experience";
 export { RESUME, companyLabel } from "./resume";
 export type { Project } from "./projects-list";

@@ -8,6 +8,8 @@
 //
 // So a new role only needs one new entry at the top of EXPERIENCE; the
 // site, the HTML resume, and the PDF all pick it up on the next deploy.
+// The resume always lists every entry; the homepage highlights a subset,
+// so the resume can hold more than the homepage but never less.
 //
 // Conventions:
 //   start / end   "Mon YYYY". `end: null` renders as "Present".
@@ -15,6 +17,7 @@
 //   bullets       resume bullets; also shown on the timeline
 //   tags          short tool / credential chips
 //   projectSlug   links the entry to its /projects/<slug> case study
+//   onHome        false keeps a role on the resume but off the homepage
 
 export type ExperienceEntry = {
   company: string;
@@ -29,6 +32,8 @@ export type ExperienceEntry = {
   bullets: ReadonlyArray<string>;
   tags?: ReadonlyArray<string>;
   projectSlug?: string;
+  /** Show on the homepage timeline. Defaults to true. */
+  onHome?: boolean;
 };
 
 export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
@@ -91,6 +96,9 @@ export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
     projectSlug: "spur-2020",
   },
 ];
+
+/** The roles the homepage timeline highlights. The resume shows all. */
+export const HOME_EXPERIENCE = EXPERIENCE.filter((e) => e.onHome !== false);
 
 /** The role shown in the hero. First entry with no end date. */
 export const CURRENT_ROLE = EXPERIENCE.find((e) => e.end === null);

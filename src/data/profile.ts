@@ -1,6 +1,7 @@
-// Personal profile content for the homepage: bio, contact, education,
-// and the skill chip groups. The deep-dive project content lives next
-// door in `projects-list.tsx` and `projects/<slug>.tsx`.
+// Who you are: name, location, contact links, education, the homepage
+// bio, and the skill chips. The resume (/resume and the PDF) reads name,
+// location, email, links, and education from here too, so a move or a
+// new email is a one-line change in this file. See CONTENT.md.
 
 import { Icons } from "@/components/icons";
 import { BriefcaseIcon, FolderGit2Icon, HomeIcon } from "lucide-react";
@@ -115,6 +116,7 @@ export const PROFILE = {
       school: "DigiPen Institute of Technology",
       href: "https://www.digipen.edu",
       degree: "BS Computer Science & Game Design",
+      location: "Redmond, WA",
       // Expected at /public/education/digipen.png. If missing, a gradient "DP" badge renders instead.
       logoUrl: "/education/digipen.png",
       start: "2021",

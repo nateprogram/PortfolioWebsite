@@ -3,14 +3,17 @@
 // code snippets) lives separately in `projects/<slug>.tsx`.
 //
 // Conventions:
-//   slug          stable url segment; matches the file name in projects/
+//   slug          stable url segment; the card links to /projects/<slug>
+//                 and the deep dive (if any) is projects/<slug>.tsx
 //   active        true => still being worked on; false => historical
-//   status        free-text label kept on the type for future filtering;
+//   status        optional free-text label kept for future filtering;
 //                 currently NOT rendered on cards (we don't want to
 //                 surface "Coursework" / "Active" labels that imply a
 //                 hierarchy between academic, personal, and employed work)
-//   categories    drives the filter chips (see project-filters.ts)
-//   image / video first hit wins: video > shots > image > generated badge
+//   categories    drives the filter chips; each must be a `matches`
+//                 value in project-filters.ts (the content check enforces it)
+//   image / video optional; first hit wins: video > shots > image >
+//                 generated cover. Paths are under /public.
 //   shots         phone screenshots, fanned out on the card (mobile apps)
 //   poster        still frame for `video` (shown until it scrolls into view)
 //   hideFromGrid  keep the /projects/<slug> page but leave it off the grid
@@ -20,30 +23,32 @@ import type { ReactNode } from "react";
 import { Icons } from "@/components/icons";
 import { Youtube } from "lucide-react";
 
-export type Project = {
+/** A card as written below. */
+type ProjectEntry = {
   title: string;
   slug: string;
-  href: string;
   dates: string;
   active: boolean;
-  status: string;
+  status?: string;
   categories: ReadonlyArray<string>;
   summary: string;
   description: string;
   technologies: ReadonlyArray<string>;
   links: ReadonlyArray<{ type: string; href: string; icon: ReactNode }>;
-  image: string;
-  video: string;
+  image?: string;
+  video?: string;
   poster?: string;
   shots?: ReadonlyArray<string>;
   hideFromGrid?: boolean;
 };
 
-export const PROJECTS: ReadonlyArray<Project> = [
+/** A card with its page link filled in. */
+export type Project = ProjectEntry & { href: string };
+
+const ENTRIES: ReadonlyArray<ProjectEntry> = [
   {
     title: "SquadPact",
     slug: "squadpact",
-    href: "/projects/squadpact",
     dates: "Apr 2025 - Present",
     active: true,
     status: "Active",
@@ -70,7 +75,6 @@ export const PROJECTS: ReadonlyArray<Project> = [
       },
     ],
     image: "/projects/squadpact/home.jpg",
-    video: "",
     shots: [
       "/projects/squadpact/team.jpg",
       "/projects/squadpact/home.jpg",
@@ -80,7 +84,6 @@ export const PROJECTS: ReadonlyArray<Project> = [
   {
     title: "StockAI",
     slug: "stockai",
-    href: "/projects/stockai",
     dates: "2024 - 2026",
     active: true,
     status: "Active",
@@ -105,12 +108,10 @@ export const PROJECTS: ReadonlyArray<Project> = [
     ],
     links: [],
     image: "/projects/stockai/hero.png",
-    video: "",
   },
   {
     title: "Mayhem Engine · Zeppelin Rush",
     slug: "mayhem-engine",
-    href: "/projects/mayhem-engine",
     dates: "2023 - 2024",
     active: true,
     status: "Coursework",
@@ -142,7 +143,6 @@ export const PROJECTS: ReadonlyArray<Project> = [
   {
     title: "Zeppelin Rush · Genetic AI",
     slug: "zeppelin-rush",
-    href: "/projects/zeppelin-rush",
     dates: "2024",
     active: true,
     status: "Coursework",
@@ -161,12 +161,10 @@ export const PROJECTS: ReadonlyArray<Project> = [
     ],
     links: [],
     image: "/projects/zeppelin-rush/hero.png",
-    video: "",
   },
   {
     title: "Budget Buddy",
     slug: "budget-buddy",
-    href: "/projects/budget-buddy",
     dates: "2026",
     active: true,
     status: "Active",
@@ -178,12 +176,10 @@ export const PROJECTS: ReadonlyArray<Project> = [
     technologies: ["React 19", "TypeScript", "Vite", "Node.js", "Docker", "PWA"],
     links: [],
     image: "/projects/budget-buddy/dashboard.png",
-    video: "",
   },
   {
     title: "Adaptive Strength Trainer",
     slug: "adaptive-strength",
-    href: "/projects/adaptive-strength",
     dates: "2026",
     active: true,
     status: "Active",
@@ -201,7 +197,6 @@ export const PROJECTS: ReadonlyArray<Project> = [
     ],
     links: [],
     image: "/projects/adaptive-strength/today.jpg",
-    video: "",
     shots: [
       "/projects/adaptive-strength/calendar.jpg",
       "/projects/adaptive-strength/today.jpg",
@@ -211,7 +206,6 @@ export const PROJECTS: ReadonlyArray<Project> = [
   {
     title: "Isshin",
     slug: "isshin",
-    href: "/projects/isshin",
     dates: "2024 - 2025",
     active: true,
     status: "Coursework",
@@ -239,12 +233,10 @@ export const PROJECTS: ReadonlyArray<Project> = [
       },
     ],
     image: "/games/isshin/hero.jpg",
-    video: "",
   },
   {
     title: "Treasure Party",
     slug: "treasure-party",
-    href: "/projects/treasure-party",
     dates: "2024",
     active: true,
     status: "Coursework",
@@ -255,15 +247,13 @@ export const PROJECTS: ReadonlyArray<Project> = [
       "Local 4-player couch co-op in Unity 2022.3 LTS (URP). Board map, minigames, boss battles, and item-driven stat modifications across ~10K lines of C# spread over ~200 scripts. Team of 6 at Saucecup Studios. My share: several of the game's minigames (each with its own state machine, per-player scoring, and difficulty curve), the project's AudioManager (scene-persistent, priority-based channel pool), and the Bad Luck tile on the board map.",
     technologies: ["Unity 2022.3 LTS", "C#", "URP", "Local 4-player", "Team of 6"],
     links: [],
-    // No screenshot yet; drop one at /public/games/treasure-party/hero.png
-    // and point this at it. Until then the card renders a generated cover.
-    image: "",
-    video: "",
+    // No screenshot yet: drop one at /public/games/treasure-party/hero.png
+    // and add `image: "/games/treasure-party/hero.png"`. Until then the
+    // card renders a generated cover.
   },
   {
     title: "Spur Reply · Client Web & Reporting",
     slug: "spur-2021",
-    href: "/projects/spur-2021",
     dates: "2021",
     active: false,
     status: "Shipped",
@@ -287,14 +277,11 @@ export const PROJECTS: ReadonlyArray<Project> = [
         icon: <Icons.globe className="size-3" />,
       },
     ],
-    image: "",
-    video: "",
     hideFromGrid: true,
   },
   {
     title: "Spur Reply · Internal Comms Automation",
     slug: "spur-2020",
-    href: "/projects/spur-2020",
     dates: "2020",
     active: false,
     status: "Shipped",
@@ -318,8 +305,11 @@ export const PROJECTS: ReadonlyArray<Project> = [
         icon: <Icons.globe className="size-3" />,
       },
     ],
-    image: "",
-    video: "",
     hideFromGrid: true,
   },
 ];
+
+export const PROJECTS: ReadonlyArray<Project> = ENTRIES.map((p) => ({
+  ...p,
+  href: `/projects/${p.slug}`,
+}));

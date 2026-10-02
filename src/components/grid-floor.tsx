@@ -14,8 +14,10 @@ import { cn } from "@/lib/utils";
 // Pure CSS (globals.css, "Grid floor"): a rotated plane, no canvas or JS.
 // Under reduced motion the floor holds still and the cycles are hidden.
 
-// One cycle per light. `lane` is in 48px cells from the center line;
-// lanes spread toward the viewer, so these run beside the content
+// One cycle per light. `lane` counts grid lines from the center; the
+// plane's lines sit at center - 24px + n * 48px (its 48px mask tiles are
+// centered), so cycles are placed on those lines, not between them.
+// Lanes spread toward the viewer, so these run beside the content
 // column. Each runs, then pauses; the delays stagger them so one is
 // usually on the floor.
 const CYCLES = [
@@ -37,7 +39,7 @@ export function GridFloor({ className }: { className?: string }) {
               key={c.lane}
               className={cn("floor-cycle", c.light && `cycle-${c.light}`)}
               style={{
-                left: `calc(50% + ${c.lane * 48}px)`,
+                left: `calc(50% - 24px + ${c.lane * 48}px)`,
                 ["--dur" as string]: c.dur,
                 ["--delay" as string]: c.delay,
               }}

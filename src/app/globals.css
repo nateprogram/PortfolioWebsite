@@ -722,6 +722,18 @@
   filter: drop-shadow(0 0 6px var(--brand-glow)) drop-shadow(0 0 14px var(--brand-glow));
 }
 
+/* The horizon is a parallel pair: a fainter, shorter line 4px under it. */
+.grid-floor-horizon::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 4px;
+  height: 1px;
+  background: inherit;
+  opacity: 0.45;
+}
+
 .grid-floor-ground {
   position: absolute;
   left: 0;
@@ -753,17 +765,26 @@
   transform: rotateX(70deg);
   background: var(--floor-paint, linear-gradient(var(--brand), var(--brand)));
   opacity: 0.42;
+  /* Minor lines every 48px, and every fourth line is a panel seam: a
+     second line 4px beside it, so the floor reads as tiles edged with
+     parallel light, as in the film. The 192px layers are offset 72px so
+     their seams land exactly on a minor line (a 50% position centers
+     each tile size differently). */
   -webkit-mask-image:
     linear-gradient(to right, #000 1px, transparent 1px),
-    linear-gradient(to bottom, #000 1px, transparent 1px);
-  -webkit-mask-size: 48px 48px;
-  -webkit-mask-position: 50% 0;
+    linear-gradient(to bottom, #000 1px, transparent 1px),
+    linear-gradient(to right, transparent 4px, #000 4px, #000 5px, transparent 5px),
+    linear-gradient(to bottom, transparent 4px, #000 4px, #000 5px, transparent 5px);
+  -webkit-mask-size: 48px 48px, 48px 48px, 192px 192px, 192px 192px;
+  -webkit-mask-position: 50% 0, 50% 0, calc(50% + 72px) 0, calc(50% + 72px) 0;
   mask-image:
     linear-gradient(to right, #000 1px, transparent 1px),
-    linear-gradient(to bottom, #000 1px, transparent 1px);
-  mask-size: 48px 48px;
-  mask-position: 50% 0;
-  animation: grid-floor-run 2.4s linear infinite;
+    linear-gradient(to bottom, #000 1px, transparent 1px),
+    linear-gradient(to right, transparent 4px, #000 4px, #000 5px, transparent 5px),
+    linear-gradient(to bottom, transparent 4px, #000 4px, #000 5px, transparent 5px);
+  mask-size: 48px 48px, 48px 48px, 192px 192px, 192px 192px;
+  mask-position: 50% 0, 50% 0, calc(50% + 72px) 0, calc(50% + 72px) 0;
+  animation: grid-floor-run 9.6s linear infinite;
 }
 
 /* A light cycle: a bright head with its ribbon trailing back toward the
@@ -779,17 +800,24 @@
   transform: rotateX(70deg);
 }
 
+/* The cycle rides a grid line (grid-floor.tsx places it): a 2px ribbon
+   centered on the line with a 1px partner 4px beside it, the two edges
+   of the light wall it leaves. The glow is a drop-shadow, which follows
+   the lit pixels; a box-shadow outlined the whole box and left a dark
+   core along the faded tail. */
 .floor-cycle {
   --rc: var(--brand);
   --rcore: var(--brand-2);
   --rglow: var(--brand-glow);
   position: absolute;
   top: 0;
-  width: 3px;
+  width: 7px;
   height: 240px;
   margin-left: -1px;
-  background: linear-gradient(180deg, transparent, var(--rc) 70%, var(--rcore));
-  box-shadow: 0 0 8px 1px var(--rglow);
+  background:
+    linear-gradient(180deg, transparent, var(--rc) 55%, var(--rcore)) left / 2px 100% no-repeat,
+    linear-gradient(180deg, transparent 25%, color-mix(in oklch, var(--rc) 70%, transparent)) right / 1px 100% no-repeat;
+  filter: drop-shadow(0 0 4px var(--rglow));
   opacity: 0;
   animation: floor-cycle var(--dur, 9s) cubic-bezier(0.5, 0, 0.9, 0.6) var(--delay, 0s) infinite;
 }
@@ -798,10 +826,11 @@
   from { opacity: 0; }
 }
 
+/* One seam period (192px) per loop, so the seams don't jump. */
 @keyframes grid-floor-run {
   to {
-    -webkit-mask-position: 50% 48px;
-    mask-position: 50% 48px;
+    -webkit-mask-position: 50% 192px, 50% 192px, calc(50% + 72px) 192px, calc(50% + 72px) 192px;
+    mask-position: 50% 192px, 50% 192px, calc(50% + 72px) 192px, calc(50% + 72px) 192px;
   }
 }
 

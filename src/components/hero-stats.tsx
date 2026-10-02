@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { animate } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
-import { DATA, projectLightClass, projectLightStyle } from "@/data";
+import { DATA, projectLightClass } from "@/data";
 import { cn } from "@/lib/utils";
 
 // Four numbers from real projects, each linking to its case study. They
@@ -75,9 +75,6 @@ export function HeroStats() {
           key={s.label}
           // Each readout is lit in its project's category light.
           className={cn("hud-glow", lightFor(s.href))}
-          // A project in two categories (Genetic AI: AI/ML + Systems) gets
-          // a seam that blends from its main light into the second.
-          style={projectFor(s.href) && projectLightStyle(projectFor(s.href)!)}
         >
           {/* Chamfered HUD readout with an inner parallel trace; the edge
               is lit from below and fully lit on hover. */}
@@ -94,9 +91,6 @@ export function HeroStats() {
             <span className="mt-auto pt-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70 transition-colors group-hover:text-brand">
               {s.project} →
             </span>
-            {projectFor(s.href) && projectLightStyle(projectFor(s.href)!) && (
-              <span aria-hidden className="light-seam absolute inset-x-3 bottom-[3px] h-px" />
-            )}
           </Link>
         </li>
       ))}

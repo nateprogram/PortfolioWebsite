@@ -28,17 +28,9 @@ const CYCLES = [
   { lane: 6, light: "systems", dur: "9.5s", delay: "4.75s" },
 ] as const;
 
-export function GridFloor({
-  className,
-  split,
-}: {
-  className?: string;
-  /** Homepage: the horizon is split blue / orange, the two sides of the
-      Grid meeting, as on the film's key art. */
-  split?: boolean;
-}) {
+export function GridFloor({ className }: { className?: string }) {
   return (
-    <div aria-hidden className={cn("grid-floor print:hidden", split && "grid-floor-split", className)}>
+    <div aria-hidden className={cn("grid-floor print:hidden", className)}>
       <div className="grid-floor-sky" />
       <div className="grid-floor-ground">
         <div className="grid-floor-plane" />

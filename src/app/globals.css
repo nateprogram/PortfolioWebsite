@@ -82,6 +82,28 @@
  *   Corners are tighter than the shadcn default: the Grid is architecture
  *   (Mies, Kahn), softened only slightly.
  *
+ *   Geometry, from the production's own statements [5]:
+ *     - The two "design constants" (Gilford) are simple geometric form and
+ *       continuous light lines. Lines are "rectilinear" and "turn a corner
+ *       but still keep a form, not get super organic": section rails and
+ *       HUD frames turn on hard cuts, not curves.
+ *     - Angles are 30/60 degrees (Kosinski: "everything's on a 30 or 60
+ *       degree angle"): every chamfer and rail corner is a 60-degree cut.
+ *       This is one transcribed quote, so it is used as the rule for cuts,
+ *       not as a reason to tilt layout.
+ *     - One continuous line carries the eye between sections (the spine),
+ *       as the film's lines carry it "from costumes to vehicles to sets".
+ *     - Curves are allowed in one place: Legacy's light cycles can turn at
+ *       any angle, so the experience timeline (a light-cycle run) bends.
+ *     - The identity disc is the one circular form in a rectilinear world,
+ *       so circles are reserved for the avatar's disc; other controls and
+ *       marks are square or chamfered.
+ *     - Light comes from below ("light had to come from the floor whenever
+ *       possible", Kosinski): lit bottom edges, under-glow, the floor.
+ *   Not taken from the research: the hex estimates for the film's colors
+ *   (the paper itself flags them as unsampled guesses; the hexes above are
+ *   used instead) and the production trivia.
+ *
  *   Sources:
  *   [1] Kirill Grouchnikov, "The colors of Tron: Legacy", Pushing Pixels
  *       https://www.pushing-pixels.org/2010/12/28/the-colors-of-tron-legacy.html
@@ -93,7 +115,11 @@
  *       https://tron.fandom.com/wiki/Program
  *       Hexes: COLOURlovers "Tron Legacy 2" (DF740C, FFE64D, E6FFFF,
  *       6FC3DF) and the Legacy poster palette (F4AF2D, FFFFFE)
- *       https://www.colourlovers.com/palette/1406402/Tron_Legacy_2 */
+ *       https://www.colourlovers.com/palette/1406402/Tron_Legacy_2
+ *   [5] Production research compiled for this site, quoting Darren
+ *       Gilford (NPR, 20 Dec 2010; Motionographer), Joseph Kosinski
+ *       (CGarchitect, 21 Feb 2011; Fast Company) and Claudio Miranda
+ *       (Sound & Picture, Dec 2010). */
 :root {
   color-scheme: dark;
   --radius: 0.375rem;

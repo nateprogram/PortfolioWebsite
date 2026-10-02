@@ -43,7 +43,7 @@ export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
     location: "Remote, US",
     start: "Jul 2026",
     end: null,
-    blurb: "Microsoft Solutions Partner for modern work, data, and AI.",
+    blurb: "Microsoft Solutions Partner.",
     // Add 2-3 bullets here as the role takes shape; they flow to the
     // homepage, /resume, and the PDF automatically.
     bullets: [],
@@ -56,11 +56,11 @@ export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
     location: "Chicago, IL",
     start: "Mar 2026",
     end: null,
-    blurb: "My software studio. SquadPact is the flagship product.",
+    blurb: "My software company. SquadPact is its main product.",
     bullets: [
       "Built SquadPact, a scheduling, RSVP, chat, and payments app for adult soccer leagues, shipped to web, iOS, and Android from one TypeScript codebase (Next.js + Capacitor).",
       "Designed a 30-model Prisma schema and 114 API route handlers covering leagues, seasons, rosters, events, RSVPs, team and direct chat, payments, and a player marketplace.",
-      "Per-league scrapers (GSSL, Rats) auto-populate schedules, teams, and results; a cron-driven season lifecycle moves each team through commitment, recruiting, payment, and active phases.",
+      "Per-league scrapers (GSSL, Rats) fill in schedules, teams, and results. A scheduled job moves each team through commitment, recruiting, payment, and active phases.",
       "Integrates Neon Postgres, Clerk auth, Stripe (platform fee), Firebase push, Resend email, and Vercel Blob.",
       "Also shipped Budget Buddy (web paycheck planner) and Adaptive Strength Trainer (Android AI training app).",
     ],
@@ -76,7 +76,7 @@ export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
     end: "Aug 2021",
     bullets: [
       "Shipped React + TypeScript client microsites through the firm's .NET + Azure DevOps pipeline.",
-      "Developed Power BI dashboards across multiple projects for client-facing data.",
+      "Built Power BI dashboards on client data for several projects.",
     ],
     projectSlug: "spur-2021",
   },
@@ -89,8 +89,8 @@ export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
     start: "Jun 2020",
     end: "Aug 2020",
     bullets: [
-      "Automated a weekly newsletter pipeline reaching 10,000+ Microsoft employees, replacing a fully manual workflow.",
-      "Created an internal Employee Morale Survey tool with Microsoft Power Automate that worked directly in Microsoft Teams.",
+      "Automated a weekly newsletter to 10,000+ Microsoft employees that had been assembled by hand.",
+      "Built an employee morale survey in Microsoft Power Automate that ran inside Microsoft Teams.",
     ],
     projectSlug: "spur-2020",
   },

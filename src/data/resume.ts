@@ -103,9 +103,9 @@ const PROJECT_PICKS: ReadonlyArray<ResumeProjectInput> = [
     tagline: "Live ML trading research platform",
     stack: "Python, PyTorch, FastAPI",
     bullets: [
-      "Designed a MultiHeadLSTM that sources data on specific stocks from Yahoo Finance, news articles, and social platforms (YouTube, X, Reddit) to predict price movements.",
-      "~11,500 LOC across 42 modules. Data feeds correlation analyzers and an LSTM that predicts across 10 timeframes.",
-      "A retrainer scores predictions for accuracy and fine-tunes feature weights, with automatic rollback to combat degradation.",
+      "Designed a multi-head LSTM that predicts stock price moves from Yahoo Finance data, news, and social posts (YouTube, X, Reddit).",
+      "~11,500 lines of Python across 42 modules. Correlation analyzers feed the LSTM, which predicts 10 timeframes.",
+      "A retrainer scores past predictions, adjusts feature weights, and rolls back automatically when accuracy drops.",
     ],
   },
   {
@@ -114,20 +114,20 @@ const PROJECT_PICKS: ReadonlyArray<ResumeProjectInput> = [
     tagline: "Custom C++ game engine built from an empty VS project",
     stack: "C++, GLFW, rapidjson, OpenGL",
     bullets: [
-      "Created a particle system (~1,260 LOC) with JSON-serialized emitters that hot-reload from disk without a C++ rebuild.",
-      "Wrote the stat/upgrade system (~710 LOC) with per-level upgrade arrays, so designers retune the curve by editing JSON instead of code.",
-      "Designed the engine's input abstraction over GLFW. Shipped the engine's tower-offense title (Zeppelin Rush) to Steam.",
+      "Built a particle system (~1,260 LOC) whose JSON emitter files hot-reload without a rebuild.",
+      "Wrote the stat/upgrade system (~710 LOC), so designers tune each upgrade level by editing JSON.",
+      "Designed the input layer over GLFW. Shipped Zeppelin Rush, a tower-offense game, to Steam on the engine.",
     ],
   },
   {
     slug: "zeppelin-rush",
     name: "Genetic AI",
-    tagline: "Modular genetic algorithm that plays games to find optimal strategies",
+    tagline: "Genetic algorithm that learns to play a game",
     stack: "Python",
     bullets: [
-      "Evolved a Python genetic algorithm that played Zeppelin Rush and found the optimal strategy in 16 generations.",
-      "Started from 60 random playthroughs, then bred and mutated the top performers; it beat the best human score after 14 generations.",
-      "Exposed balancing issues within the game to designers.",
+      "Wrote a Python genetic algorithm that played Zeppelin Rush and found a three-star strategy in 16 generations.",
+      "Started from 60 random playthroughs and bred and mutated the best ones. It beat the best human score after 14 generations.",
+      "Its runs showed the designers where the game was unbalanced.",
     ],
   },
   {
@@ -135,8 +135,8 @@ const PROJECT_PICKS: ReadonlyArray<ResumeProjectInput> = [
     tagline: "Local 4-player couch party game",
     stack: "Unity, C#",
     bullets: [
-      "Owned several minigames, each with its own state machine built from custom C# classes.",
-      "Authored the project's scene-persistent AudioManager with a priority-based channel pool.",
+      "Owned several minigames, each with its own C# state machine.",
+      "Wrote the game's AudioManager, which persists across scenes and pools channels by priority.",
     ],
   },
 ];
@@ -154,7 +154,7 @@ export const RESUME: Resume = {
   ].map((href) => ({ label: linkLabel(href), href })),
   updated: "Oct 2026",
   summary:
-    "AI Engineer at Cyclotron, Inc. C++, C#, Python, and TypeScript engineer. Shipped a cross-platform scheduling app to web, iOS, and Android under my LLC. Created a live ML trading research platform and a custom C++ engine that shipped a game to Steam. I use Claude Code to ship MVPs fast. Shipped with multi-disciplinary teams of 6 and 19 at DigiPen.",
+    "AI Engineer at Cyclotron, Inc. C++, C#, Python, and TypeScript engineer. Shipped a scheduling app to web, iOS, and Android under my LLC. Built a live ML trading research platform and a C++ game engine that shipped a game to Steam. I use Claude Code to ship MVPs fast. Shipped games with teams of 6 and 19 at DigiPen.",
   // The same list as the homepage chips (skills.ts), grouped.
   skills: SKILL_GROUPS.map((g) => ({
     label: g.label,

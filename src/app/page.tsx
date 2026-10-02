@@ -156,7 +156,7 @@ export default function Page() {
               </HashLink>
             </span>
             <div className="flex items-center gap-1">
-              <Button asChild variant="ghost" size="icon" className="size-8">
+              <Button asChild variant="ghost" size="icon" className="size-8 rounded-md">
                 <a
                   href={DATA.contact.social.GitHub.url}
                   target="_blank"
@@ -166,7 +166,7 @@ export default function Page() {
                   <Github className="size-4" aria-hidden />
                 </a>
               </Button>
-              <Button asChild variant="ghost" size="icon" className="size-8">
+              <Button asChild variant="ghost" size="icon" className="size-8 rounded-md">
                 <a
                   href={DATA.contact.social.LinkedIn.url}
                   target="_blank"
@@ -176,7 +176,7 @@ export default function Page() {
                   <Linkedin className="size-4" aria-hidden />
                 </a>
               </Button>
-              <Button asChild variant="ghost" size="icon" className="size-8">
+              <Button asChild variant="ghost" size="icon" className="size-8 rounded-md">
                 <a href={`mailto:${DATA.contact.email}`} aria-label="Email">
                   <Mail className="size-4" aria-hidden />
                 </a>

@@ -353,7 +353,7 @@ export function ParticlePlayground() {
               aria-pressed={activePreset === p.name}
               onClick={() => loadPreset(p)}
               className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "rounded-sm border px-2.5 py-1 text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 activePreset === p.name
                   ? "border-brand/60 bg-brand-soft text-foreground"
                   : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"

@@ -419,16 +419,20 @@
    The edge is the element's own background, clipped to the chamfer; the
    fill is ::before, inset by 1px with the same chamfer. Glow has to come
    from a parent's drop-shadow, because clip-path clips box-shadow. */
+/* The cut is on the Grid's angles: Kosinski said everything sits on
+   30 or 60 degrees, so a chamfer runs --cut across and --cut * tan(60)
+   down, a 60-degree edge, not a generic 45. */
 .hud {
   --cut: 9px;
+  --cut-y: calc(var(--cut) * 1.732);
   --hud-edge: linear-gradient(to top, color-mix(in oklch, var(--brand) 62%, transparent), var(--border) 60%);
   --hud-fill: var(--card);
   position: relative;
   isolation: isolate;
   background: var(--hud-edge);
   clip-path: polygon(
-    var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)),
-    calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)
+    var(--cut) 0, 100% 0, 100% calc(100% - var(--cut-y)),
+    calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut-y)
   );
   transition: filter 0.3s ease;
 }
@@ -442,8 +446,8 @@
   z-index: -1;
   background: var(--hud-fill);
   clip-path: polygon(
-    calc(var(--cut) - 0.4px) 0, 100% 0, 100% calc(100% - var(--cut) + 0.4px),
-    calc(100% - var(--cut) + 0.4px) 100%, 0 100%, 0 calc(var(--cut) - 0.4px)
+    calc(var(--cut) - 0.3px) 0, 100% 0, 100% calc(100% - var(--cut-y) + 0.5px),
+    calc(100% - var(--cut) + 0.3px) 100%, 0 100%, 0 calc(var(--cut-y) - 0.5px)
   );
 }
 
@@ -466,7 +470,7 @@
 
 /* Inner trace for larger HUD panels: a 1px line running parallel to the
    frame's outer edge at a ~4px inset. It runs along the bottom, turns up
-   the bottom-right chamfer at the same 45 degrees, climbs the right side,
+   the bottom-right chamfer at the same 60 degrees, climbs the right side,
    and fades out at both ends. With the 2px outer bottom edge it forms a
    heavy/light pair that wraps the corner, like a suit line. */
 .hud-detail {
@@ -475,6 +479,7 @@
 
 .hud-detail::after {
   --c: calc(var(--cut) - 2px);
+  --c-y: calc(var(--c) * 1.732);
   content: "";
   position: absolute;
   inset: 4px 4px 5px 4px;
@@ -487,8 +492,8 @@
       var(--hud-line) calc(50% - 0.6px),
       var(--hud-line) calc(50% + 0.6px),
       transparent calc(50% + 0.6px)
-    ) right bottom / var(--c) var(--c) no-repeat,
-    linear-gradient(to top, var(--hud-line), transparent) right 0 bottom var(--c) / 1px 50% no-repeat;
+    ) right bottom / var(--c) var(--c-y) no-repeat,
+    linear-gradient(to top, var(--hud-line), transparent) right 0 bottom var(--c-y) / 1px 50% no-repeat;
 }
 
 .hud-detail.hud-hover:hover,
@@ -916,40 +921,52 @@
 /* Section rails: a parallel pair leaves each section title, turns the
    corner together and runs down the section's left edge, fading out, the
    way the suit lines trace a body: a 2px line with a 1px partner outside
-   it on a concentric corner (same center, radius 6px vs 11px). Section
-   titles get them as spans (their ::after is the title bar); the small
-   labels on project pages draw them with ::before/::after. */
+   it. The corner is a 60-degree cut, not a curve: Gilford's light lines
+   are "rectilinear" and "turn a corner but still keep a form, not get
+   super organic", on Kosinski's 30/60-degree angles. Each line is drawn
+   as three background pieces (top run, 60-degree diagonal, left run), so
+   the angle is exact at any length. Section titles get them as spans
+   (their ::after is the title bar); the small labels on project pages
+   draw them with ::before/::after. */
 .rail,
 .rail-partner,
 .trace-label::before,
 .trace-label::after {
+  --rc: color-mix(in oklch, var(--brand) 75%, transparent);
   position: absolute;
   top: 50%;
   pointer-events: none;
-  border: 0 solid color-mix(in oklch, var(--brand) 75%, transparent);
+  background:
+    linear-gradient(var(--rc), var(--rc)) var(--d) 0 / calc(100% - var(--d)) var(--t) no-repeat,
+    linear-gradient(
+      to bottom right,
+      transparent calc(50% - var(--t) / 2),
+      var(--rc) calc(50% - var(--t) / 2),
+      var(--rc) calc(50% + var(--t) / 2),
+      transparent calc(50% + var(--t) / 2)
+    ) 0 0 / var(--d) calc(var(--d) * 1.732) no-repeat,
+    linear-gradient(var(--rc), var(--rc)) 0 calc(var(--d) * 1.732) / var(--t) calc(100% - var(--d) * 1.732) no-repeat;
   -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
   mask-image: linear-gradient(to bottom, #000 30%, transparent);
 }
 
 .rail,
 .trace-label::before {
+  --d: 5px;
+  --t: 2px;
   left: -18px;
   width: 12px;
   height: var(--rail-len, 260px);
-  border-left-width: 2px;
-  border-top-width: 2px;
-  border-top-left-radius: 6px;
 }
 
 .rail-partner,
 .trace-label::after {
+  --d: 8px;
+  --t: 1px;
   left: -23px;
   width: 17px;
   margin-top: -5px;
   height: calc(var(--rail-len, 260px) * 0.6);
-  border-left-width: 1px;
-  border-top-width: 1px;
-  border-top-left-radius: 11px;
   opacity: 0.55;
 }
 
@@ -967,16 +984,16 @@
 @media (max-width: 639px) {
   .rail,
   .trace-label::before {
+    --d: 4px;
     left: -14px;
     width: 9px;
-    border-top-left-radius: 5px;
   }
   .rail-partner,
   .trace-label::after {
+    --d: 6px;
     left: -18px;
     width: 13px;
     margin-top: -4px;
-    border-top-left-radius: 9px;
   }
 }
 

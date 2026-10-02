@@ -211,77 +211,84 @@ export default function Page() {
         </div>
       </section>
 
-      <section id="about">
-        <div className="flex min-h-0 flex-col gap-y-4">
-          <BlurFade>
-            <SectionTitle>About</SectionTitle>
-          </BlurFade>
-          <BlurFade delay={BLUR_FADE_DELAY}>
-            <div className="prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-              <Markdown>{DATA.summary}</Markdown>
-            </div>
-          </BlurFade>
-        </div>
-      </section>
+      {/* About through Education hang off one light line: a dim spine
+          down the left edge that each section title branches from
+          (Gilford: light lines "carry the viewer's eye"). It ends at
+          Education, so the contact card stands on its own. */}
+      <div className="relative flex flex-col gap-16">
+        <span aria-hidden className="spine" />
+        <section id="about">
+          <div className="flex min-h-0 flex-col gap-y-4">
+            <BlurFade>
+              <SectionTitle>About</SectionTitle>
+            </BlurFade>
+            <BlurFade delay={BLUR_FADE_DELAY}>
+              <div className="prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
+                <Markdown>{DATA.summary}</Markdown>
+              </div>
+            </BlurFade>
+          </div>
+        </section>
 
-      <section id="experience">
-        <ExperienceSection />
-      </section>
+        <section id="experience">
+          <ExperienceSection />
+        </section>
 
-      {/* Skills sit directly above the projects: each chip filters the
-          grid to the projects behind it. */}
-      <section id="skills">
-        <SkillsSection />
-      </section>
+        {/* Skills sit directly above the projects: each chip filters the
+            grid to the projects behind it. */}
+        <section id="skills">
+          <SkillsSection />
+        </section>
 
-      <section id="projects">
-        <ProjectsSection />
-      </section>
+        <section id="projects">
+          <ProjectsSection />
+        </section>
 
-      <section id="education">
-        <div className="flex min-h-0 flex-col gap-y-6">
-          <BlurFade>
-            <SectionTitle railLength={88}>Education</SectionTitle>
-          </BlurFade>
-          <div className="flex flex-col gap-8">
-            {DATA.education.map((education, index) => (
-              <BlurFade key={education.school} delay={index * 0.05}>
-                <Link
-                  href={education.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-x-3 justify-between group"
-                >
-                  <div className="flex items-center gap-x-3 flex-1 min-w-0">
-                    <EducationLogo
-                      src={education.logoUrl}
-                      alt={education.school}
-                      fallbackInitials="DP"
-                    />
-                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <div className="font-semibold leading-none flex items-center gap-2">
-                        {education.school}
-                        <ArrowUpRight
-                          className="h-3.5 w-3.5 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200"
-                          aria-hidden
-                        />
-                      </div>
-                      <div className="font-sans text-sm text-muted-foreground">
-                        {education.degree}
+        <section id="education">
+          <div className="flex min-h-0 flex-col gap-y-6">
+            <BlurFade>
+              <SectionTitle railLength={88}>Education</SectionTitle>
+            </BlurFade>
+            <div className="flex flex-col gap-8">
+              {DATA.education.map((education, index) => (
+                <BlurFade key={education.school} delay={index * 0.05}>
+                  <Link
+                    href={education.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-x-3 justify-between group"
+                  >
+                    <div className="flex items-center gap-x-3 flex-1 min-w-0">
+                      <EducationLogo
+                        src={education.logoUrl}
+                        alt={education.school}
+                        fallbackInitials="DP"
+                      />
+                      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                        <div className="font-semibold leading-none flex items-center gap-2">
+                          {education.school}
+                          <ArrowUpRight
+                            className="h-3.5 w-3.5 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200"
+                            aria-hidden
+                          />
+                        </div>
+                        <div className="font-sans text-sm text-muted-foreground">
+                          {education.degree}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground text-right flex-none">
-                    <span>
-                      {education.start} – {education.end}
-                    </span>
-                  </div>
-                </Link>
-              </BlurFade>
-            ))}
+                    <div className="flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground text-right flex-none">
+                      <span>
+                        {education.start} – {education.end}
+                      </span>
+                    </div>
+                  </Link>
+                </BlurFade>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Extra room so the contact card stands apart from Education. */}
       <section id="contact" className="mt-12">

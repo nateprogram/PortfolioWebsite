@@ -980,6 +980,51 @@
   content: "";
 }
 
+/* The spine: one continuous pair of light lines down the homepage's
+   left edge, from the About title to the end of Education. Section rails
+   branch off it, so the sections read as one circuit, not separate
+   boxes. It is dimmer than the rails (the junctions are where the light
+   is), and a short pulse of light travels down it. */
+/* It spans the rail pair: the 1px partner at its left edge sits under
+   .rail-partner (left -23px), the 2px line at its right edge under .rail
+   (left -18px, 2px wide). */
+.spine {
+  position: absolute;
+  left: -23px;
+  top: 14px;
+  bottom: 24px;
+  width: 7px;
+  pointer-events: none;
+  background:
+    linear-gradient(color-mix(in oklch, var(--brand) 30%, transparent), color-mix(in oklch, var(--brand) 30%, transparent)) right 0 top 0 / 2px 100% no-repeat,
+    linear-gradient(color-mix(in oklch, var(--brand) 18%, transparent), color-mix(in oklch, var(--brand) 18%, transparent)) left 0 top 0 / 1px 100% no-repeat;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent);
+}
+
+.spine::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2px;
+  height: 90px;
+  background: linear-gradient(to bottom, transparent, var(--brand) 70%, var(--brand-2));
+  filter: drop-shadow(0 0 4px var(--brand-glow));
+  animation: spine-pulse 14s linear infinite;
+}
+
+@keyframes spine-pulse {
+  from { top: -90px; }
+  to { top: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spine::after {
+    display: none;
+  }
+}
+
 /* Phones have a 24px gutter: tuck the pair in closer. */
 @media (max-width: 639px) {
   .rail,
@@ -994,6 +1039,10 @@
     left: -18px;
     width: 13px;
     margin-top: -4px;
+  }
+  .spine {
+    left: -18px;
+    width: 6px;
   }
 }
 

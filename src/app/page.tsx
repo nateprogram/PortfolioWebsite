@@ -241,7 +241,7 @@ export default function Page() {
       <section id="education">
         <div className="flex min-h-0 flex-col gap-y-6">
           <BlurFade>
-            <SectionTitle>Education</SectionTitle>
+            <SectionTitle railLength={88}>Education</SectionTitle>
           </BlurFade>
           <div className="flex flex-col gap-8">
             {DATA.education.map((education, index) => (
@@ -283,7 +283,8 @@ export default function Page() {
         </div>
       </section>
 
-      <section id="contact">
+      {/* Extra room so the contact card stands apart from Education. */}
+      <section id="contact" className="mt-12">
         <BlurFade>
           <ContactSection />
         </BlurFade>

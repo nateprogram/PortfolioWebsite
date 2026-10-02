@@ -4,27 +4,27 @@ import type { ProjectDetail } from "../types";
 
 export const spur2021: ProjectDetail = {
   problem:
-    "Spur is a Redmond consulting firm whose clients are large enterprise technology companies. Consulting work is different in shape from single-product engineering: every engagement is its own miniature product with its own stakeholders, timeline, and deploy target, and every deliverable ships to an external client. The engineering challenge is staying fast and correct while rotating across unrelated codebases week over week.",
+    "Spur is a Redmond consulting firm whose clients are large enterprise technology companies. Consulting differs from product work: every engagement is its own small product with its own stakeholders, timeline, and deploy target, and every deliverable goes to a client. The challenge is staying fast and correct while switching between unrelated codebases each week.",
   approach:
-    "Built React + TypeScript client-facing sites and supporting internal tooling inside the firm's .NET + Azure DevOps source pipeline: feature branches, PR review, build gates, production deploys. On the reporting side, owned Power BI dashboards feeding the firm's weekly executive reviews: underlying data model, DAX measures, visuals, and dataset refresh cadence. Rotated across multiple client engagements in parallel, which meant context-switching between client codebases and style conventions week over week. As a returning intern, contributed to production code on day one rather than re-onboarding.",
+    "Built React + TypeScript client sites and internal tools in the firm's .NET + Azure DevOps pipeline: feature branches, PR review, build gates, and production deploys. On the reporting side, I owned the Power BI dashboards behind the firm's weekly executive reviews: the data model, DAX measures, visuals, and refresh schedule. I worked on several client projects at once, switching between their codebases and conventions each week. As a returning intern, I was writing production code from day one.",
   stackRationale: [
     {
       tech: "React + TypeScript",
-      why: "The firm's standard stack for client-facing microsites. TypeScript made engagement handoffs cleaner by making the component API an enforced contract between whoever wrote a piece of UI and whoever inherited it.",
+      why: "The firm's standard stack for client microsites. TypeScript made handoffs between engagements easier, since the type checker enforced each component's API for whoever inherited it.",
     },
     {
       tech: ".NET + Azure DevOps",
-      why: "Where Spur's source of truth lived. PR review, build pipelines, and production deploys all ran through the same infrastructure the firm's permanent engineers used, so intern work and non-intern work went through identical gates.",
+      why: "Spur's main source control. PR review, build pipelines, and production deploys ran on the same setup the full-time engineers used, so intern work went through the same checks.",
     },
     {
       tech: "Power BI",
-      why: "Executive reporting surface at Spur and at most of its enterprise clients. Owning the dashboard meant owning the data model, DAX measures, and refresh cadence, not just the visuals.",
+      why: "Spur and most of its clients used it for executive reporting. I owned the data model, DAX measures, and refresh schedule as well as the visuals.",
     },
   ],
   highlights: [
     "Shipped React/TypeScript client microsites to production through Azure DevOps (feature branches, PR review, deploy gates).",
     "Owned Power BI dashboards feeding the firm's weekly executive reviews: data model, DAX measures, and dataset refresh.",
-    "Rotated across multiple client engagements in parallel, context-switching between client codebases and style conventions week over week.",
-    "Small dev team; every deliverable shipped directly to an external client.",
+    "Worked on several client projects at once, switching between their codebases and conventions each week.",
+    "Small dev team, and every deliverable went straight to a client.",
   ],
 };

@@ -4,46 +4,46 @@ import type { ProjectDetail } from "../types";
 
 export const zeppelinRush: ProjectDetail = {
   problem:
-    "Genetic algorithms fail or succeed on one thing: fitness. Zeppelin Rush's built-in score is 0/1/2/3 stars, and those bands are too coarse to drive evolution. Two losing games both sit at zero, so selection has nothing to pick between them. No gradient, no climb. Before a single mutation could happen, the fitness function had to tell 'lost in 20 seconds' apart from 'nearly won', and 'just barely won' apart from 'three-star finish'.",
+    "A genetic algorithm depends on its fitness function. Zeppelin Rush's built-in score is 0 to 3 stars, which is too coarse to drive evolution: two losing games both score zero, so selection can't choose between them. Before any mutation could help, the fitness function had to tell 'lost in 20 seconds' from 'nearly won', and 'barely won' from 'three-star finish'.",
   approach:
-    "**Fitness.** Use time remaining on win (0 to 600, higher is better) instead of the 0/1/2/3 star bands. Losses map to a large negative. Every individual now gets a distinct score, and the gradient runs continuously from 'lost slowly' through 'barely won' to 'three-star finish'. Selection always has something to pick.\n\n{{code:fitness}}\n\n**I/O.** The game was mouse-driven. I remapped its inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. Keystrokes are faster and more reliable than screen-grabbing coordinates. Data comes back through `SharedData.json`: the engine writes gold/gamestate/timer continuously, the Python side polls. Shared memory would have meant rewriting too much of the engine's gameplay code. Windows file-locking turned the OS lock into a free sync primitive: if a read landed mid-write, the `IOError` was caught, the Python code slept a millisecond, and retried.\n\n{{code:sharedata-read}}\n\n**Repair pass.** Mutation and crossover regularly produce illegal sequences (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap). Rather than penalize them in fitness and hope they evolve out, `FixMutation` walks the action list and rewrites each illegal move into a random spawn. Every evaluated individual is actually playable, and the GA stops wasting generations on no-ops.\n\n{{code:fixmutation}}\n\n**Outer loop.** 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, applies 8-action-flip mutations to the best individuals, plays every new individual in-game, and carries the top 4 through unchanged via elitism. A good run is never lost to a bad mutation.\n\n{{code:crossover-mutation}}",
+    "**Fitness.** Use time remaining on win (0 to 600, higher is better) instead of the 0/1/2/3 star bands. Losses map to a large negative. Every game now gets a different score, running from 'lost slowly' through 'barely won' to 'three-star finish', so selection always has something to choose.\n\n{{code:fitness}}\n\n**I/O.** The game was mouse-driven. I remapped its inputs onto keyboard keys (T, R, S/M/L, H/A/Q, Z/X/C) and drove it from Python via the `keyboard` library. Keystrokes are faster and more reliable than screen-grabbing coordinates. Data comes back through `SharedData.json`: the engine writes gold/gamestate/timer continuously, the Python side polls. Shared memory would have meant rewriting too much of the engine's gameplay code. Windows file locking handled synchronization: if a read landed mid-write, the `IOError` was caught, the Python code slept a millisecond, and retried.\n\n{{code:sharedata-read}}\n\n**Repair pass.** Mutation and crossover regularly produce illegal sequences (selecting the same zeppelin twice in a row, upgrading past the two-upgrade cap). `FixMutation` walks the action list and rewrites each illegal move into a random spawn, so every game the GA plays is legal and no generations are wasted on dead moves.\n\n{{code:fixmutation}}\n\n**Outer loop.** 60 randomly-played starting games, then 16 evolution steps. Each step selects the top 4 by fitness, runs single-point crossover on the top pair, applies 8-action-flip mutations to the best individuals, plays every new individual in-game, and carries the top 4 through unchanged (elitism), so the best run so far is never lost.\n\n{{code:crossover-mutation}}",
   stackRationale: [
     {
       tech: "Python + `keyboard` library",
-      why: "Injecting keystrokes was simpler and more reliable than screen-grabbing and mouse simulation. The engine got a one-time keyboard-input remap and after that the GA had no dependency on engine internals.",
+      why: "Injecting keystrokes was simpler and more reliable than screen-grabbing and mouse simulation. The engine got a one-time keyboard remap, and after that the GA didn't depend on engine internals.",
     },
     {
       tech: "SharedData.json + Windows file locking",
-      why: "Shared memory would have forced a large engine-side refactor. JSON plus a `try/except IOError` turned the OS file lock into a free sync primitive and kept gameplay code untouched.",
+      why: "Shared memory would have meant a large engine refactor. A JSON file plus a `try/except IOError` let the OS file lock handle synchronization, and gameplay code stayed as it was.",
     },
     {
       tech: "FixMutation (constraint-aware repair)",
-      why: "Mutation and crossover regularly produce illegal sequences (double-select, over-upgrade). Rather than penalizing them in fitness and hoping they evolve out, the repair pass rewrites them into legal moves so every evaluated individual is actually playable.",
+      why: "Mutation and crossover regularly produce illegal sequences (double-select, over-upgrade). The repair pass rewrites them into legal moves, so every game the GA plays is legal.",
     },
     {
       tech: "Elitism (top 4 carried unchanged)",
-      why: "Locks in the current best score against the risk that every offspring of a good run mutates into something worse. The best-fitness trend line can never go down.",
+      why: "Keeps the best games even if all their offspring mutate into something worse, so the best score never drops.",
     },
     {
       tech: "Mayhem Engine (C++, built with my team)",
-      why: "Having the source of the game it's solving meant I could add the keyboard remap and the JSON output from the game side without guessing at APIs or fighting an opaque runtime.",
+      why: "Because we wrote the engine, I could add the keyboard remap and the JSON output on the game side directly.",
     },
   ],
   highlights: [
-    "Best game: 401, crossing the three-star threshold of 400. I've done that playing the game myself exactly once.",
-    "60 random starts, 16 generations, ~24 hours of wall-clock compute to converge.",
-    "Continuous time-remaining fitness (0 to 600) instead of 0/1/2/3 star bands. That one design choice is what made evolution work at all.",
+    "Best game: 401, crossing the three-star threshold of 400. I've done that myself once.",
+    "60 random starts, 16 generations, about 24 hours of compute.",
+    "Continuous time-remaining fitness (0 to 600) instead of 0 to 3 stars, which gave selection something to choose between.",
     "FixMutation repair keeps every evaluated individual playable. Illegal moves get rewritten to legal ones before fitness runs.",
-    "JSON IPC with Windows file-lock retry. No engine gameplay refactor required.",
+    "JSON IPC with Windows file-lock retry, with no gameplay refactor.",
     "Per-generation JSON output: any specific game can be replayed in-engine, and the scatter plot rebuilt straight from the files.",
-    "Built before AI coding assistants were mature enough to help. Fitness design, IPC pivot, and the repair pass were all worked out by hand.",
+    "Built before AI coding assistants were useful. I worked out the fitness design, the IPC approach, and the repair pass myself.",
   ],
   figures: [
     {
       diagram: "ga-scatter",
       alt: "Interactive scatter plot of every game the genetic AI played. X axis: generation (0 to 16). Y axis: score in seconds remaining (−99 sentinel = loss). Hover any dot to see the exact score. A cyan trend line connects the best winning score of each generation, rising from 306 at gen 0 through the 400-point three-star threshold and topping out at 401.85 by gen 15.",
       caption:
-        "Fitness by generation. Each dot is one game; hover for the exact score. Cyan line is the best win of each generation. The amber line at 400 is the three-star rating threshold. The GA didn't just improve, it converged to the game's near-theoretical ceiling.",
+        "Fitness by generation. Each dot is one game; hover for the exact score. The cyan line is the best win of each generation, and the amber line at 400 is the three-star threshold.",
     },
     {
       src: "/projects/zeppelin-rush/data-layout.png",
@@ -57,7 +57,7 @@ export const zeppelinRush: ProjectDetail = {
       id: "fitness",
       title: "Fitness: time remaining on win, negative on loss",
       description:
-        "The single design choice that made evolution possible. 0/1/2/3 stars is too coarse (two losing games both sit at zero, so selection has nothing to pick). Continuous time-remaining gives every individual a distinct score and a gradient that runs from 'lost slowly' through 'barely won' to 'three-star finish'.",
+        "0 to 3 stars is too coarse: two losing games both score zero, so selection has nothing to choose. Time remaining gives every game a different score, running from 'lost slowly' through 'barely won' to 'three-star finish'.",
       language: "python",
       code: `def fitness(game_result: dict) -> float:
     """
@@ -76,7 +76,7 @@ export const zeppelinRush: ProjectDetail = {
       id: "fixmutation",
       title: "FixMutation: constraint-aware repair of illegal sequences",
       description:
-        "Mutation and crossover regularly produce sequences that violate the game's rules (selecting the same zeppelin twice in a row, upgrading a stat past the two-upgrade cap). Rather than penalize them in fitness and wait for them to evolve out, the repair pass rewrites each illegal move into a random legal spawn. Every evaluated individual is actually playable.",
+        "Mutation and crossover regularly produce sequences that break the game's rules (selecting the same zeppelin twice in a row, upgrading a stat past the two-upgrade cap). The repair pass rewrites each illegal move into a random legal spawn, so every game the GA plays is legal.",
       language: "python",
       code: `SELECT  = {"S", "M", "L"}
 UPGRADE = {"H": "health", "A": "attack", "Q": "speed"}
@@ -111,7 +111,7 @@ def FixMutation(actions):
       id: "crossover-mutation",
       title: "Crossover + mutation on action lists",
       description:
-        "Each genome is just the action list the AI fed into the game. Single-point crossover splices two parents at a random index. Mutation flips 8 positions uniformly. Illegal tails from either op are repaired by FixMutation before evaluation.",
+        "Each genome is the action list the AI fed into the game. Single-point crossover splices two parents at a random index. Mutation flips 8 positions uniformly. Illegal tails from either op are repaired by FixMutation before evaluation.",
       language: "python",
       code: `ACTIONS = ["M", "L", "H", "A", "Q", "Z", "X", "C"]
 
@@ -132,7 +132,7 @@ def mutate(genome, flips: int = 8):
       id: "sharedata-read",
       title: "SharedData.json read loop with Windows file-lock retry",
       description:
-        "The engine writes gamestate/gold/timer to SharedData.json every frame. The Python side polls. If a read lands mid-write, Windows file-locking raises IOError, the catch block waits a millisecond, and retries. Shared memory would have required a significant engine-side refactor; this got IPC working in an afternoon.",
+        "The engine writes gamestate/gold/timer to SharedData.json every frame. The Python side polls. If a read lands mid-write, Windows file-locking raises IOError, the catch block waits a millisecond, and retries. Shared memory would have meant a big engine refactor. This took an afternoon.",
       language: "python",
       code: `def read_game_state(path="SharedData.json", max_retries=50):
     for _ in range(max_retries):

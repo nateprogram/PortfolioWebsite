@@ -6,7 +6,7 @@ export const adaptiveStrength: ProjectDetail = {
   highlights: [
     "AI planning engine builds periodized five-week programs around each user's goals, schedule, and equipment profile.",
     "Workouts adapt to injuries and physical limitations by swapping exercises and scaling load.",
-    "Missed sessions feed back into the plan, so progress never depends on a perfect week.",
+    "Missed sessions are folded back into the plan.",
     "Physique tracking with weight and body-composition trends, plus Health Connect sync.",
     "Offline-first React Native app built with Expo.",
   ],

@@ -4,46 +4,46 @@ import type { ProjectDetail } from "../types";
 
 export const isshin: ProjectDetail = {
   problem:
-    "Ten-month production in Unreal Engine 5 with a 19-person team building a third-person action combat game. The engineering scope was the kind that sounds trivial until you ship it: a pause menu that suspends a live combat state machine cleanly, freeze-frame hits that feel punchy without desyncing the animation graph, and a helper library that both engineers and designers want to call from anywhere without each team reinventing it.",
+    "A ten-month Unreal Engine 5 production with a 19-person team, building a third-person action combat game. My scope: a pause menu that cleanly suspends a live combat state machine, hitstop freeze frames that feel punchy without desyncing the animation graph, and a helper library that engineers and designers could both call from anywhere.",
   approach:
-    "**Pause menu.** Owned across C++ and Blueprints. Primary pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so the combat state machine cleanly suspends action ticks while paused and resumes on the same frame it left.\n\n{{code:pause-handoff}}\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n{{code:hitstop}}\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four heavily-used utilities via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n{{code:uhelperfunctions}}\n\n**Cross-team plumbing.** Touched many other Blueprints and systems across the full production. Beyond code: Jenkins for automated builds (so designers and artists always had a recent runnable build without waiting on a programmer), and ClickUp for bug tracking, which is the same shape as Asana (what most studios use).",
+    "**Pause menu.** Built in C++ and Blueprints: the main pause UI (`GameUI_BP_Pause`), quit-confirm overlay, restart-confirm overlay, settings panel, and the control-panel screens. Wwise integration for pause SFX (hit, button hover, button press). Ties into `CombatActionManager` via an `FTimerHandle activePause` handle, so combat stops ticking while paused and resumes on the same frame.\n\n{{code:pause-handoff}}\n\n**Hitstop.** Frame-counted freeze-on-hit inside `CombatActionManager`. A `bool hitstop_active` flag and an `int hitstop_frame_counter` drive the freeze: on a confirmed hit, `SetHitstop(true)` flips the flag; the manager's tick skips action updates while the counter increments; at the per-action `Hitstop_frames` ceiling, it auto-releases. Per-attack frame counts live on the `FCombatAction` struct so designers can tune feel per move without touching code. Counting animation frames rather than wall-clock seconds keeps freeze duration deterministic across frame-rate spikes.\n\n{{code:hitstop}}\n\n**UHelperFunctions (Blueprint library).** A `UBlueprintFunctionLibrary` exposing four utilities used across the project via `BlueprintCallable`: `FindRotationDegrees` (rotation targeting for combat positioning), `CalculateFrenzyDamage` (frenzy-scaled damage with level-based stat curves), `GetPlayerCharacter` (safe player access from anywhere), and `GetPositionFromRelative` (relative-space positioning). One implementation, called from both C++ combat code and Blueprint event graphs.\n\n{{code:uhelperfunctions}}\n\n**Other work.** I also worked on many other Blueprints and systems during production. The team used Jenkins for automated builds (so designers and artists always had a recent build without waiting on a programmer) and ClickUp for bug tracking.",
   stackRationale: [
     {
       tech: "Unreal Engine 5.2",
-      why: "The right tool for a 19-person team: AAA-style rendering, a mature animation graph, and a Blueprint layer that lets designers and artists iterate without waiting on a C++ rebuild.",
+      why: "Suited a 19-person team: high-end rendering, a mature animation graph, and Blueprints, which let designers and artists iterate without a C++ rebuild.",
     },
     {
       tech: "Hitstop via frame counter (not wall-clock seconds)",
-      why: "Combat feel is frame-deterministic. Counting animation frames keeps freeze duration locked across frame-rate spikes and matches how animators think about impact frames.",
+      why: "Counting animation frames keeps the freeze the same length through frame-rate spikes and matches how animators think about impact frames.",
     },
     {
       tech: "UBlueprintFunctionLibrary for helpers",
-      why: "Designers and engineers both needed the same utilities. A Blueprint function library exposes the C++ surface to event graphs with no extra glue, so one implementation serves both worlds.",
+      why: "Designers and engineers both needed the same utilities. A Blueprint function library exposes the C++ functions to event graphs with no extra glue, so one implementation serves both.",
     },
     {
       tech: "Wwise (audio middleware)",
-      why: "Audio-engineer-facing workflow: event-driven sound, dynamic mixing, and a real authoring tool. Pause-menu SFX wiring becomes a one-line `AkAudioEvent` reference instead of a custom sound-manager subsystem.",
+      why: "Gave the audio engineer event-driven sound, dynamic mixing, and a proper authoring tool. Each pause-menu sound is a one-line `AkAudioEvent` reference, with no custom sound manager.",
     },
     {
       tech: "Jenkins + ClickUp",
-      why: "Jenkins ran automated builds so the whole team had a recent runnable build every day without asking a programmer for one. ClickUp handled bug reports and task triage in the same shape as Asana, which is what most studios use.",
+      why: "Jenkins ran automated builds, so the whole team had a recent build every day without asking a programmer. ClickUp handled bug reports and task triage.",
     },
   ],
   highlights: [
     "Team of 19 (5 engineers, 3 designers, 10 artists, 1 audio engineer) over ten months.",
     "62 C++ files across the Runtime and Editor modules. 107+ Blueprint assets.",
-    "Pause menu owned outright: primary UI, quit/restart confirmations, settings panel, Wwise SFX, and clean suspension of the combat state machine via `FTimerHandle activePause`.",
-    "Hitstop implemented inside `CombatActionManager` with per-action tunable frame counts on `FCombatAction`. Designers retune combat feel without touching code.",
-    "`UHelperFunctions` Blueprint library with 4 widely-used utilities (rotation targeting, frenzy damage scaling, player access, relative positioning). Same surface from C++ and Blueprints.",
+    "Built the pause menu: main UI, quit/restart confirmations, settings panel, Wwise SFX, and pausing the combat state machine via `FTimerHandle activePause`.",
+    "Hitstop inside `CombatActionManager`, with per-action frame counts on `FCombatAction`. Designers tune each attack's feel without touching code.",
+    "`UHelperFunctions` Blueprint library with 4 utilities (rotation targeting, frenzy damage scaling, player access, relative positioning), callable from C++ and Blueprints.",
     "Wwise audio middleware, Enhanced Input, and CommonUI across the UI stack.",
-    "Jenkins for automated builds. ClickUp for bug tracking (Asana-style workflow).",
+    "Jenkins for automated builds. ClickUp for bug tracking.",
   ],
   codeSnippets: [
     {
       id: "hitstop",
       title: "Hitstop: frame-counted freeze-on-hit in CombatActionManager",
       description:
-        "Counting animation frames, not wall-clock seconds. Freeze duration stays deterministic across frame-rate spikes and matches how animators think about impact frames. Per-action ceilings live on the FCombatAction struct so designers tune feel per move without touching code.",
+        "Counts animation frames instead of seconds, so the freeze stays the same length through frame-rate spikes and matches how animators think about impact frames. Per-action limits live on the FCombatAction struct, so designers tune each move without touching code.",
       language: "cpp",
       code: `// CombatActionManager.h
 struct FCombatAction
@@ -121,7 +121,7 @@ void UGameUI_PauseSubsystem::Resume()
       id: "uhelperfunctions",
       title: "UHelperFunctions: one Blueprint library, four utilities",
       description:
-        "Engineers and designers both needed the same utilities. A UBlueprintFunctionLibrary exposes the C++ surface to Blueprint event graphs with no glue, so one implementation serves both worlds. BlueprintPure where the function is side-effect-free so it can be called in-graph without an exec pin.",
+        "Engineers and designers both needed the same utilities. A UBlueprintFunctionLibrary exposes the C++ functions to Blueprint event graphs with no glue, so one implementation serves both. Functions without side effects are BlueprintPure, so they can be called in a graph without an exec pin.",
       language: "cpp",
       code: `UCLASS()
 class UHelperFunctions : public UBlueprintFunctionLibrary

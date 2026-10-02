@@ -37,7 +37,22 @@ const AI_TELLS = [
   "leverage", "leveraged", "leveraging", "robust", "comprehensive", "seamless",
   "seamlessly", "delve", "dive deep", "intricate", "crucial", "vital",
   "transformative", "spearhead", "spearheaded", "synergy", "holistic",
-  "streamline", "streamlined", "in today's",
+  "streamline", "streamlined", "in today's", "substrate", "first-class",
+  "best-in-class", "cutting-edge", "game-changer", "game-changing",
+  "unlock", "empower", "elevate", "supercharge", "world-class",
+];
+
+// Sentence shapes that read as AI-written: negative parallelism ("not X,
+// it's Y"), padded precision, and aphorisms. Matched case-insensitively.
+const AI_PATTERNS: ReadonlyArray<[RegExp, string]> = [
+  [/\bnot just\b/i, '"not just X" (negative parallelism)'],
+  [/\b(isn't|wasn't|aren't|weren't)\b[^.;]{0,60}[;,]\s*(it|they)('s| is| was| are| were)\b/i, '"isn\'t X, it\'s Y" (negative parallelism)'],
+  [/\bdidn't just\b/i, '"didn\'t just X" (negative parallelism)'],
+  [/\bno [a-z-]+, no [a-z-]+\b/i, '"no X, no Y" fragment'],
+  [/\bto the cent\b/i, '"to the cent" (padding)'],
+  [/\b(is|are) a lie\b|\bdoesn't lie\b|\bfiction\b/i, "dramatic claim"],
+  [/\bworse than no\b/i, "aphorism"],
+  [/\bthe only (way|time-series|thing)\b/i, '"the only..." absolute'],
 ];
 
 const monthIndex = (s: string) => {
@@ -79,6 +94,9 @@ function checkWriting(value: unknown, at: string, vocabulary: boolean) {
       if (new RegExp(`\\b${word}\\b`, "i").test(text)) {
         warn(where, `"${word}" reads as AI-written; say what happened instead`);
       }
+    }
+    for (const [re, what] of AI_PATTERNS) {
+      if (re.test(text)) warn(where, `${what} reads as AI-written; state it plainly`);
     }
   }
 }
@@ -218,7 +236,7 @@ const roleName = (e: ExperienceEntry) => `${e.title} at ${e.company} (${e.start}
     for (const m of (d.approach ?? "").matchAll(/\{\{code:([^}]+)\}\}/g)) {
       if (!ids.has(m[1])) error(where, `approach references {{code:${m[1]}}} but no snippet has that id`);
     }
-    checkWriting(d, where, false);
+    checkWriting(d, where, true);
   }
 }
 
@@ -242,9 +260,9 @@ checkWriting(
 checkWriting(
   DATA.projects.map(({ title, summary, description }) => ({ title, summary, description })),
   "projects-list.tsx",
-  false
+  true
 );
-checkWriting({ description: DATA.description, summary: DATA.summary }, "profile.ts", false);
+checkWriting({ description: DATA.description, summary: DATA.summary }, "profile.ts", true);
 
 // The one-page rule for resume.pdf is enforced where the PDF is built:
 // src/app/resume.pdf/route.tsx fails `next build` if it runs long.

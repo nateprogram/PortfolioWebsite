@@ -211,8 +211,10 @@ make a skill clickable, add it to a card's `technologies` (or a job's
 
 - A current job with no bullets yet.
 - A skill with no project or job on the site behind it.
-- Resume wording that reads as AI-written (leverage, robust, seamless,
-  spearheaded, and similar).
+- Wording that reads as AI-written, anywhere a visitor reads it: words
+  like leverage, robust, seamless, spearheaded; "not just X" and "isn't
+  X, it's Y" contrasts; "no X, no Y" fragments; padding like "to the
+  cent"; and dramatic claims like "is a lie" or "worse than no model".
 - A video with no poster, or a hidden project nothing links to.
 
 If the PDF runs long, trim a bullet or drop a project from

@@ -42,8 +42,7 @@ export default function ContactSection() {
           >
             {DATA.contact.email}
           </Link>{" "}
-          to talk shop, compare notes on a project, or get a walkthrough of
-          anything above.
+          if you'd like to talk, or want a walkthrough of any project.
         </p>
       </div>
     </div>

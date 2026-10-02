@@ -407,9 +407,7 @@ export default async function ProjectDetailPage({
               More to come
             </h2>
             <p className="text-sm text-muted-foreground max-w-prose">
-              A deeper write-up is in the works: problem framing, key decisions
-              and rejected alternatives, architecture notes, and outcomes. In the
-              meantime, reach out at{" "}
+              A full write-up is coming. Until then, email me at{" "}
               <a
                 href={`mailto:${DATA.contact.email}`}
                 className="underline underline-offset-4 hover:text-foreground"

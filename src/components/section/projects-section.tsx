@@ -74,8 +74,7 @@ export default function ProjectsSection() {
             </h2>
             <p className="text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed text-balance text-center">
               Full-stack apps, ML systems, a custom engine, and team-built
-              games. Filter by what you want to see, or pick a skill
-              above.
+              games. Filter by category here, or by skill above.
             </p>
           </div>
         </div>

@@ -39,7 +39,6 @@ export type ExperienceEntry = {
 export const EXPERIENCE: ReadonlyArray<ExperienceEntry> = [
   {
     company: "Cyclotron, Inc.",
-    companyUrl: "https://www.cyclotroninc.com",
     title: "AI Engineer",
     location: "Remote, US",
     start: "Jul 2026",

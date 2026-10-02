@@ -734,6 +734,38 @@
   opacity: 0.45;
 }
 
+/* Homepage: the horizon is the line where the two sides of the Grid
+   meet, as on the key art: the users' blue on the left, Clu's orange on
+   the right, white-hot where they touch. The glow is a blurred copy of
+   the line, so each side glows in its own color. */
+.grid-floor-split .grid-floor-sky {
+  background:
+    radial-gradient(ellipse 38% 140% at 34% 100%, color-mix(in oklch, var(--brand) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 30% 140% at 72% 100%, color-mix(in oklch, var(--light-orange) 14%, transparent), transparent 70%);
+}
+
+.grid-floor-split .grid-floor-horizon {
+  background: linear-gradient(
+    90deg,
+    transparent 4%,
+    var(--brand) 24%,
+    var(--brand-2) 50%,
+    var(--light-orange-core) 56%,
+    var(--light-orange) 76%,
+    transparent 96%
+  );
+  filter: none;
+}
+
+.grid-floor-split .grid-floor-horizon::before {
+  content: "";
+  position: absolute;
+  inset: -2px 0;
+  background: inherit;
+  filter: blur(7px);
+  opacity: 0.9;
+}
+
 .grid-floor-ground {
   position: absolute;
   left: 0;

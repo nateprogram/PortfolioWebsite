@@ -55,10 +55,12 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_JSON_LD) }}
       />
 
-      <section id="hero" className="relative">
+      {/* The negative margin pulls About up toward the scroll cue (the
+          cue is desktop-only, so phones keep the full gap). */}
+      <section id="hero" className="relative sm:-mb-8">
         {/* The intro stands on the Grid: one floor from the top of the
             page to the end of the intro, faded out before About. */}
-        <GridFloor className="-top-12 sm:-top-24 -bottom-10" />
+        <GridFloor className="-top-12 sm:-top-24 -bottom-10 sm:-bottom-6" />
         {/* The text column sits on a dark scrim so the floor, the light
             cycles and the particles never make it hard to read. */}
         <div className="text-scrim mx-auto w-full max-w-2xl space-y-8">
